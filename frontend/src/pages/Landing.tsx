@@ -1,0 +1,481 @@
+import { Link } from 'react-router-dom';
+import { 
+  HeartIcon, 
+  UsersIcon, 
+  MegaphoneIcon, 
+  ChartBarIcon,
+  ArrowRightIcon,
+  StarIcon,
+  ShieldCheckIcon,
+  GlobeAltIcon,
+  CogIcon,
+  LightBulbIcon,
+  TrophyIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/outline';
+import { 
+  HeartIcon as HeartIconSolid,
+  StarIcon as StarIconSolid 
+} from '@heroicons/react/24/solid';
+
+const Landing = () => {
+  const features = [
+    {
+      icon: HeartIcon,
+      title: 'Smart Donation Processing',
+      description: 'Secure donation processing with multiple payment options and automated receipt generation for seamless donor experience.',
+      stats: 'Ready to deploy'
+    },
+    {
+      icon: UsersIcon,
+      title: 'Comprehensive Donor Management',
+      description: 'Advanced donor profiles, communication tracking, and engagement tools to build lasting relationships with supporters.',
+      stats: 'Full featured'
+    },
+    {
+      icon: MegaphoneIcon,
+      title: 'Campaign Management',
+      description: 'Create and manage fundraising campaigns with goal tracking, progress monitoring, and automated communication workflows.',
+      stats: 'Beta tested'
+    },
+    {
+      icon: ChartBarIcon,
+      title: 'Analytics & Reporting',
+      description: 'Comprehensive reporting suite with custom dashboards, donation trends, and performance insights for data-driven decisions.',
+      stats: 'Launch ready'
+    },
+    {
+      icon: ShieldCheckIcon,
+      title: 'Enterprise Security',
+      description: 'Bank-level encryption, secure data storage, and compliance-ready infrastructure to protect sensitive donor information.',
+      stats: 'Security first'
+    },
+    {
+      icon: GlobeAltIcon,
+      title: 'Modern Architecture',
+      description: 'Built with cutting-edge technology stack for scalability, reliability, and seamless integration capabilities.',
+      stats: 'Future-proof'
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: TrophyIcon,
+      title: 'Built for Success',
+      description: 'Designed with industry best practices and proven fundraising methodologies',
+      metric: 'Best practices'
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Modern Technology',
+      description: 'Latest technology stack with responsive design and intuitive user experience',
+      metric: 'Cutting-edge'
+    },
+    {
+      icon: CogIcon,
+      title: 'Easy Integration',
+      description: 'Simple setup process with comprehensive documentation and support resources',
+      metric: 'Plug & play'
+    },
+    {
+      icon: DocumentTextIcon,
+      title: 'Compliance Ready',
+      description: 'Built with security and compliance standards from day one for peace of mind',
+      metric: 'Secure by design'
+    }
+  ];
+
+  const testimonials = [
+    {
+      name: 'Dr. Sarah Mitchell',
+      role: 'Executive Director',
+      company: 'Community Health Foundation',
+      content: 'We\'ve been beta testing this platform and are impressed with its intuitive design and comprehensive features. The team is responsive and the roadmap looks promising for our growing organization.',
+      rating: 5,
+      raised: 'Beta tester',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    },
+    {
+      name: 'Michael Rodriguez',
+      role: 'Development Coordinator',
+      company: 'Local Education Alliance',
+      content: 'As an early adopter, I\'m excited about the potential of this platform. The features we\'ve tested so far show great promise for streamlining our donation processes.',
+      rating: 5,
+      raised: 'Early adopter',
+      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    },
+    {
+      name: 'Jennifer Wang',
+      role: 'Operations Manager',
+      company: 'Green Future Initiative',
+      content: 'The development team has been fantastic to work with during the beta phase. The platform addresses real pain points we face in donor management and campaign tracking.',
+      rating: 5,
+      raised: 'Beta participant',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
+    }
+  ];
+
+  const stats = [
+    { label: 'Platform Launch', value: '2025', change: 'Now Available' },
+    { label: 'Beta Organizations', value: '25+', change: 'Testing Phase' },
+    { label: 'Features Ready', value: '95%', change: 'Launch Ready' },
+    { label: 'Security Standards', value: 'A+', change: 'Enterprise Grade' }
+  ];
+
+  const logos = [
+    'Beta Partner 1',
+    'Beta Partner 2',
+    'Test Organization A',
+    'Early Adopter B',
+    'Development Partner',
+    'Beta Tester Group'
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                  <HeartIcon className="h-6 w-6 text-white" />
+                </div>
+                <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
+              <a href="#solutions" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Solutions</a>
+              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Customers</a>
+              <a href="#pricing" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link 
+                to="/login" 
+                className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link 
+                to="/login" 
+                className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-16 bg-gradient-to-br from-gray-50 via-white to-primary-50 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-gray-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center px-4 py-2 bg-primary-50 border border-primary-200 rounded-full text-primary-700 text-sm font-medium mb-8">
+              <TrophyIcon className="h-4 w-4 mr-2" />
+              Now launching - Join our early adopters program
+            </div>
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+              Transform Your
+              <span className="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 bg-clip-text text-transparent"> Fundraising</span>
+              <br />Impact
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              A brand new, modern donation management platform designed to help organizations 
+              <span className="font-semibold text-gray-800"> streamline their fundraising efforts</span> and build meaningful donor relationships from day one.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+              <Link 
+                to="/login" 
+                className="group bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+              >
+                Get Early Access
+                <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <button className="group border-2 border-gray-300 hover:border-primary-400 text-gray-700 hover:text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 bg-white hover:bg-primary-50">
+                Schedule Demo
+              </button>
+            </div>
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
+              <div className="flex items-center">
+                <ShieldCheckIcon className="h-5 w-5 text-green-500 mr-2" />
+                Secure & Compliant
+              </div>
+              <div className="flex items-center">
+                <GlobeAltIcon className="h-5 w-5 text-blue-500 mr-2" />
+                Modern Architecture
+              </div>
+              <div className="flex items-center">
+                <StarIcon className="h-5 w-5 text-yellow-500 mr-2" />
+                Launch Ready
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Trusted By Section */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-500 font-medium mb-8">Working with our beta testing partners</p>
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center opacity-60">
+            {logos.map((logo, index) => (
+              <div key={index} className="text-center">
+                <div className="h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-600 font-semibold text-sm">{logo}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+                  {stat.value}
+                </div>
+                <div className="text-primary-100 font-medium mb-1">{stat.label}</div>
+                <div className="text-primary-200 text-sm">{stat.change}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center px-4 py-2 bg-primary-100 rounded-full text-primary-700 text-sm font-medium mb-6">
+              <LightBulbIcon className="h-4 w-4 mr-2" />
+              Cutting-edge technology
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Enterprise-grade solutions
+              <br />for modern fundraising
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Advanced AI-powered tools and comprehensive analytics that help organizations 
+              maximize their impact and build sustainable donor relationships.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            {features.map((feature, index) => (
+              <div key={index} className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <div className="h-14 w-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <feature.icon className="h-7 w-7 text-white" />
+                    </div>
+                  </div>
+                  <div className="ml-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 leading-relaxed">
+                      {feature.description}
+                    </p>
+                    <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                      <div className="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                      <span className="text-green-700 text-sm font-medium">{feature.stats}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Benefits Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="bg-white p-6 rounded-xl border border-gray-100 hover:border-primary-200 transition-colors">
+                <benefit.icon className="h-8 w-8 text-primary-600 mb-4" />
+                <h4 className="font-semibold text-gray-900 mb-2">{benefit.title}</h4>
+                <p className="text-gray-600 text-sm mb-3">{benefit.description}</p>
+                <span className="text-primary-600 font-medium text-sm">{benefit.metric}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-medium mb-6">
+              <StarIcon className="h-4 w-4 mr-2" />
+              Customer success stories
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Trusted by industry leaders
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              See how organizations are transforming their fundraising with Donation Management System
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
+                <div className="flex mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <StarIcon key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                  ))}
+                </div>
+                <blockquote className="text-gray-700 mb-6 italic leading-relaxed">
+                  "{testimonial.content}"
+                </blockquote>
+                <div className="flex items-center">
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name}
+                    className="h-12 w-12 rounded-full object-cover mr-4"
+                  />
+                  <div>
+                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                    <div className="text-gray-600 text-sm">{testimonial.role}</div>
+                    <div className="text-primary-600 text-sm font-medium">{testimonial.company}</div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                    <div className="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                    <span className="text-green-700 text-sm font-medium">{testimonial.raised}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
+              Ready to transform your
+              <br />fundraising impact?
+            </h2>
+            <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Be among the first organizations to experience the future of donation management. 
+              Join our launch program and help shape the platform that will transform fundraising.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+              <Link 
+                to="/login" 
+                className="group bg-white hover:bg-gray-50 text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+              >
+                Join Launch Program
+                <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <button className="group border-2 border-white/30 hover:border-white text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 hover:bg-white/10 backdrop-blur-sm">
+                Schedule a Demo
+              </button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 text-center">
+              <div>
+                <div className="text-2xl font-bold text-white mb-2">Early Access</div>
+                <div className="text-primary-200">Limited Time</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white mb-2">No Setup</div>
+                <div className="text-primary-200">Fees</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-white mb-2">Dedicated</div>
+                <div className="text-primary-200">Support</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid md:grid-cols-5 gap-12">
+            <div className="md:col-span-2">
+              <div className="flex items-center mb-6">
+                <div className="h-10 w-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+                  <HeartIcon className="h-6 w-6 text-white" />
+                </div>
+                <span className="ml-3 text-xl font-bold">Donation Management System</span>
+              </div>
+              <p className="text-gray-400 mb-6 leading-relaxed">
+                Empowering organizations worldwide to maximize their fundraising impact through 
+                cutting-edge technology, AI-driven insights, and comprehensive donor management solutions.
+              </p>
+              <div className="flex space-x-4">
+                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
+                  <span className="text-sm font-medium">in</span>
+                </div>
+                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
+                  <span className="text-sm font-medium">tw</span>
+                </div>
+                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
+                  <span className="text-sm font-medium">fb</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-6">Platform</h3>
+              <ul className="space-y-4 text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Compliance</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-6">Solutions</h3>
+              <ul className="space-y-4 text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Nonprofits</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Healthcare</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Education</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Religious</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Enterprise</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-6">Support</h3>
+              <ul className="space-y-4 text-gray-400">
+                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Training</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-12 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="text-gray-400 text-sm mb-4 md:mb-0">
+                &copy; 2025 Donation Management System. All rights reserved.
+              </div>
+              <div className="flex space-x-6 text-sm text-gray-400">
+                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Landing;
