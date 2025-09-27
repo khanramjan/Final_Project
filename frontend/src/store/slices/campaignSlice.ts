@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { mockCampaigns } from '../../data/mockCampaigns';
 
 export interface Campaign {
   id: number;
@@ -25,7 +26,7 @@ interface CampaignState {
 }
 
 const initialState: CampaignState = {
-  campaigns: [],
+  campaigns: mockCampaigns, // Load mock data initially
   loading: false,
   error: null,
   currentCampaign: null,
@@ -34,11 +35,18 @@ const initialState: CampaignState = {
 export const fetchCampaigns = createAsyncThunk(
   'campaigns/fetchCampaigns',
   async () => {
-    const response = await fetch('/api/campaigns');
-    if (!response.ok) {
-      throw new Error('Failed to fetch campaigns');
-    }
-    return await response.json();
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // In a real app, this would be an actual API call
+    // const response = await fetch('/api/campaigns');
+    // if (!response.ok) {
+    //   throw new Error('Failed to fetch campaigns');
+    // }
+    // return await response.json();
+    
+    // For now, return mock data
+    return mockCampaigns;
   }
 );
 

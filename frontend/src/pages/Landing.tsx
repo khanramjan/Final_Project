@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import { 
   HeartIcon, 
   UsersIcon, 
@@ -11,14 +12,38 @@ import {
   CogIcon,
   LightBulbIcon,
   TrophyIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  CalendarDaysIcon,
+  ClockIcon,
+  FireIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { 
   HeartIcon as HeartIconSolid,
   StarIcon as StarIconSolid 
 } from '@heroicons/react/24/solid';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchCampaigns } from '../store/slices/campaignSlice';
 
 const Landing = () => {
+  const dispatch = useAppDispatch();
+  const { campaigns, loading } = useAppSelector((state) => state.campaigns);
+
+  useEffect(() => {
+    dispatch(fetchCampaigns());
+  }, [dispatch]);
+
+  // Get latest and recent campaigns
+  const activeCampaigns = campaigns.filter(campaign => campaign.status === 'active');
+  const latestCampaigns = activeCampaigns
+    .sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime())
+    .slice(0, 3);
+  
+  const recentlyUpdatedCampaigns = activeCampaigns
+    .filter(campaign => campaign.currentAmount > 0)
+    .sort((a, b) => (b.currentAmount / b.goalAmount) - (a.currentAmount / a.goalAmount))
+    .slice(0, 3);
+
   const features = [
     {
       icon: HeartIcon,
@@ -122,15 +147,6 @@ const Landing = () => {
     { label: 'Security Standards', value: 'A+', change: 'Enterprise Grade' }
   ];
 
-  const logos = [
-    'Beta Partner 1',
-    'Beta Partner 2',
-    'Test Organization A',
-    'Early Adopter B',
-    'Development Partner',
-    'Beta Tester Group'
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation */}
@@ -217,22 +233,6 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Trusted By Section */}
-      <section className="py-12 bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-500 font-medium mb-8">Working with our beta testing partners</p>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center opacity-60">
-            {logos.map((logo, index) => (
-              <div key={index} className="text-center">
-                <div className="h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-600 font-semibold text-sm">{logo}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Stats Section */}
       <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -247,6 +247,241 @@ const Landing = () => {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Live Campaigns Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-medium mb-6">
+              <FireIcon className="h-4 w-4 mr-2" />
+              Live campaigns making impact
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Latest & Recent
+              <br />
+              <span className="bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">Active Campaigns</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Discover the latest fundraising campaigns and see how communities are making a difference together.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+              <p className="text-gray-500 mt-4">Loading campaigns...</p>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {/* Latest Campaigns */}
+              {latestCampaigns.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-8">
+                    <SparklesIcon className="h-6 w-6 text-primary-600 mr-3" />
+                    <h3 className="text-2xl font-bold text-gray-900">Latest Campaigns</h3>
+                    <div className="ml-4 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                      Just launched
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {latestCampaigns.map((campaign) => {
+                      const progress = Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100);
+                      const daysLeft = Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+                      
+                      return (
+                        <div key={campaign.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200 overflow-hidden">
+                          {campaign.imageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img 
+                                src={campaign.imageUrl} 
+                                alt={campaign.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700">
+                                  New
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="p-6">
+                            <div className="flex items-center mb-3">
+                              <div className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                                {campaign.category}
+                              </div>
+                              <div className="ml-auto flex items-center text-gray-500 text-sm">
+                                <ClockIcon className="h-4 w-4 mr-1" />
+                                {daysLeft} days left
+                              </div>
+                            </div>
+                            <h4 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary-700 transition-colors">
+                              {campaign.title}
+                            </h4>
+                            <p className="text-gray-600 mb-4 line-clamp-2">
+                              {campaign.description}
+                            </p>
+                            <div className="space-y-3">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium text-gray-900">{Math.round(progress)}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div
+                                  className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="text-lg font-bold text-gray-900">
+                                    ${campaign.currentAmount.toLocaleString()}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    raised of ${campaign.goalAmount.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-primary-600">
+                                    {campaign.donorCount}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    donors
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Popular Campaigns */}
+              {recentlyUpdatedCampaigns.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-8">
+                    <TrophyIcon className="h-6 w-6 text-yellow-500 mr-3" />
+                    <h3 className="text-2xl font-bold text-gray-900">Trending Campaigns</h3>
+                    <div className="ml-4 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                      Most supported
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {recentlyUpdatedCampaigns.map((campaign, index) => {
+                      const progress = Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100);
+                      const daysLeft = Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+                      
+                      return (
+                        <div key={campaign.id} className="group bg-gradient-to-br from-white to-yellow-50 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-yellow-200 hover:border-yellow-300 overflow-hidden">
+                          {index === 0 && (
+                            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-center py-2 text-sm font-semibold">
+                              🏆 Most Popular
+                            </div>
+                          )}
+                          {campaign.imageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img 
+                                src={campaign.imageUrl} 
+                                alt={campaign.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-yellow-700">
+                                  Hot
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="p-6">
+                            <div className="flex items-center mb-3">
+                              <div className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                                {campaign.category}
+                              </div>
+                              <div className="ml-auto flex items-center text-gray-500 text-sm">
+                                <ClockIcon className="h-4 w-4 mr-1" />
+                                {daysLeft} days left
+                              </div>
+                            </div>
+                            <h4 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-yellow-700 transition-colors">
+                              {campaign.title}
+                            </h4>
+                            <p className="text-gray-600 mb-4 line-clamp-2">
+                              {campaign.description}
+                            </p>
+                            <div className="space-y-3">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium text-gray-900">{Math.round(progress)}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div
+                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-3 rounded-full transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="text-lg font-bold text-gray-900">
+                                    ${campaign.currentAmount.toLocaleString()}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    raised of ${campaign.goalAmount.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-yellow-600">
+                                    {campaign.donorCount}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    donors
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* No campaigns message */}
+              {latestCampaigns.length === 0 && recentlyUpdatedCampaigns.length === 0 && (
+                <div className="text-center py-16">
+                  <MegaphoneIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Campaigns</h3>
+                  <p className="text-gray-600 mb-8">
+                    Check back soon for exciting new campaigns!
+                  </p>
+                  <Link 
+                    to="/login" 
+                    className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Sign In to View More
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* View All Campaigns Button */}
+          {(latestCampaigns.length > 0 || recentlyUpdatedCampaigns.length > 0) && (
+            <div className="text-center mt-12">
+              <Link 
+                to="/campaigns" 
+                className="inline-flex items-center px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-colors shadow-lg hover:shadow-xl"
+              >
+                View All Campaigns
+                <ArrowRightIcon className="ml-3 h-5 w-5" />
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
