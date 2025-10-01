@@ -17,7 +17,15 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const navigation = [
+// Navigation items for regular users
+const userNavigation = [
+  { name: 'Dashboard', href: '/dashboard/', icon: HomeIcon },
+  { name: 'My Donations', href: '/dashboard/donations', icon: HeartIcon },
+  { name: 'Campaigns', href: '/dashboard/campaigns', icon: MegaphoneIcon },
+];
+
+// Navigation items for admin users
+const adminNavigation = [
   { name: 'Dashboard', href: '/dashboard/', icon: HomeIcon },
   { name: 'Donations', href: '/dashboard/donations', icon: HeartIcon },
   { name: 'Donors', href: '/dashboard/donors', icon: UsersIcon },
@@ -31,6 +39,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => (state as any).auth.user);
+  
+  // Select navigation based on user role
+  const navigation = user?.userType === 'admin' ? adminNavigation : userNavigation;
 
   const handleLogout = () => {
     dispatch(logout());

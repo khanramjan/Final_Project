@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchDonations } from '../store/slices/donationSlice';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
@@ -6,14 +6,45 @@ import { fetchDonors } from '../store/slices/donorSlice';
 import StatsCard from '../components/StatsCard';
 import RecentDonations from '../components/RecentDonations';
 import CampaignProgress from '../components/CampaignProgress';
+import campaignService from '../services/campaignService';
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
-  const donations = useAppSelector((state) => (state as any).donations);
-  const campaigns = useAppSelector((state) => (state as any).campaigns);
-  const donors = useAppSelector((state) => (state as any).donors);
+  const user = useAppSelector((state) => (state as any).auth.user);
+  const [realStats, setRealStats] = useState({
+    totalCampaigns: 0,
+    activeCampaigns: 0,
+    totalRaised: 0,
+    totalDonors: 0
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchRealData = async () => {
+      try {
+        // Fetch real campaigns data
+        const campaignsData = await campaignService.getAllCampaigns({
+          page: 1,
+          pageSize: 100
+        });
+        
+        const totalRaised = campaignsData.campaigns.reduce((sum: number, camp: any) => sum + (camp.currentAmount || 0), 0);
+        const activeCampaigns = campaignsData.campaigns.filter((c: any) => c.status === 'approved').length;
+        
+        setRealStats({
+          totalCampaigns: campaignsData.totalCount,
+          activeCampaigns: activeCampaigns,
+          totalRaised: totalRaised,
+          totalDonors: 0 // Will be updated when donation API is ready
+        });
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRealData();
     dispatch(fetchDonations());
     dispatch(fetchCampaigns());
     dispatch(fetchDonors());
@@ -21,27 +52,27 @@ const Dashboard = () => {
 
   const stats = [
     {
-      title: 'Total Donations',
-      value: `$${donations.totalAmount?.toLocaleString() || '0'}`,
-      change: '+12.5%',
+      title: 'My Donations',
+      value: `$0`,
+      change: 'No donations yet',
       trend: 'up' as const,
     },
     {
-      title: "Today's Donations",
-      value: `$${donations.todaysTotal?.toLocaleString() || '0'}`,
-      change: '+8.2%',
+      title: 'Total Raised',
+      value: loading ? 'Loading...' : `$${realStats.totalRaised.toLocaleString()}`,
+      change: 'Across all campaigns',
       trend: 'up' as const,
     },
     {
       title: 'Active Campaigns',
-      value: campaigns.campaigns?.filter((c: any) => c.status === 'active').length || 0,
-      change: '+2',
+      value: loading ? '...' : realStats.activeCampaigns,
+      change: `${realStats.totalCampaigns} total campaigns`,
       trend: 'up' as const,
     },
     {
       title: 'Total Donors',
-      value: donors.donors?.length || 0,
-      change: '+5.1%',
+      value: loading ? '...' : realStats.totalDonors,
+      change: 'Supporting campaigns',
       trend: 'up' as const,
     },
   ];

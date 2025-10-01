@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
 import { 
@@ -14,10 +14,15 @@ import {
 
 const Campaigns = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const { campaigns, loading, error } = useAppSelector((state) => state.campaigns);
+  const user = useAppSelector((state) => (state as any).auth.user);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  
+  // Check if we're in the dashboard (authenticated view)
+  const isInDashboard = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
     dispatch(fetchCampaigns());
@@ -66,42 +71,44 @@ const Campaigns = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Navigation Header */}
-        <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <Link to="/" className="flex items-center">
-                  <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-                    <HeartIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
-                </Link>
-              </div>
-              <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
-                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
-                
-                <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link 
-                  to="/login" 
-                  className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  to="/login" 
-                  className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Get Started
-                </Link>
+        {/* Navigation Header - Only show for public users */}
+        {!isInDashboard && (
+          <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center">
+                  <Link to="/" className="flex items-center">
+                    <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                      <HeartIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                  </Link>
+                </div>
+                <div className="hidden md:flex items-center space-x-8">
+                  <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+                  <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
+                  <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <Link 
+                    to="/login" 
+                    className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Get Started
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        )}
 
-        <div className="pt-16">
+        <div className={isInDashboard ? '' : 'pt-16'}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="space-y-6">
               <div>
@@ -121,7 +128,64 @@ const Campaigns = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        {/* Navigation Header */}
+        {/* Navigation Header - Only show for public users */}
+        {!isInDashboard && (
+          <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center">
+                  <Link to="/" className="flex items-center">
+                    <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                      <HeartIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                  </Link>
+                </div>
+                <div className="hidden md:flex items-center space-x-8">
+                  <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+                  <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
+                  <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <Link 
+                    to="/login" 
+                    className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </nav>
+        )}
+
+        <div className={isInDashboard ? '' : 'pt-16'}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Campaigns</h1>
+                <p className="text-gray-600">Explore and support active fundraising campaigns</p>
+              </div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-red-800">Error loading campaigns: {error}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation Header - Only show for public/unauthenticated users */}
+      {!isInDashboard && (
         <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
@@ -133,9 +197,9 @@ const Campaigns = () => {
                   <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
                 </Link>
               </div>
-              <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+              <div className="hidden md:flex items-center space-x-8">
+                <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
                 <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
-                
                 <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
               </div>
               <div className="flex items-center space-x-4">
@@ -155,62 +219,9 @@ const Campaigns = () => {
             </div>
           </div>
         </nav>
+      )}
 
-        <div className="pt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Campaigns</h1>
-                <p className="text-gray-600">Explore and support active fundraising campaigns</p>
-              </div>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-800">Error loading campaigns: {error}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
-      <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="flex items-center">
-                <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-                  <HeartIcon className="h-6 w-6 text-white" />
-                </div>
-                <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
-              </Link>
-            </div>
-            <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
-                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
-                
-              <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                to="/login" 
-                className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link 
-                to="/login" 
-                className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <div className="pt-16">
+      <div className={isInDashboard ? '' : 'pt-16'}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="space-y-6">
             {/* Header */}
