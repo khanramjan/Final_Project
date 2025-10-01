@@ -89,13 +89,13 @@ export interface CreateAdminData {
 class AdminService {
   // Dashboard Analytics
   async getDashboardStats(): Promise<DashboardStats> {
-    const response = await api.get('/analytics/dashboard');
-    return response.data;
+    const response = await api.get<DashboardStats>('/analytics/dashboard');
+    return response;
   }
 
   async getRecentActivity(limit: number = 10): Promise<Activity[]> {
-    const response = await api.get(`/analytics/recent-activities?limit=${limit}`);
-    return response.data;
+    const response = await api.get<Activity[]>(`/analytics/recent-activities?limit=${limit}`);
+    return response;
   }
 
   // User Management
@@ -108,13 +108,15 @@ class AdminService {
     if (filters.userType) params.append('userType', filters.userType);
     if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
 
-    const response = await api.get(`/admin/users?${params.toString()}`);
-    return response.data;
+    console.log('🔍 Calling API:', `/admin/users?${params.toString()}`);
+    const response = await api.get<UsersPagedResult>(`/admin/users?${params.toString()}`);
+    console.log('📦 API Response:', response);
+    return response;
   }
 
   async getUser(id: number): Promise<User> {
-    const response = await api.get(`/admin/users/${id}`);
-    return response.data;
+    const response = await api.get<User>(`/admin/users/${id}`);
+    return response;
   }
 
   async updateUser(id: number, userData: UpdateUserData): Promise<void> {
@@ -126,8 +128,8 @@ class AdminService {
   }
 
   async toggleUserStatus(id: number): Promise<{ message: string; isActive: boolean }> {
-    const response = await api.post(`/admin/users/${id}/toggle-status`);
-    return response.data;
+    const response = await api.post<{ message: string; isActive: boolean }>(`/admin/users/${id}/toggle-status`);
+    return response;
   }
 
   async createAdminUser(adminData: CreateAdminData): Promise<void> {

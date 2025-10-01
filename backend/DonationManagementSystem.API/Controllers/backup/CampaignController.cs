@@ -90,7 +90,7 @@ namespace DonationManagementSystem.API.Controllers
                     IsFeatured = dto.IsFeatured,
                     ImagePath = imagePath,
                     CreatedBy = currentUserId,
-                    Status = "approved", // Admin created campaigns are auto-approved
+                    Status = "active", // Admin created campaigns are active by default
                     ApprovedBy = currentUserId,
                     ApprovedAt = DateTime.UtcNow,
                     CreatedAt = DateTime.UtcNow

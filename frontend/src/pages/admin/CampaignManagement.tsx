@@ -55,7 +55,7 @@ const CampaignManagement = () => {
     location: '',
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: 'approved',
+    status: 'active',
     isUrgent: false,
     isFeatured: false,
     image: null
@@ -71,8 +71,6 @@ const CampaignManagement = () => {
   ];
 
   const statusOptions = [
-    { value: 'pending', label: 'Pending', color: 'bg-yellow-100 text-yellow-800' },
-    { value: 'approved', label: 'Approved', color: 'bg-green-100 text-green-800' },
     { value: 'active', label: 'Active', color: 'bg-blue-100 text-blue-800' },
     { value: 'completed', label: 'Completed', color: 'bg-gray-100 text-gray-800' },
     { value: 'suspended', label: 'Suspended', color: 'bg-red-100 text-red-800' }

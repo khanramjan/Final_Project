@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   MagnifyingGlassIcon,
-  EyeIcon,
   PencilIcon,
   TrashIcon,
-  CheckCircleIcon,
-  XCircleIcon,
   UserPlusIcon,
-  FunnelIcon
+  FunnelIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import adminService, { User, UsersFilters } from '../../services/adminService';
 import CreateAdminModal from '../../components/CreateAdminModal';
+import EditUserModal, { UpdateUserData } from '../../components/EditUserModal';
 
 const UserManagement = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -23,6 +22,10 @@ const UserManagement = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [showCreateAdminModal, setShowCreateAdminModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const pageSize = 10;
 
   // Add fetchUsers to dependencies by using useCallback
@@ -43,35 +46,10 @@ const UserManagement = () => {
       setTotalCount(result.totalCount);
     } catch (error) {
       console.error('Failed to fetch users:', error);
-      // Fallback to mock data on error
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john.doe@example.com',
-          userType: 'donor',
-          isActive: true,
-          createdAt: '2024-01-15T00:00:00Z',
-          lastLoginAt: '2024-09-28T00:00:00Z',
-          phone: '+1 234-567-8901'
-        },
-        {
-          id: 2,
-          firstName: 'Sarah',
-          lastName: 'Johnson',
-          email: 'sarah.johnson@example.com',
-          userType: 'volunteer',
-          isActive: true,
-          createdAt: '2024-02-20T00:00:00Z',
-          lastLoginAt: '2024-09-27T00:00:00Z',
-          phone: '+1 234-567-8902',
-          organization: 'Red Cross'
-        }
-      ];
-      setUsers(mockUsers);
-      setTotalPages(1);
-      setTotalCount(mockUsers.length);
+      // Show empty state instead of mock data
+      setUsers([]);
+      setTotalPages(0);
+      setTotalCount(0);
     } finally {
       setLoading(false);
     }
@@ -90,21 +68,46 @@ const UserManagement = () => {
           ? { ...user, isActive: result.isActive }
           : user
       ));
+      setSuccessMessage(result.message || 'User status updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (error) {
       console.error('Failed to toggle user status:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to update user status');
+      setTimeout(() => setErrorMessage(''), 3000);
     }
   };
 
-  const handleDeleteUser = async (userId: number) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+  const handleDeleteUser = async (userId: number, userName: string) => {
+    if (window.confirm(`Are you sure you want to delete ${userName}? This action cannot be undone.`)) {
       try {
         await adminService.deleteUser(userId);
         // Remove the user from local state
         setUsers(users.filter(user => user.id !== userId));
         setTotalCount(totalCount - 1);
+        setSuccessMessage('User deleted successfully');
+        setTimeout(() => setSuccessMessage(''), 3000);
       } catch (error) {
         console.error('Failed to delete user:', error);
+        setErrorMessage(error instanceof Error ? error.message : 'Failed to delete user');
+        setTimeout(() => setErrorMessage(''), 3000);
       }
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleSaveUser = async (userId: number, data: UpdateUserData) => {
+    try {
+      await adminService.updateUser(userId, data);
+      // Refresh users list
+      await fetchUsersCallback();
+      setSuccessMessage('User updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -315,25 +318,36 @@ const UserManagement = () => {
                   <td className="px-6 py-4 text-sm text-gray-900">
                     {user.lastLoginAt ? formatDate(user.lastLoginAt) : 'Never'}
                   </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium space-x-2">
-                    <button className="text-indigo-600 hover:text-indigo-900">
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                    <button className="text-green-600 hover:text-green-900">
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleToggleUserStatus(user.id)}
-                      className={`${user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
-                    >
-                      {user.isActive ? <XCircleIcon className="h-4 w-4" /> : <CheckCircleIcon className="h-4 w-4" />}
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteUser(user.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
+                  <td className="px-6 py-4 text-right text-sm font-medium">
+                    <div className="flex justify-end items-center space-x-2">
+                      <button
+                        onClick={() => handleEditUser(user)}
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        title="Edit User"
+                      >
+                        <PencilIcon className="h-3.5 w-3.5 mr-1" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleToggleUserStatus(user.id)}
+                        className={`inline-flex items-center px-3 py-1.5 border text-xs font-medium rounded-md ${
+                          user.isActive
+                            ? 'border-red-300 text-red-700 bg-red-50 hover:bg-red-100'
+                            : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                        }`}
+                        title={user.isActive ? 'Deactivate' : 'Activate'}
+                      >
+                        {user.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)}
+                        className="inline-flex items-center px-3 py-1.5 border border-red-300 text-xs font-medium rounded-md text-red-700 bg-white hover:bg-red-50"
+                        title="Delete User"
+                      >
+                        <TrashIcon className="h-3.5 w-3.5 mr-1" />
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -425,8 +439,20 @@ const UserManagement = () => {
             onClick={() => setSelectedUsers([])}
             className="text-gray-500 hover:text-gray-700"
           >
-            <XCircleIcon className="h-5 w-5" />
+            <XMarkIcon className="h-5 w-5" />
           </button>
+        </div>
+      )}
+
+      {/* Success/Error Messages */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-50 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg">
+          {successMessage}
+        </div>
+      )}
+      {errorMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-red-50 border border-red-200 text-red-800 px-6 py-3 rounded-lg shadow-lg">
+          {errorMessage}
         </div>
       )}
 
@@ -437,6 +463,17 @@ const UserManagement = () => {
         onSuccess={() => {
           fetchUsersCallback();
         }}
+      />
+
+      {/* Edit User Modal */}
+      <EditUserModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedUser(null);
+        }}
+        onSave={handleSaveUser}
+        user={selectedUser}
       />
     </div>
   );

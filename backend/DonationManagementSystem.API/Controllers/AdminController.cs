@@ -78,14 +78,19 @@ namespace DonationManagementSystem.API.Controllers
 
             try
             {
+                Console.WriteLine($"🔍 Fetching users - Page: {page}, PageSize: {pageSize}, Search: {search}, UserType: {userType}, IsActive: {isActive}");
+                
                 var query = _context.Users.AsQueryable();
+                
+                var totalUsersInDb = await _context.Users.CountAsync();
+                Console.WriteLine($"📊 Total users in database: {totalUsersInDb}");
 
                 // Apply filters
                 if (!string.IsNullOrEmpty(search))
                 {
-                    query = query.Where(u => 
-                        (u.FirstName != null && u.FirstName.Contains(search)) || 
-                        (u.LastName != null && u.LastName.Contains(search)) || 
+                    query = query.Where(u =>
+                        (u.FirstName != null && u.FirstName.Contains(search)) ||
+                        (u.LastName != null && u.LastName.Contains(search)) ||
                         (u.Email != null && u.Email.Contains(search)));
                 }
 
@@ -100,7 +105,10 @@ namespace DonationManagementSystem.API.Controllers
                 }
 
                 var totalCount = await query.CountAsync();
+                Console.WriteLine($"📋 After filters, matching users: {totalCount}");
+                
                 var users = await query
+                    .OrderByDescending(u => u.CreatedAt)
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(u => new
@@ -117,6 +125,8 @@ namespace DonationManagementSystem.API.Controllers
                         organization = u.Organization
                     })
                     .ToListAsync();
+
+                Console.WriteLine($"✅ Returning {users.Count} users to frontend");
 
                 return Ok(new
                 {
@@ -187,17 +197,17 @@ namespace DonationManagementSystem.API.Controllers
                 // Update user properties
                 if (!string.IsNullOrEmpty(dto.FirstName))
                     user.FirstName = dto.FirstName;
-                
+
                 if (!string.IsNullOrEmpty(dto.LastName))
                     user.LastName = dto.LastName;
-                
+
                 if (!string.IsNullOrEmpty(dto.Email))
                 {
                     // Check if email is already taken by another user
                     var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Id != id);
                     if (existingUser != null)
                         return BadRequest(new { message = "Email already in use" });
-                    
+
                     user.Email = dto.Email;
                 }
 
@@ -276,8 +286,8 @@ namespace DonationManagementSystem.API.Controllers
                 user.IsActive = !user.IsActive;
                 await _context.SaveChangesAsync();
 
-                return Ok(new 
-                { 
+                return Ok(new
+                {
                     message = $"User {(user.IsActive ? "activated" : "deactivated")} successfully",
                     isActive = user.IsActive
                 });
@@ -348,8 +358,7 @@ namespace DonationManagementSystem.API.Controllers
             try
             {
                 // Mock recent activity data - replace with real activity tracking
-                var recentActivity = new[]
-                {
+                var recentActivity = new[]{
                     new
                     {
                         id = 1,
