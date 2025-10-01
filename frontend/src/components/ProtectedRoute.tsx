@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 import { useEffect, useState } from 'react';
-import { fetchCurrentUser } from '../store/slices/authSlice';
+import { checkTokenExpiry } from '../store/slices/authSlice';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -16,24 +16,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const location = useLocation();
-  const { isAuthenticated, user, token, loading } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, user, loading } = useAppSelector((state) => state.auth);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const initializeAuth = async () => {
-      // If we have a token but no user data, fetch current user
-      if (token && !user && isAuthenticated) {
-        try {
-          await dispatch(fetchCurrentUser()).unwrap();
-        } catch (error) {
-          console.error('Failed to fetch current user:', error);
-        }
-      }
+      // Check if token is expired and clean up if necessary
+      dispatch(checkTokenExpiry());
       setIsInitializing(false);
     };
 
     initializeAuth();
-  }, [dispatch, token, user, isAuthenticated]);
+  }, [dispatch]);
 
   // Show loading spinner while initializing
   if (isInitializing || loading) {
@@ -54,7 +48,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If user is authenticated but doesn't have required role
   if (requiresAuth && isAuthenticated && requiredRole && user) {
-    const hasPermission = checkRolePermission(user.role, requiredRole);
+    const hasPermission = checkRolePermission(user.userType, requiredRole);
     if (!hasPermission) {
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -84,14 +78,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 };
 
 // Helper function to check role permissions
-const checkRolePermission = (userRole: string, requiredRole: string): boolean => {
+const checkRolePermission = (userType: string, requiredRole: string): boolean => {
+  // For now, we'll implement basic permission checking
+  // You can expand this based on your specific role hierarchy
   const roleHierarchy = {
     viewer: 1,
     manager: 2,
     admin: 3
   };
 
-  const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
+  const userLevel = roleHierarchy[userType as keyof typeof roleHierarchy] || 0;
   const requiredLevel = roleHierarchy[requiredRole as keyof typeof roleHierarchy] || 0;
 
   return userLevel >= requiredLevel;

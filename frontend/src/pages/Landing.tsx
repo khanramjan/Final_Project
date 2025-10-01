@@ -13,15 +13,10 @@ import {
   LightBulbIcon,
   TrophyIcon,
   DocumentTextIcon,
-  CalendarDaysIcon,
   ClockIcon,
   FireIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline';
-import { 
-  HeartIcon as HeartIconSolid,
-  StarIcon as StarIconSolid 
-} from '@heroicons/react/24/solid';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
 
@@ -162,10 +157,9 @@ const Landing = () => {
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
+              <Link to="/campaigns" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Campaigns</Link>
+              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
               <a href="#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-              <a href="#solutions" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Solutions</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Customers</a>
-              <a href="#pricing" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Pricing</a>
             </div>
             <div className="flex items-center space-x-4">
               <Link 
@@ -205,14 +199,14 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link 
-                to="/login" 
+                to="/campaigns" 
                 className="group bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                Get Early Access
+                Start Donating
                 <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button className="group border-2 border-gray-300 hover:border-primary-400 text-gray-700 hover:text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 bg-white hover:bg-primary-50">
-                Schedule Demo
+                Learn More
               </button>
             </div>
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
@@ -549,10 +543,10 @@ const Landing = () => {
           <div className="text-center mb-20">
             <div className="inline-flex items-center px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-medium mb-6">
               <StarIcon className="h-4 w-4 mr-2" />
-              Customer success stories
+              Donor impact stories
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Trusted by industry leaders
+              Trusted by charitable organizations
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               See how organizations are transforming their fundraising with Donation Management System
@@ -609,28 +603,28 @@ const Landing = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link 
-                to="/login" 
+                to="/register" 
                 className="group bg-white hover:bg-gray-50 text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
-                Join Launch Program
+                Get Involved
                 <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <button className="group border-2 border-white/30 hover:border-white text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 hover:bg-white/10 backdrop-blur-sm">
-                Schedule a Demo
+                Contact Us
               </button>
             </div>
             <div className="grid md:grid-cols-3 gap-8 text-center">
               <div>
-                <div className="text-2xl font-bold text-white mb-2">Early Access</div>
-                <div className="text-primary-200">Limited Time</div>
+                <div className="text-2xl font-bold text-white mb-2">Secure</div>
+                <div className="text-primary-200">Donations</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-white mb-2">No Setup</div>
-                <div className="text-primary-200">Fees</div>
+                <div className="text-2xl font-bold text-white mb-2">100%</div>
+                <div className="text-primary-200">Transparent</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-white mb-2">Dedicated</div>
-                <div className="text-primary-200">Support</div>
+                <div className="text-2xl font-bold text-white mb-2">Community</div>
+                <div className="text-primary-200">Driven</div>
               </div>
             </div>
           </div>

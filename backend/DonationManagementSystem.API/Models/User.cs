@@ -16,5 +16,13 @@ namespace DonationManagementSystem.API.Models
 		public string? NidPhotoPath { get; set; }
 		public string? VolunteerPhotoPath { get; set; }
 		public string? UtilityBillPath { get; set; }
+		public bool IsActive { get; set; } = true;
+		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+		public DateTime? LastLoginAt { get; set; }
+
+		// Navigation properties
+		public List<Donation> Donations { get; set; } = new();
+		public List<Campaign> CampaignsCreated { get; set; } = new();
+		public List<Campaign> CampaignsApproved { get; set; } = new();
 	}
 }

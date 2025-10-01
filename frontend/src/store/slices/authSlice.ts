@@ -1,17 +1,19 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { authApiService, LoginRequest, RegisterRequest } from '../../services/authApi';
 
 export interface User {
   id: number;
   email: string;
   firstName: string;
   lastName: string;
-  role: 'admin' | 'manager' | 'viewer';
+  userType: string;
   isActive: boolean;
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
@@ -27,6 +29,7 @@ const isTokenExpired = (expiry: number | null): boolean => {
 // Get initial state from localStorage
 const getInitialState = (): AuthState => {
   const token = localStorage.getItem('token');
+  const refreshToken = localStorage.getItem('refreshToken');
   const tokenExpiry = localStorage.getItem('tokenExpiry');
   const expiryTime = tokenExpiry ? parseInt(tokenExpiry) : null;
   
@@ -36,12 +39,14 @@ const getInitialState = (): AuthState => {
   if (!isValidToken && token) {
     // Clean up expired token
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('tokenExpiry');
   }
 
   return {
     user: null,
     token: isValidToken ? token : null,
+    refreshToken: isValidToken ? refreshToken : null,
     loading: false,
     error: null,
     isAuthenticated: !!isValidToken,
@@ -51,160 +56,86 @@ const getInitialState = (): AuthState => {
 
 const initialState: AuthState = getInitialState();
 
-// Mock login for development - replace with real API call
+// Real login using API
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials: { email: string; password: string }) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  async (credentials: LoginRequest) => {
+    const response = await authApiService.login(credentials);
     
-    // Mock validation - replace with real API call
-    if (credentials.email === 'admin@example.com' && credentials.password === 'admin123') {
-      const token = 'mock-jwt-token-admin';
-      const expiry = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-      const user: User = {
-        id: 1,
-        email: 'admin@example.com',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin',
-        isActive: true
-      };
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('tokenExpiry', expiry.toString());
-      
-      return { user, token, expiry };
-    } else if (credentials.email === 'manager@example.com' && credentials.password === 'manager123') {
-      const token = 'mock-jwt-token-manager';
-      const expiry = Date.now() + (24 * 60 * 60 * 1000);
-      const user: User = {
-        id: 2,
-        email: 'manager@example.com',
-        firstName: 'Manager',
-        lastName: 'User',
-        role: 'manager',
-        isActive: true
-      };
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('tokenExpiry', expiry.toString());
-      
-      return { user, token, expiry };
-    } else if (credentials.email === 'viewer@example.com' && credentials.password === 'viewer123') {
-      const token = 'mock-jwt-token-viewer';
-      const expiry = Date.now() + (24 * 60 * 60 * 1000);
-      const user: User = {
-        id: 3,
-        email: 'viewer@example.com',
-        firstName: 'Viewer',
-        lastName: 'User',
-        role: 'viewer',
-        isActive: true
-      };
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('tokenExpiry', expiry.toString());
-      
-      return { user, token, expiry };
-    } else {
-      throw new Error('Invalid email or password');
-    }
-  }
-);
-
-export const register = createAsyncThunk(
-  'auth/register',
-  async (userData: { 
-    email: string; 
-    password: string; 
-    firstName: string; 
-    lastName: string; 
-  }) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock registration - replace with real API call
-    const token = 'mock-jwt-token-new-user';
+    // Calculate expiry time (24 hours from now)
     const expiry = Date.now() + (24 * 60 * 60 * 1000);
-    const user: User = {
-      id: Date.now(), // Mock ID
-      email: userData.email,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: 'viewer', // Default role for new users
-      isActive: true
-    };
     
-    localStorage.setItem('token', token);
+    // Store in localStorage
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('tokenExpiry', expiry.toString());
     
-    return { user, token, expiry };
+    return { 
+      user: response.user, 
+      token: response.token, 
+      refreshToken: response.refreshToken,
+      expiry 
+    };
   }
 );
 
-export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
-  async (_, { getState }) => {
-    const state = getState() as { auth: AuthState };
+// Real registration using API
+export const register = createAsyncThunk(
+  'auth/register',
+  async (userData: RegisterRequest) => {
+    const response = await authApiService.register(userData);
     
-    // Check if token is expired
-    if (isTokenExpired(state.auth.tokenExpiry)) {
-      throw new Error('Token expired');
-    }
+    // Calculate expiry time (24 hours from now)
+    const expiry = Date.now() + (24 * 60 * 60 * 1000);
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Store in localStorage
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('refreshToken', response.refreshToken);
+    localStorage.setItem('tokenExpiry', expiry.toString());
     
-    // Mock user data based on token - replace with real API call
-    if (state.auth.token === 'mock-jwt-token-admin') {
-      return {
-        id: 1,
-        email: 'admin@example.com',
-        firstName: 'Admin',
-        lastName: 'User',
-        role: 'admin' as const,
-        isActive: true
-      };
-    } else if (state.auth.token === 'mock-jwt-token-manager') {
-      return {
-        id: 2,
-        email: 'manager@example.com',
-        firstName: 'Manager',
-        lastName: 'User',
-        role: 'manager' as const,
-        isActive: true
-      };
-    } else if (state.auth.token === 'mock-jwt-token-viewer') {
-      return {
-        id: 3,
-        email: 'viewer@example.com',
-        firstName: 'Viewer',
-        lastName: 'User',
-        role: 'viewer' as const,
-        isActive: true
-      };
-    } else {
-      throw new Error('Invalid token');
-    }
+    return { 
+      user: response.user, 
+      token: response.token, 
+      refreshToken: response.refreshToken,
+      expiry 
+    };
   }
 );
 
+// Refresh token
 export const refreshToken = createAsyncThunk(
   'auth/refreshToken',
   async (_, { getState }) => {
     const state = getState() as { auth: AuthState };
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
+    if (!state.auth.token || !state.auth.refreshToken) {
+      throw new Error('No tokens available');
+    }
+
+    const response = await authApiService.refreshToken({
+      token: state.auth.token,
+      refreshToken: state.auth.refreshToken
+    });
     
-    const newToken = state.auth.token + '-refreshed';
     const newExpiry = Date.now() + (24 * 60 * 60 * 1000);
     
-    localStorage.setItem('token', newToken);
+    localStorage.setItem('token', response.token);
+    localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('tokenExpiry', newExpiry.toString());
     
-    return { token: newToken, expiry: newExpiry };
+    return { 
+      token: response.token, 
+      refreshToken: response.refreshToken,
+      expiry: newExpiry 
+    };
+  }
+);
+
+// Logout
+export const logoutUser = createAsyncThunk(
+  'auth/logout',
+  async () => {
+    await authApiService.logout();
   }
 );
 
@@ -215,9 +146,11 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.refreshToken = null;
       state.isAuthenticated = false;
       state.tokenExpiry = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
       localStorage.removeItem('tokenExpiry');
     },
     clearError: (state) => {
@@ -227,9 +160,11 @@ const authSlice = createSlice({
       if (isTokenExpired(state.tokenExpiry)) {
         state.user = null;
         state.token = null;
+        state.refreshToken = null;
         state.isAuthenticated = false;
         state.tokenExpiry = null;
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('tokenExpiry');
       }
     },
@@ -245,6 +180,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.refreshToken = action.payload.refreshToken;
         state.tokenExpiry = action.payload.expiry;
         state.isAuthenticated = true;
         state.error = null;
@@ -255,6 +191,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.token = null;
+        state.refreshToken = null;
         state.tokenExpiry = null;
       })
       // Register cases
@@ -266,6 +203,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.refreshToken = action.payload.refreshToken;
         state.tokenExpiry = action.payload.expiry;
         state.isAuthenticated = true;
         state.error = null;
@@ -274,32 +212,29 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Registration failed';
       })
-      // Fetch current user cases
-      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.isAuthenticated = true;
-        state.loading = false;
-      })
-      .addCase(fetchCurrentUser.rejected, (state) => {
-        state.user = null;
-        state.token = null;
-        state.tokenExpiry = null;
-        state.isAuthenticated = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem('tokenExpiry');
-      })
       // Refresh token cases
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload.token;
+        state.refreshToken = action.payload.refreshToken;
         state.tokenExpiry = action.payload.expiry;
       })
       .addCase(refreshToken.rejected, (state) => {
         state.user = null;
         state.token = null;
+        state.refreshToken = null;
         state.tokenExpiry = null;
         state.isAuthenticated = false;
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('tokenExpiry');
+      })
+      // Logout cases
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+        state.tokenExpiry = null;
       });
   },
 });

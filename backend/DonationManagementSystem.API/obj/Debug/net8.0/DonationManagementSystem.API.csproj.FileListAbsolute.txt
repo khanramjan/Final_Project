@@ -9,6 +9,7 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationM
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Azure.Identity.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\BCrypt.Net-Next.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Humanizer.dll
+C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Microsoft.Build.Locator.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -48,6 +49,7 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationM
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.ClientModel.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.CodeDom.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Composition.AttributedModel.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Composition.Convention.dll
@@ -57,6 +59,7 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationM
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Drawing.Common.dll
+C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Formats.Asn1.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.IO.Pipelines.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Memory.Data.dll
@@ -167,5 +170,3 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationM
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\obj\Debug\net8.0\DonationManagementSystem.API.pdb
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\obj\Debug\net8.0\DonationManagementSystem.API.genruntimeconfig.cache
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\obj\Debug\net8.0\ref\DonationManagementSystem.API.dll
-C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.ClientModel.dll
-C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\System.Formats.Asn1.dll

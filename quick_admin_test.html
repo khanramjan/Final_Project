@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Admin Login Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        button { padding: 10px 20px; margin: 10px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #0056b3; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quick Admin Login & Campaign Test</h1>
+        
+        <div class="info">
+            <p>This tool will:</p>
+            <ol>
+                <li>Login as admin and store token in localStorage</li>
+                <li>Open admin panel in new window</li>
+                <li>Admin panel should now show campaigns</li>
+            </ol>
+        </div>
+
+        <button onclick="loginAndRedirect()">Login as Admin & Open Admin Panel</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function loginAndRedirect() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Step 1: Login
+                resultDiv.innerHTML = '<p>Step 1: Logging in as admin...</p>';
+                
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@donationmanagement.com',
+                        password: 'Admin@123!'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Login failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Step 2: Store token
+                localStorage.setItem('token', data.token);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <p>✅ Login successful!</p>
+                        <p>User: ${data.user.firstName} ${data.user.lastName} (${data.user.userType})</p>
+                        <p>Token stored in localStorage</p>
+                    </div>
+                `;
+                
+                // Step 3: Open admin panel
+                setTimeout(() => {
+                    resultDiv.innerHTML += '<p>Opening admin panel in new window...</p>';
+                    window.open('http://localhost:5174/admin/campaigns', '_blank');
+                    
+                    resultDiv.innerHTML += `
+                        <div class="info">
+                            <p><strong>Instructions:</strong></p>
+                            <p>1. A new window should have opened with the admin panel</p>
+                            <p>2. You should see campaigns listed in the Campaign Management page</p>
+                            <p>3. If campaigns are not showing, check the browser console for errors</p>
+                        </div>
+                    `;
+                }, 1000);
+
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -78,11 +78,10 @@ const Campaigns = () => {
                   <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
                 </Link>
               </div>
-              <div className="hidden md:flex items-center space-x-8">
+              <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
+                
                 <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-                <a href="/#solutions" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Solutions</a>
-                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Customers</a>
-                <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
               </div>
               <div className="flex items-center space-x-4">
                 <Link 
@@ -134,11 +133,10 @@ const Campaigns = () => {
                   <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
                 </Link>
               </div>
-              <div className="hidden md:flex items-center space-x-8">
+              <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
+                
                 <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-                <a href="/#solutions" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Solutions</a>
-                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Customers</a>
-                <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
               </div>
               <div className="flex items-center space-x-4">
                 <Link 
@@ -189,11 +187,10 @@ const Campaigns = () => {
                 <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
               </Link>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-8"><Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+                <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
+                
               <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
-              <a href="/#solutions" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Solutions</a>
-              <a href="/#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Customers</a>
-              <Link to="/campaigns" className="text-primary-600 hover:text-primary-700 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
             </div>
             <div className="flex items-center space-x-4">
               <Link 
@@ -295,7 +292,7 @@ const Campaigns = () => {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Total Raised</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      ${campaigns.reduce((sum, c) => sum + c.currentAmount, 0).toLocaleString()}
+                      ৳{campaigns.reduce((sum, c) => sum + c.currentAmount, 0).toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -338,13 +335,24 @@ const Campaigns = () => {
                 
                 return (
                   <div key={campaign.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                    {campaign.imageUrl && (
+                    {campaign.imageUrl ? (
                       <div className="h-48 overflow-hidden">
                         <img 
                           src={campaign.imageUrl} 
                           alt={campaign.title}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                        <div className="text-center text-primary-600">
+                          <ChartBarIcon className="h-16 w-16 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm font-medium">Campaign Image</p>
+                        </div>
                       </div>
                     )}
                     
@@ -376,9 +384,9 @@ const Campaigns = () => {
                         <div className="flex justify-between items-center text-sm">
                           <div>
                             <p className="font-semibold text-gray-900">
-                              ${campaign.currentAmount.toLocaleString()}
+                              ৳{campaign.currentAmount.toLocaleString()}
                             </p>
-                            <p className="text-gray-500">of ${campaign.goalAmount.toLocaleString()}</p>
+                            <p className="text-gray-500">of ৳{campaign.goalAmount.toLocaleString()}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-semibold text-gray-900">{campaign.donorCount}</p>
@@ -425,3 +433,4 @@ const Campaigns = () => {
 
 // Explicit default export to fix module resolution issues
 export default Campaigns;
+

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Campaigns API</title>
+</head>
+<body>
+    <h1>Test Admin Campaigns API</h1>
+    <button onclick="testAdminCampaigns()">Test Admin Campaigns</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAdminCampaigns() {
+            try {
+                // Login first to get token
+                const loginResponse = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@admin.com',
+                        password: 'Admin123!'
+                    })
+                });
+
+                const loginData = await loginResponse.json();
+                console.log('Login response:', loginData);
+
+                if (loginData.token) {
+                    // Test admin campaigns endpoint
+                    const campaignsResponse = await fetch('http://localhost:5000/api/campaign/admin/all', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${loginData.token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const campaignsData = await campaignsResponse.json();
+                    console.log('Campaigns response:', campaignsData);
+
+                    document.getElementById('result').innerHTML = `
+                        <h3>Login Status: ${loginResponse.status}</h3>
+                        <h3>Campaigns Status: ${campaignsResponse.status}</h3>
+                        <pre>${JSON.stringify(campaignsData, null, 2)}</pre>
+                    `;
+                } else {
+                    document.getElementById('result').innerHTML = `<h3>Login failed</h3>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<h3>Error: ${error.message}</h3>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAppDispatch } from '../store/hooks';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { register } from '../store/slices/authSlice';
 import { 
   HeartIcon, 
   UsersIcon, 
@@ -36,10 +37,17 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { loading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate('/dashboard');
+    return null;
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -115,22 +123,34 @@ const Register = () => {
     
     if (!validateForm()) return;
 
-    setLoading(true);
     try {
-      // TODO: Implement registration API call
-      console.log('Registration data:', { ...formData, userType });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Handle successful registration
-      alert(`Successfully registered as ${userType}!`);
+      // Prepare registration data
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        userType: userType,
+        phone: formData.phone,
+        address: formData.address,
+        ...(userType === 'volunteer' && {
+          organization: formData.organization,
+          skills: formData.skills,
+          nidPhoto: volunteerFiles.nidPhoto || undefined,
+          volunteerPhoto: volunteerFiles.volunteerPhoto || undefined,
+          utilityBill: volunteerFiles.utilityBill || undefined
+        }),
+        ...(userType === 'donor' && {
+          interests: formData.interests
+        })
+      };
+
+      await dispatch(register(registrationData)).unwrap();
+      navigate('/dashboard');
       
     } catch (error) {
       console.error('Registration failed:', error);
-      setErrors({ general: 'Registration failed. Please try again.' });
-    } finally {
-      setLoading(false);
+      setErrors({ general: typeof error === 'string' ? error : 'Registration failed. Please try again.' });
     }
   };
 
@@ -238,9 +258,9 @@ const Register = () => {
 
         {/* Registration Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {errors.general && (
+          {(errors.general || error) && (
             <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{errors.general}</div>
+              <div className="text-sm text-red-700">{errors.general || error}</div>
             </div>
           )}
 

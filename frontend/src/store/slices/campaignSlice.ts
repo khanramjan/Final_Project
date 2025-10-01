@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { mockCampaigns } from '../../data/mockCampaigns';
 
 export interface Campaign {
   id: number;
@@ -26,7 +25,7 @@ interface CampaignState {
 }
 
 const initialState: CampaignState = {
-  campaigns: mockCampaigns, // Load mock data initially
+  campaigns: [], // Start with empty array, fetch from API
   loading: false,
   error: null,
   currentCampaign: null,
@@ -35,18 +34,27 @@ const initialState: CampaignState = {
 export const fetchCampaigns = createAsyncThunk(
   'campaigns/fetchCampaigns',
   async () => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // In a real app, this would be an actual API call
-    // const response = await fetch('/api/campaigns');
-    // if (!response.ok) {
-    //   throw new Error('Failed to fetch campaigns');
-    // }
-    // return await response.json();
-    
-    // For now, return mock data
-    return mockCampaigns;
+    try {
+      console.log('Fetching campaigns from API...');
+      const response = await fetch('http://localhost:5000/api/campaign/public');
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error response:', errorText);
+        throw new Error(`Failed to fetch campaigns: ${response.status} - ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('API Response data:', data);
+      console.log('Campaigns array:', data.campaigns);
+      
+      return data.campaigns; // Return the campaigns array from the response
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      throw error;
+    }
   }
 );
 
