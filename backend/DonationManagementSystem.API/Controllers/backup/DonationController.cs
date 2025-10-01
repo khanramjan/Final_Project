@@ -22,7 +22,7 @@ namespace DonationManagementSystem.API.Controllers
 
         private bool IsAdmin()
         {
-            var userType = User.FindFirst("userType")?.Value;
+            var userType = User.FindFirst("UserType")?.Value;
             return userType == "admin";
         }
 

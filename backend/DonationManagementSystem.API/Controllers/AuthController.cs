@@ -194,7 +194,7 @@ namespace DonationManagementSystem.API.Controllers
 			try
 			{
 				// Check if current user is admin
-				var currentUserType = User.FindFirst("userType")?.Value;
+				var currentUserType = User.FindFirst("UserType")?.Value;
 				if (currentUserType != "admin")
 					return Unauthorized("Only administrators can create admin accounts");
 

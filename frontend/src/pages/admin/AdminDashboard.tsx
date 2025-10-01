@@ -30,10 +30,12 @@ const AdminDashboard = () => {
   const [recentDonations, setRecentDonations] = useState<RecentDonation[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors
       
       const [analyticsData, campaignsData, donationsData] = await Promise.all([
         analyticsService.getDashboardAnalytics(),
@@ -55,33 +57,15 @@ const AdminDashboard = () => {
       setRecentDonations(mappedDonations);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
-      // Fallback data on error
-      setAnalytics({
-        overview: {
-          totalUsers: 1247,
-          totalCampaigns: 23,
-          activeCampaigns: 18,
-          totalDonations: 856,
-          totalAmount: 125630.50,
-          averageDonation: 146.80,
-          successRate: 68.5
-        },
-        today: {
-          donations: 12,
-          amount: 2450.00,
-          newUsers: 5
-        },
-        weekly: {
-          donations: 85,
-          amount: 12750.00
-        },
-        monthly: {
-          donations: 342,
-          amount: 47230.00,
-          growth: 15.2
-        }
-      });
-      setPendingCampaigns(5);
+      console.error('Error details:', JSON.stringify(error, null, 2));
+      
+      // Set error message for display
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(`Failed to load dashboard data: ${errorMessage}`);
+      
+      // Don't set fallback data - let the user see that there's an error
+      setAnalytics(null);
+      setPendingCampaigns(0);
       setRecentDonations([]);
     } finally {
       setLoading(false);
@@ -212,14 +196,31 @@ const AdminDashboard = () => {
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to load dashboard</h2>
-          <p className="text-gray-600 mb-4">Please check your connection and try again.</p>
+          <p className="text-gray-600 mb-4">
+            {error || 'Please check your connection and try again.'}
+          </p>
+          <div className="space-y-2 mb-4">
+            <p className="text-sm text-gray-500">Possible issues:</p>
+            <ul className="text-xs text-gray-400 space-y-1">
+              <li>• Backend server not running</li>
+              <li>• Database connection issues</li>
+              <li>• Authentication problems</li>
+              <li>• Network connectivity</li>
+            </ul>
+          </div>
           <button 
             onClick={fetchDashboardData}
-            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700"
+            className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 mr-2"
           >
             Retry
+          </button>
+          <button 
+            onClick={() => window.location.reload()}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            Refresh Page
           </button>
         </div>
       </div>
