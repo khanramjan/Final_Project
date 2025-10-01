@@ -8,7 +8,8 @@ import {
   ChartBarIcon,
   Bars3Icon,
   XMarkIcon,
-  PowerIcon
+  PowerIcon,
+  Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
@@ -22,6 +23,7 @@ const userNavigation = [
   { name: 'Dashboard', href: '/dashboard/', icon: HomeIcon },
   { name: 'My Donations', href: '/dashboard/donations', icon: HeartIcon },
   { name: 'Campaigns', href: '/dashboard/campaigns', icon: MegaphoneIcon },
+  { name: 'Profile', href: '/dashboard/profile', icon: Cog6ToothIcon },
 ];
 
 // Navigation items for admin users

@@ -11,6 +11,7 @@ import Donations from './pages/Donations';
 import Donors from './pages/Donors';
 import Campaigns from './pages/Campaigns';
 import Analytics from './pages/Analytics';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -47,6 +48,7 @@ function AppContent() {
                   <Route path="/donors" element={<Donors />} />
                   <Route path="/campaigns" element={<Campaigns />} />
                   <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/profile" element={<Profile />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

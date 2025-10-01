@@ -5,7 +5,7 @@ import { fetchCampaigns } from '../store/slices/campaignSlice';
 import { fetchDonors } from '../store/slices/donorSlice';
 import StatsCard from '../components/StatsCard';
 import RecentDonations from '../components/RecentDonations';
-import CampaignProgress from '../components/CampaignProgress';
+import RecommendedCampaigns from '../components/RecommendedCampaigns';
 import campaignService from '../services/campaignService';
 
 const Dashboard = () => {
@@ -58,21 +58,21 @@ const Dashboard = () => {
       trend: 'up' as const,
     },
     {
-      title: 'Total Raised',
-      value: loading ? 'Loading...' : `$${realStats.totalRaised.toLocaleString()}`,
-      change: 'Across all campaigns',
+      title: 'Campaigns Supported',
+      value: '0',
+      change: 'Start supporting campaigns',
       trend: 'up' as const,
     },
     {
       title: 'Active Campaigns',
       value: loading ? '...' : realStats.activeCampaigns,
-      change: `${realStats.totalCampaigns} total campaigns`,
+      change: 'Available to support',
       trend: 'up' as const,
     },
     {
-      title: 'Total Donors',
-      value: loading ? '...' : realStats.totalDonors,
-      change: 'Supporting campaigns',
+      title: 'My Impact',
+      value: '0',
+      change: 'People helped',
       trend: 'up' as const,
     },
   ];
@@ -94,7 +94,7 @@ const Dashboard = () => {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RecentDonations />
-        <CampaignProgress />
+        <RecommendedCampaigns />
       </div>
     </div>
   );
