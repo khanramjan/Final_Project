@@ -45,10 +45,14 @@ backend/**/appsettings.Production.json
 # IMPORTANT: Protect sensitive configuration
 **/appsettings.json
 appsettings.*.json
+!**/appsettings.TEMPLATE.json
 
-# Environment variables
+# Environment variables (NEVER commit these!)
 .env
+.env.local
+.env.*.local
 *.env
+**/.env
 
 # Logs
 *.log
