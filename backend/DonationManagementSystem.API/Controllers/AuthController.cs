@@ -186,6 +186,102 @@ namespace DonationManagementSystem.API.Controllers
 			return Ok(new { message = "Logout successful" });
 		}
 
+		// Update user profile (authenticated user only)
+		[HttpPut("profile")]
+		[Microsoft.AspNetCore.Authorization.Authorize]
+		public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+		{
+			try
+			{
+				var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+					return Unauthorized(new { message = "User not found" });
+
+				var user = await _context.Users.FindAsync(int.Parse(userId));
+				if (user == null)
+					return NotFound(new { message = "User not found" });
+
+				// Update user properties
+				if (!string.IsNullOrEmpty(dto.FirstName))
+					user.FirstName = dto.FirstName;
+
+				if (!string.IsNullOrEmpty(dto.LastName))
+					user.LastName = dto.LastName;
+
+				if (!string.IsNullOrEmpty(dto.Email))
+				{
+					// Check if email is already taken by another user
+					var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Id != user.Id);
+					if (existingUser != null)
+						return BadRequest(new { message = "Email already in use" });
+
+					user.Email = dto.Email;
+				}
+
+				if (!string.IsNullOrEmpty(dto.Phone))
+					user.Phone = dto.Phone;
+
+				if (!string.IsNullOrEmpty(dto.Address))
+					user.Address = dto.Address;
+
+				await _context.SaveChangesAsync();
+
+				return Ok(new
+				{
+					message = "Profile updated successfully",
+					user = new
+					{
+						id = user.Id,
+						email = user.Email,
+						firstName = user.FirstName,
+						lastName = user.LastName,
+						phone = user.Phone,
+						address = user.Address,
+						userType = user.UserType
+					}
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Failed to update profile", error = ex.Message });
+			}
+		}
+
+		// Change password (authenticated user only)
+		[HttpPost("change-password")]
+		[Microsoft.AspNetCore.Authorization.Authorize]
+		public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+		{
+			try
+			{
+				var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+				if (userId == null)
+					return Unauthorized(new { message = "User not found" });
+
+				var user = await _context.Users.FindAsync(int.Parse(userId));
+				if (user == null)
+					return NotFound(new { message = "User not found" });
+
+				// Verify current password
+				if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+					return BadRequest(new { message = "Current password is incorrect" });
+
+				// Validate new password
+				if (dto.NewPassword.Length < 6)
+					return BadRequest(new { message = "New password must be at least 6 characters long" });
+
+				// Update password
+				user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+				await _context.SaveChangesAsync();
+
+				return Ok(new { message = "Password changed successfully" });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Failed to change password", error = ex.Message });
+			}
+		}
+
 		// Admin-only endpoint to create new admin users
 		[HttpPost("create-admin")]
 		[Microsoft.AspNetCore.Authorization.Authorize]

@@ -31,6 +31,7 @@ const getInitialState = (): AuthState => {
   const token = localStorage.getItem('token');
   const refreshToken = localStorage.getItem('refreshToken');
   const tokenExpiry = localStorage.getItem('tokenExpiry');
+  const userData = localStorage.getItem('user');
   const expiryTime = tokenExpiry ? parseInt(tokenExpiry) : null;
   
   // Check if token exists and is not expired
@@ -41,10 +42,20 @@ const getInitialState = (): AuthState => {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('tokenExpiry');
+    localStorage.removeItem('user');
+  }
+
+  let user: User | null = null;
+  if (isValidToken && userData) {
+    try {
+      user = JSON.parse(userData);
+    } catch {
+      user = null;
+    }
   }
 
   return {
-    user: null,
+    user: user,
     token: isValidToken ? token : null,
     refreshToken: isValidToken ? refreshToken : null,
     loading: false,
@@ -69,6 +80,7 @@ export const login = createAsyncThunk(
     localStorage.setItem('token', response.token);
     localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('tokenExpiry', expiry.toString());
+    localStorage.setItem('user', JSON.stringify(response.user));
     
     return { 
       user: response.user, 
@@ -92,6 +104,7 @@ export const register = createAsyncThunk(
     localStorage.setItem('token', response.token);
     localStorage.setItem('refreshToken', response.refreshToken);
     localStorage.setItem('tokenExpiry', expiry.toString());
+    localStorage.setItem('user', JSON.stringify(response.user));
     
     return { 
       user: response.user, 
@@ -152,6 +165,7 @@ const authSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('tokenExpiry');
+      localStorage.removeItem('user');
     },
     clearError: (state) => {
       state.error = null;
@@ -166,6 +180,13 @@ const authSlice = createSlice({
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('tokenExpiry');
+        localStorage.removeItem('user');
+      }
+    },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        localStorage.setItem('user', JSON.stringify(state.user));
       }
     },
   },
@@ -227,6 +248,7 @@ const authSlice = createSlice({
         localStorage.removeItem('token');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('tokenExpiry');
+        localStorage.removeItem('user');
       })
       // Logout cases
       .addCase(logoutUser.fulfilled, (state) => {
@@ -239,5 +261,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, checkTokenExpiry } = authSlice.actions;
+export const { logout, clearError, checkTokenExpiry, updateUser } = authSlice.actions;
 export default authSlice.reducer;

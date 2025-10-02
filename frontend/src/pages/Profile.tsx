@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useAppSelector } from '../store/hooks';
+import { useAppSelector, useAppDispatch } from '../store/hooks';
+import { updateUser } from '../store/slices/authSlice';
+import userService from '../services/userService';
 import { 
   UserCircleIcon, 
   KeyIcon, 
@@ -10,6 +12,7 @@ import {
 
 const Profile = () => {
   const user = useAppSelector((state) => (state as any).auth.user);
+  const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -48,12 +51,17 @@ const Profile = () => {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // TODO: Call API to update profile
+      const response = await userService.updateProfile(profileData);
+      // Update Redux store with new user data
+      if (response?.user) {
+        dispatch(updateUser(response.user));
+      }
       setSuccessMessage('Profile updated successfully!');
       setIsEditing(false);
       setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      setErrorMessage('Failed to update profile');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update profile';
+      setErrorMessage(errorMsg);
       setTimeout(() => setErrorMessage(''), 3000);
     }
   };
@@ -74,12 +82,16 @@ const Profile = () => {
     }
 
     try {
-      // TODO: Call API to update password
+      await userService.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
       setSuccessMessage('Password updated successfully!');
       setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       setTimeout(() => setSuccessMessage(''), 3000);
-    } catch (error) {
-      setErrorMessage('Failed to update password');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update password';
+      setErrorMessage(errorMsg);
       setTimeout(() => setErrorMessage(''), 3000);
     }
   };
