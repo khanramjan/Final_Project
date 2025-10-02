@@ -23,8 +23,14 @@ namespace DonationManagementSystem.API.Services
 				var fromEmail = _config["Email:FromEmail"];
 				var fromName = _config["Email:FromName"];
 				var username = _config["Email:Username"];
-				var password = _config["Email:Password"];
+				// Read password from environment variable first, fallback to config
+				var password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD") ?? _config["Email:Password"];
 				var enableSsl = bool.Parse(_config["Email:EnableSsl"] ?? "true");
+				
+				if (string.IsNullOrEmpty(password))
+				{
+					throw new Exception("Email password not configured. Set EMAIL_PASSWORD environment variable.");
+				}
 
 				using var client = new SmtpClient(smtpHost, smtpPort)
 				{
