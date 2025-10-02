@@ -6,6 +6,7 @@ import { fetchDonors } from '../store/slices/donorSlice';
 import StatsCard from '../components/StatsCard';
 import RecentDonations from '../components/RecentDonations';
 import RecommendedCampaigns from '../components/RecommendedCampaigns';
+import EmailVerificationBanner from '../components/EmailVerificationBanner';
 import campaignService from '../services/campaignService';
 
 const Dashboard = () => {
@@ -83,6 +84,9 @@ const Dashboard = () => {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600">Overview of your donation management system</p>
       </div>
+
+      {/* Email Verification Banner */}
+      <EmailVerificationBanner />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

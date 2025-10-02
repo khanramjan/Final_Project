@@ -95,7 +95,19 @@ const Login = () => {
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm text-center">{error}</div>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              {error}
+              {error.includes('verify your email') && (
+                <div className="mt-2">
+                  <Link 
+                    to="/resend-verification" 
+                    className="text-red-800 font-medium underline hover:text-red-900"
+                  >
+                    Resend verification email
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
 
           <div>

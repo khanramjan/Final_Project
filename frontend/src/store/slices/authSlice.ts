@@ -8,6 +8,7 @@ export interface User {
   lastName: string;
   userType: string;
   isActive: boolean;
+  isEmailVerified?: boolean;
 }
 
 interface AuthState {

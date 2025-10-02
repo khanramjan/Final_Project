@@ -40,6 +40,9 @@ builder.Services.AddAuthorization();
 // Register JWT Service
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+// Register Email Service
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {

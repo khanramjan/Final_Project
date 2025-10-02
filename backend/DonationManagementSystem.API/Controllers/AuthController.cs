@@ -18,12 +18,14 @@ namespace DonationManagementSystem.API.Controllers
 		private readonly AppDbContext _context;
 		private readonly IConfiguration _config;
 		private readonly IJwtService _jwtService;
+		private readonly IEmailService _emailService;
 
-		public AuthController(AppDbContext context, IConfiguration config, IJwtService jwtService)
+		public AuthController(AppDbContext context, IConfiguration config, IJwtService jwtService, IEmailService emailService)
 		{
 			_context = context;
 			_config = config;
 			_jwtService = jwtService;
+			_emailService = emailService;
 		}
 
 		[HttpPost("register")]
@@ -54,6 +56,9 @@ namespace DonationManagementSystem.API.Controllers
 					return fileName;
 				}
 
+				// Generate email verification token
+				var verificationToken = Guid.NewGuid().ToString();
+
 				var user = new User
 				{
 					UserType = dto.UserType,
@@ -70,20 +75,36 @@ namespace DonationManagementSystem.API.Controllers
 					VolunteerPhotoPath = SaveFile(dto.VolunteerPhoto),
 					UtilityBillPath = SaveFile(dto.UtilityBill),
 					CreatedAt = DateTime.UtcNow,
-					IsActive = true
+					IsActive = true,
+					IsEmailVerified = false,
+					EmailVerificationToken = verificationToken,
+					EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24)
 				};
 
 				_context.Users.Add(user);
 				await _context.SaveChangesAsync();
 
-				// Generate JWT token for the new user
+				// Send verification email
+				try
+				{
+					var frontendUrl = _config["AppSettings:FrontendUrl"] ?? "http://localhost:5173";
+					var verificationUrl = $"{frontendUrl}/verify-email?token={verificationToken}";
+					await _emailService.SendVerificationEmailAsync(user.Email!, user.FirstName!, verificationToken, verificationUrl);
+				}
+				catch (Exception ex)
+				{
+					// Log error but don't fail registration
+					Console.WriteLine($"Failed to send verification email: {ex.Message}");
+				}
+
+				// Generate JWT token for the new user (but they still need to verify email)
 				var token = _jwtService.GenerateToken(user);
 				var refreshToken = _jwtService.GenerateRefreshToken();
 
 				// Return user data with token
 				return Ok(new
 				{
-					message = "Registration successful",
+					message = "Registration successful. Please check your email to verify your account.",
 					token = token,
 					refreshToken = refreshToken,
 					user = new
@@ -93,7 +114,8 @@ namespace DonationManagementSystem.API.Controllers
 						firstName = user.FirstName,
 						lastName = user.LastName,
 						userType = user.UserType,
-						isActive = user.IsActive
+						isActive = user.IsActive,
+						isEmailVerified = user.IsEmailVerified
 					}
 				});
 			}
@@ -116,6 +138,9 @@ namespace DonationManagementSystem.API.Controllers
 				if (!user.IsActive)
 					return Unauthorized(new { message = "Account is disabled" });
 
+				if (!user.IsEmailVerified)
+					return Unauthorized(new { message = "Please verify your email before logging in. Check your inbox for the verification link." });
+
 				// Generate JWT token
 				var token = _jwtService.GenerateToken(user);
 				var refreshToken = _jwtService.GenerateRefreshToken();
@@ -136,7 +161,8 @@ namespace DonationManagementSystem.API.Controllers
 						firstName = user.FirstName,
 						lastName = user.LastName,
 						userType = user.UserType,
-						isActive = user.IsActive
+						isActive = user.IsActive,
+						isEmailVerified = user.IsEmailVerified
 					}
 				});
 			}
@@ -279,6 +305,72 @@ namespace DonationManagementSystem.API.Controllers
 			catch (Exception ex)
 			{
 				return StatusCode(500, new { message = "Failed to change password", error = ex.Message });
+			}
+		}
+
+		[HttpGet("verify-email")]
+		public async Task<IActionResult> VerifyEmail([FromQuery] string token)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(token))
+					return BadRequest(new { message = "Invalid verification token" });
+
+				var user = await _context.Users.FirstOrDefaultAsync(u => u.EmailVerificationToken == token);
+
+				if (user == null)
+					return BadRequest(new { message = "Invalid verification token" });
+
+				if (user.IsEmailVerified)
+					return Ok(new { message = "Email already verified", alreadyVerified = true });
+
+				if (user.EmailVerificationTokenExpiry < DateTime.UtcNow)
+					return BadRequest(new { message = "Verification token has expired. Please request a new verification email." });
+
+				user.IsEmailVerified = true;
+				user.EmailVerificationToken = null;
+				user.EmailVerificationTokenExpiry = null;
+
+				await _context.SaveChangesAsync();
+
+				return Ok(new { message = "Email verified successfully! You can now log in." });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Email verification failed", error = ex.Message });
+			}
+		}
+
+		[HttpPost("resend-verification")]
+		public async Task<IActionResult> ResendVerificationEmail([FromBody] ResendVerificationDto dto)
+		{
+			try
+			{
+				var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+				if (user == null)
+					return BadRequest(new { message = "User not found" });
+
+				if (user.IsEmailVerified)
+					return BadRequest(new { message = "Email is already verified" });
+
+				// Generate new verification token
+				var verificationToken = Guid.NewGuid().ToString();
+				user.EmailVerificationToken = verificationToken;
+				user.EmailVerificationTokenExpiry = DateTime.UtcNow.AddHours(24);
+
+				await _context.SaveChangesAsync();
+
+				// Send verification email
+				var frontendUrl = _config["AppSettings:FrontendUrl"] ?? "http://localhost:5173";
+				var verificationUrl = $"{frontendUrl}/verify-email?token={verificationToken}";
+				await _emailService.SendVerificationEmailAsync(user.Email!, user.FirstName!, verificationToken, verificationUrl);
+
+				return Ok(new { message = "Verification email sent successfully. Please check your inbox." });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Failed to resend verification email", error = ex.Message });
 			}
 		}
 

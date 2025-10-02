@@ -32,6 +32,7 @@ export interface AuthResponse {
     lastName: string;
     userType: string;
     isActive: boolean;
+    isEmailVerified?: boolean;
   };
 }
 
@@ -136,7 +137,40 @@ class AuthApiService {
     localStorage.removeItem('tokenExpiry');
   }
 
-  async getCurrentUser(): Promise<any> {
+  async verifyEmail(token: string): Promise<{ message: string; alreadyVerified?: boolean }> {
+    const response = await fetch(`${API_BASE_URL}/auth/verify-email?token=${token}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Email verification failed');
+    }
+
+    return response.json();
+  }
+
+  async resendVerification(email: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to resend verification email');
+    }
+
+    return response.json();
+  }
+
+  async getCurrentUser(): Promise<AuthResponse['user']> {
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
       method: 'GET',
       headers: {

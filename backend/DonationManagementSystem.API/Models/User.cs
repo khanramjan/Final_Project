@@ -20,6 +20,11 @@ namespace DonationManagementSystem.API.Models
 		public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 		public DateTime? LastLoginAt { get; set; }
 
+		// Email verification fields
+		public bool IsEmailVerified { get; set; } = false;
+		public string? EmailVerificationToken { get; set; }
+		public DateTime? EmailVerificationTokenExpiry { get; set; }
+
 		// Navigation properties
 		public List<Donation> Donations { get; set; } = new();
 		public List<Campaign> CampaignsCreated { get; set; } = new();
