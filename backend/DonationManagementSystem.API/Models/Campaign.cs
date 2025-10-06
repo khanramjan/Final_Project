@@ -15,6 +15,17 @@ namespace DonationManagementSystem.API.Models
         public string? Location { get; set; }
         public bool IsUrgent { get; set; } = false;
         public bool IsFeatured { get; set; } = false;
+        
+        // Volunteer Requirements
+        public bool NeedsVolunteers { get; set; } = false;
+        public int PlatinumVolunteersNeeded { get; set; } = 0;
+        public int GoldVolunteersNeeded { get; set; } = 0;
+        public int SilverVolunteersNeeded { get; set; } = 0;
+        public int BronzeVolunteersNeeded { get; set; } = 0;
+        public int NewbieVolunteersNeeded { get; set; } = 0;
+        public bool AutoSendVolunteerRequests { get; set; } = false;
+        public DateTime? VolunteerRequestsSentAt { get; set; }
+        
         public int CreatedBy { get; set; } // User ID who created the campaign
         public int? ApprovedBy { get; set; } // Admin ID who approved
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

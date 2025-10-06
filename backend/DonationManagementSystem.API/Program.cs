@@ -43,6 +43,9 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // Register Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Register Volunteer Rank Service
+builder.Services.AddScoped<IVolunteerRankService, VolunteerRankService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {

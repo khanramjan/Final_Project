@@ -24,6 +24,7 @@ namespace DonationManagementSystem.API.Data
                         PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123!"),
                         Phone = "1234567890",
                         IsActive = true,
+                        IsEmailVerified = true, // Admin account is pre-verified
                         CreatedAt = DateTime.UtcNow
                     };
 

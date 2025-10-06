@@ -7,11 +7,9 @@ import {
   ChartBarIcon,
   HeartIcon,
   CogIcon,
-  BellIcon,
   PowerIcon,
   ChevronLeftIcon,
-  ChevronRightIcon,
-  DocumentChartBarIcon
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 interface NavigationItem {
@@ -33,20 +31,23 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
   const navigation: NavigationItem[] = [
     {
       name: 'Dashboard',
-      href: '/admin',
+      href: '/admin/dashboard',
       icon: HomeIcon
+    },
+    {
+      name: 'Analytics',
+      href: '/admin/analytics',
+      icon: ChartBarIcon
     },
     {
       name: 'User Management',
       href: '/admin/users',
-      icon: UsersIcon,
-      badge: '5' // Mock pending users
+      icon: UsersIcon
     },
     {
-      name: 'Campaigns',
+      name: 'Campaign Management',
       href: '/admin/campaigns',
-      icon: HeartIcon,
-      badge: '3' // Mock pending campaigns
+      icon: HeartIcon
     },
     {
       name: 'Donations',
@@ -54,25 +55,9 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
       icon: CurrencyDollarIcon
     },
     {
-      name: 'Analytics',
-      href: '/admin/analytics',
-      icon: DocumentChartBarIcon
-    },
-    {
-      name: 'Advanced Analytics',
-      href: '/admin/advanced-analytics',
-      icon: ChartBarIcon
-    },
-    {
       name: 'Settings',
       href: '/admin/settings',
       icon: CogIcon
-    },
-    {
-      name: 'Notifications',
-      href: '/admin/notifications',
-      icon: BellIcon,
-      badge: '12' // Mock unread notifications
     }
   ];
 

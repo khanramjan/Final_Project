@@ -17,13 +17,20 @@ import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
 import ResendVerification from './pages/ResendVerification';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ModernAnalytics from './pages/admin/ModernAnalytics';
 import UserManagement from './pages/admin/UserManagement';
 import CampaignManagement from './pages/admin/CampaignManagement';
 import DonationOversight from './pages/admin/DonationOversight';
-import AdvancedAnalytics from './pages/admin/AdvancedAnalytics';
 import SystemSettings from './pages/admin/SystemSettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import ApiTest from './components/ApiTest';
+// Volunteer Pages
+import VolunteerDashboard from './pages/volunteer/VolunteerDashboard';
+import VolunteerRequests from './pages/volunteer/VolunteerRequests';
+import MyAssignments from './pages/volunteer/MyAssignments';
+import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
+import VolunteerAchievementsPage from './pages/volunteer/VolunteerAchievementsPage';
+import VolunteerProfilePage from './pages/volunteer/VolunteerProfilePage';
 
 function AppContent() {
   useEffect(() => {
@@ -67,13 +74,30 @@ function AppContent() {
           }
         >
           <Route path="" element={<AdminDashboard />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="analytics" element={<ModernAnalytics />} />
           <Route path="users" element={<UserManagement />} />
           <Route path="campaigns" element={<CampaignManagement />} />
           <Route path="donations" element={<DonationOversight />} />
-          <Route path="analytics" element={<Analytics />} />
-          <Route path="advanced-analytics" element={<AdvancedAnalytics />} />
           <Route path="settings" element={<SystemSettings />} />
         </Route>
+        <Route
+          path="/volunteer/*"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<VolunteerDashboard />} />
+                  <Route path="/requests" element={<VolunteerRequests />} />
+                  <Route path="/assignments" element={<MyAssignments />} />
+                  <Route path="/history" element={<VolunteerHistoryPage />} />
+                  <Route path="/achievements" element={<VolunteerAchievementsPage />} />
+                  <Route path="/profile" element={<VolunteerProfilePage />} />
+                </Routes>
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );

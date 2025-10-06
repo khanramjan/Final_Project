@@ -10,8 +10,7 @@ import {
   ChartBarIcon,
   CogIcon,
   Bars3Icon,
-  XMarkIcon,
-  PresentationChartLineIcon
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 import NotificationSystem from './NotificationSystem';
 
@@ -22,12 +21,11 @@ const AdminLayout = () => {
   const { user } = useAppSelector((state) => state.auth);
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: HomeIcon, current: location.pathname === '/admin' },
+    { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: location.pathname === '/admin/dashboard' },
+    { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon, current: location.pathname === '/admin/analytics' },
     { name: 'User Management', href: '/admin/users', icon: UsersIcon, current: location.pathname === '/admin/users' },
     { name: 'Campaign Management', href: '/admin/campaigns', icon: HeartIcon, current: location.pathname === '/admin/campaigns' },
     { name: 'Donations', href: '/admin/donations', icon: CurrencyDollarIcon, current: location.pathname === '/admin/donations' },
-    { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon, current: location.pathname === '/admin/analytics' },
-    { name: 'Advanced Analytics', href: '/admin/advanced-analytics', icon: PresentationChartLineIcon, current: location.pathname === '/admin/advanced-analytics' },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon, current: location.pathname === '/admin/settings' },
   ];
 

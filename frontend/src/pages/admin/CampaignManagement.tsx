@@ -28,6 +28,14 @@ interface CampaignForm {
   isUrgent: boolean;
   isFeatured: boolean;
   image?: File | null;
+  // Volunteer request fields
+  needsVolunteers: boolean;
+  platinumVolunteersNeeded: number;
+  goldVolunteersNeeded: number;
+  silverVolunteersNeeded: number;
+  bronzeVolunteersNeeded: number;
+  newbieVolunteersNeeded: number;
+  autoSendVolunteerRequests: boolean;
 }
 
 const CampaignManagement = () => {
@@ -58,7 +66,14 @@ const CampaignManagement = () => {
     status: 'active',
     isUrgent: false,
     isFeatured: false,
-    image: null
+    image: null,
+    needsVolunteers: false,
+    platinumVolunteersNeeded: 0,
+    goldVolunteersNeeded: 0,
+    silverVolunteersNeeded: 0,
+    bronzeVolunteersNeeded: 0,
+    newbieVolunteersNeeded: 0,
+    autoSendVolunteerRequests: false
   });
 
   const categories = [
@@ -234,7 +249,14 @@ const CampaignManagement = () => {
       status: 'approved',
       isUrgent: false,
       isFeatured: false,
-      image: null
+      image: null,
+      needsVolunteers: false,
+      platinumVolunteersNeeded: 0,
+      goldVolunteersNeeded: 0,
+      silverVolunteersNeeded: 0,
+      bronzeVolunteersNeeded: 0,
+      newbieVolunteersNeeded: 0,
+      autoSendVolunteerRequests: false
     });
   };
 
@@ -252,7 +274,14 @@ const CampaignManagement = () => {
       status: campaign.status,
       isUrgent: campaign.isUrgent,
       isFeatured: campaign.isFeatured,
-      image: null
+      image: null,
+      needsVolunteers: (campaign as any).needsVolunteers || false,
+      platinumVolunteersNeeded: (campaign as any).platinumVolunteersNeeded || 0,
+      goldVolunteersNeeded: (campaign as any).goldVolunteersNeeded || 0,
+      silverVolunteersNeeded: (campaign as any).silverVolunteersNeeded || 0,
+      bronzeVolunteersNeeded: (campaign as any).bronzeVolunteersNeeded || 0,
+      newbieVolunteersNeeded: (campaign as any).newbieVolunteersNeeded || 0,
+      autoSendVolunteerRequests: (campaign as any).autoSendVolunteerRequests || false
     });
     setEditingCampaign(campaign);
     setShowEditModal(true);
@@ -789,6 +818,114 @@ const CampaignManagement = () => {
                     <p className="text-sm text-gray-600 mt-1">
                       Selected: {campaignForm.image.name}
                     </p>
+                  )}
+                </div>
+
+                {/* Volunteer Request Section */}
+                <div className="border-t pt-4 mt-4">
+                  <div className="flex items-center mb-4">
+                    <input
+                      type="checkbox"
+                      id="needsVolunteers"
+                      checked={campaignForm.needsVolunteers}
+                      onChange={(e) => setCampaignForm({ ...campaignForm, needsVolunteers: e.target.checked })}
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <label htmlFor="needsVolunteers" className="ml-2 text-sm font-medium text-gray-700">
+                      This campaign needs volunteers
+                    </label>
+                  </div>
+
+                  {campaignForm.needsVolunteers && (
+                    <div className="ml-6 space-y-4 bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-3">Specify how many volunteers needed for each rank:</p>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            💎 Platinum
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={campaignForm.platinumVolunteersNeeded}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, platinumVolunteersNeeded: Number(e.target.value) })}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            🏆 Gold
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={campaignForm.goldVolunteersNeeded}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, goldVolunteersNeeded: Number(e.target.value) })}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            🥈 Silver
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={campaignForm.silverVolunteersNeeded}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, silverVolunteersNeeded: Number(e.target.value) })}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            🥉 Bronze
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={campaignForm.bronzeVolunteersNeeded}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, bronzeVolunteersNeeded: Number(e.target.value) })}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-medium text-gray-700 mb-1">
+                            🌱 Newbie
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={campaignForm.newbieVolunteersNeeded}
+                            onChange={(e) => setCampaignForm({ ...campaignForm, newbieVolunteersNeeded: Number(e.target.value) })}
+                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center pt-2">
+                        <input
+                          type="checkbox"
+                          id="autoSendVolunteerRequests"
+                          checked={campaignForm.autoSendVolunteerRequests}
+                          onChange={(e) => setCampaignForm({ ...campaignForm, autoSendVolunteerRequests: e.target.checked })}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <label htmlFor="autoSendVolunteerRequests" className="ml-2 text-sm text-gray-700">
+                          Automatically send requests to volunteers (via email and notification panel)
+                        </label>
+                      </div>
+
+                      {campaignForm.autoSendVolunteerRequests && (
+                        <div className="bg-blue-100 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                          <strong>Note:</strong> Volunteers will be matched based on their rank, skills, availability, and location proximity.
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 

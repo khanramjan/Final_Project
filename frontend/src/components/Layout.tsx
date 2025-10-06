@@ -9,7 +9,12 @@ import {
   Bars3Icon,
   XMarkIcon,
   PowerIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  InboxIcon,
+  ClipboardDocumentCheckIcon,
+  ClockIcon,
+  TrophyIcon,
+  UserCircleIcon
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
@@ -18,12 +23,22 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// Navigation items for regular users
+// Navigation items for regular users (donors)
 const userNavigation = [
   { name: 'Dashboard', href: '/dashboard/', icon: HomeIcon },
   { name: 'My Donations', href: '/dashboard/donations', icon: HeartIcon },
   { name: 'Campaigns', href: '/dashboard/campaigns', icon: MegaphoneIcon },
   { name: 'Profile', href: '/dashboard/profile', icon: Cog6ToothIcon },
+];
+
+// Navigation items for volunteer users
+const volunteerNavigation = [
+  { name: 'Dashboard', href: '/volunteer/', icon: HomeIcon },
+  { name: 'Requests', href: '/volunteer/requests', icon: InboxIcon },
+  { name: 'My Assignments', href: '/volunteer/assignments', icon: ClipboardDocumentCheckIcon },
+  { name: 'History', href: '/volunteer/history', icon: ClockIcon },
+  { name: 'Achievements', href: '/volunteer/achievements', icon: TrophyIcon },
+  { name: 'Profile', href: '/volunteer/profile', icon: UserCircleIcon },
 ];
 
 // Navigation items for admin users
@@ -43,7 +58,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const user = useAppSelector((state) => (state as any).auth.user);
   
   // Select navigation based on user role
-  const navigation = user?.userType === 'admin' ? adminNavigation : userNavigation;
+  let navigation = userNavigation;
+  if (user?.userType === 'admin') {
+    navigation = adminNavigation;
+  } else if (user?.userType === 'volunteer') {
+    navigation = volunteerNavigation;
+  }
 
   const handleLogout = () => {
     dispatch(logout());

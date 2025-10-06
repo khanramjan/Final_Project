@@ -82,6 +82,12 @@ namespace DonationManagementSystem.API.Migrations
                     b.Property<int?>("ApprovedBy")
                         .HasColumnType("int");
 
+                    b.Property<bool>("AutoSendVolunteerRequests")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("BronzeVolunteersNeeded")
+                        .HasColumnType("int");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -100,6 +106,9 @@ namespace DonationManagementSystem.API.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("GoldVolunteersNeeded")
+                        .HasColumnType("int");
+
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
 
@@ -112,11 +121,23 @@ namespace DonationManagementSystem.API.Migrations
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("NeedsVolunteers")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NewbieVolunteersNeeded")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlatinumVolunteersNeeded")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("RaisedAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SilverVolunteersNeeded")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -135,6 +156,9 @@ namespace DonationManagementSystem.API.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("VolunteerRequestsSentAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -370,6 +394,525 @@ namespace DonationManagementSystem.API.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AchievementType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("BadgeColor")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BadgeIcon")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrentProgress")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsUnlocked")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("Points")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RequiredProgress")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RewardDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UnlockedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.ToTable("VolunteerAchievements");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("VolunteerAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("VolunteerAssignmentId");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.ToTable("VolunteerActivities");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActualHours")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CertificateIssued")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("CertificateIssuedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CertificatePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("CheckInLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CheckInLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("CheckInLongitude")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("CheckInTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("CheckOutLatitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("CheckOutLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("CheckOutLongitude")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime?>("CheckOutTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CompletionNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EstimatedHours")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImpactDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MeetingPoint")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PeopleImpacted")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProgressNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProgressPercentage")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("RatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("RatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Rating")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VolunteerRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("RatedBy");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.HasIndex("VolunteerRequestId")
+                        .IsUnique()
+                        .HasFilter("[VolunteerRequestId] IS NOT NULL");
+
+                    b.ToTable("VolunteerAssignments");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AcceptEmailNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("AcceptSmsNotifications")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("AvailableDays")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Certifications")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CompletedCampaigns")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExperienceLevel")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("HoursPerWeek")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Interests")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsProfilePublic")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastActivityAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastRankUpgradeAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("PreferredTimeSlots")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Rank")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(3,2)");
+
+                    b.Property<string>("Skills")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("TotalCampaignsSupported")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalHoursVolunteered")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPeopleImpacted")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalRatings")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalTasksCompleted")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("VerifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("VerifiedBy");
+
+                    b.ToTable("VolunteerProfiles");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRankHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CampaignsCompletedAtUpgrade")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NewRank")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PreviousRank")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UpgradedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UpgradedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UpgradedBy");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.ToTable("VolunteerRankHistories");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeclineReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EstimatedHours")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MeetingPoint")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("RequestedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RequiredEquipment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequiredSkills")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TaskType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("TeamSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("RequestedBy");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.ToTable("VolunteerRequests");
+                });
+
             modelBuilder.Entity("DonationManagementSystem.API.Models.AuditLog", b =>
                 {
                     b.HasOne("DonationManagementSystem.API.Models.User", "User")
@@ -446,6 +989,138 @@ namespace DonationManagementSystem.API.Migrations
                     b.Navigation("UpdatedByUser");
                 });
 
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerAchievement", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany("Achievements")
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VolunteerProfile");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerActivity", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerAssignment", "VolunteerAssignment")
+                        .WithMany("Activities")
+                        .HasForeignKey("VolunteerAssignmentId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany("Activities")
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("VolunteerAssignment");
+
+                    b.Navigation("VolunteerProfile");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerAssignment", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.User", "Rater")
+                        .WithMany()
+                        .HasForeignKey("RatedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany("Assignments")
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerRequest", "VolunteerRequest")
+                        .WithOne("Assignment")
+                        .HasForeignKey("DonationManagementSystem.API.Models.VolunteerAssignment", "VolunteerRequestId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("Rater");
+
+                    b.Navigation("VolunteerProfile");
+
+                    b.Navigation("VolunteerRequest");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerProfile", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.User", "Verifier")
+                        .WithMany()
+                        .HasForeignKey("VerifiedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("User");
+
+                    b.Navigation("Verifier");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRankHistory", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.User", "UpgradedByUser")
+                        .WithMany()
+                        .HasForeignKey("UpgradedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany("RankHistory")
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UpgradedByUser");
+
+                    b.Navigation("VolunteerProfile");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRequest", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.User", "RequestedByUser")
+                        .WithMany()
+                        .HasForeignKey("RequestedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany("Requests")
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("RequestedByUser");
+
+                    b.Navigation("VolunteerProfile");
+                });
+
             modelBuilder.Entity("DonationManagementSystem.API.Models.Campaign", b =>
                 {
                     b.Navigation("Donations");
@@ -460,6 +1135,29 @@ namespace DonationManagementSystem.API.Migrations
                     b.Navigation("CampaignsCreated");
 
                     b.Navigation("Donations");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerAssignment", b =>
+                {
+                    b.Navigation("Activities");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerProfile", b =>
+                {
+                    b.Navigation("Achievements");
+
+                    b.Navigation("Activities");
+
+                    b.Navigation("Assignments");
+
+                    b.Navigation("RankHistory");
+
+                    b.Navigation("Requests");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRequest", b =>
+                {
+                    b.Navigation("Assignment");
                 });
 #pragma warning restore 612, 618
         }

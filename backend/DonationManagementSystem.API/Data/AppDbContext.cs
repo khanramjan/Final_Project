@@ -13,6 +13,14 @@ namespace DonationManagementSystem.API.Data
 		public DbSet<CampaignUpdate> CampaignUpdates { get; set; }
 		public DbSet<SystemSettings> SystemSettings { get; set; }
 		public DbSet<AuditLog> AuditLogs { get; set; }
+		
+		// Volunteer System
+		public DbSet<VolunteerProfile> VolunteerProfiles { get; set; }
+		public DbSet<VolunteerRequest> VolunteerRequests { get; set; }
+		public DbSet<VolunteerAssignment> VolunteerAssignments { get; set; }
+		public DbSet<VolunteerActivity> VolunteerActivities { get; set; }
+		public DbSet<VolunteerAchievement> VolunteerAchievements { get; set; }
+		public DbSet<VolunteerRankHistory> VolunteerRankHistories { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -134,6 +142,144 @@ namespace DonationManagementSystem.API.Data
 					  .WithMany()
 					  .HasForeignKey(e => e.UserId)
 					  .OnDelete(DeleteBehavior.SetNull);
+			});
+
+			// ===== VOLUNTEER SYSTEM CONFIGURATIONS =====
+
+			// VolunteerProfile configurations
+			modelBuilder.Entity<VolunteerProfile>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.HasIndex(e => e.UserId).IsUnique();
+				entity.Property(e => e.ExperienceLevel).HasMaxLength(50);
+				entity.Property(e => e.Status).HasMaxLength(50);
+				entity.Property(e => e.Rating).HasColumnType("decimal(3,2)");
+
+				// One-to-One with User
+				entity.HasOne(e => e.User)
+					  .WithMany()
+					  .HasForeignKey(e => e.UserId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.Verifier)
+					  .WithMany()
+					  .HasForeignKey(e => e.VerifiedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerRequest configurations
+			modelBuilder.Entity<VolunteerRequest>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Description).IsRequired();
+				entity.Property(e => e.TaskType).HasMaxLength(100);
+				entity.Property(e => e.Priority).HasMaxLength(50);
+				entity.Property(e => e.Status).HasMaxLength(50);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany(vp => vp.Requests)
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.RequestedByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.RequestedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.Assignment)
+					  .WithOne(a => a.VolunteerRequest)
+					  .HasForeignKey<VolunteerAssignment>(a => a.VolunteerRequestId)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerAssignment configurations
+			modelBuilder.Entity<VolunteerAssignment>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Description).IsRequired();
+				entity.Property(e => e.TaskType).HasMaxLength(100);
+				entity.Property(e => e.Status).HasMaxLength(50);
+				entity.Property(e => e.Rating).HasColumnType("decimal(3,2)");
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany(vp => vp.Assignments)
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.Rater)
+					  .WithMany()
+					  .HasForeignKey(e => e.RatedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerActivity configurations
+			modelBuilder.Entity<VolunteerActivity>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.ActivityType).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany(vp => vp.Activities)
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.VolunteerAssignment)
+					  .WithMany(va => va.Activities)
+					  .HasForeignKey(e => e.VolunteerAssignmentId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerAchievement configurations
+			modelBuilder.Entity<VolunteerAchievement>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.AchievementType).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Description).IsRequired();
+				entity.Property(e => e.BadgeIcon).HasMaxLength(100);
+				entity.Property(e => e.BadgeColor).HasMaxLength(20);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany(vp => vp.Achievements)
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+
+			// VolunteerRankHistory configurations
+			modelBuilder.Entity<VolunteerRankHistory>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.PreviousRank).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.NewRank).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.Reason).IsRequired().HasMaxLength(500);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany(vp => vp.RankHistory)
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.UpgradedByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.UpgradedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
 			});
 		}
 	}

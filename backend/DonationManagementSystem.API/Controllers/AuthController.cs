@@ -138,7 +138,8 @@ namespace DonationManagementSystem.API.Controllers
 				if (!user.IsActive)
 					return Unauthorized(new { message = "Account is disabled" });
 
-				if (!user.IsEmailVerified)
+				// Skip email verification check for admin users
+				if (!user.IsEmailVerified && user.UserType != "admin")
 					return Unauthorized(new { message = "Please verify your email before logging in. Check your inbox for the verification link." });
 
 				// Generate JWT token
