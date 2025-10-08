@@ -37,6 +37,15 @@ namespace DonationManagementSystem.API.DTOs
         public bool IsUrgent { get; set; } = false;
         public bool IsFeatured { get; set; } = false;
         public IFormFile? Image { get; set; }
+        
+        // Volunteer request fields
+        public bool NeedsVolunteers { get; set; } = false;
+        public int PlatinumVolunteersNeeded { get; set; } = 0;
+        public int GoldVolunteersNeeded { get; set; } = 0;
+        public int SilverVolunteersNeeded { get; set; } = 0;
+        public int BronzeVolunteersNeeded { get; set; } = 0;
+        public int NewbieVolunteersNeeded { get; set; } = 0;
+        public bool AutoSendVolunteerRequests { get; set; } = false;
     }
 
     public class UpdateCampaignDto
@@ -51,6 +60,15 @@ namespace DonationManagementSystem.API.DTOs
         public bool? IsUrgent { get; set; }
         public bool? IsFeatured { get; set; }
         public IFormFile? Image { get; set; }
+        
+        // Volunteer request fields
+        public bool? NeedsVolunteers { get; set; }
+        public int? PlatinumVolunteersNeeded { get; set; }
+        public int? GoldVolunteersNeeded { get; set; }
+        public int? SilverVolunteersNeeded { get; set; }
+        public int? BronzeVolunteersNeeded { get; set; }
+        public int? NewbieVolunteersNeeded { get; set; }
+        public bool? AutoSendVolunteerRequests { get; set; }
     }
 
     public class ApproveCampaignDto

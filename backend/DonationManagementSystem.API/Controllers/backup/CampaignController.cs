@@ -93,13 +93,40 @@ namespace DonationManagementSystem.API.Controllers
                     Status = "active", // Admin created campaigns are active by default
                     ApprovedBy = currentUserId,
                     ApprovedAt = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    // Volunteer fields
+                    NeedsVolunteers = dto.NeedsVolunteers,
+                    PlatinumVolunteersNeeded = dto.PlatinumVolunteersNeeded,
+                    GoldVolunteersNeeded = dto.GoldVolunteersNeeded,
+                    SilverVolunteersNeeded = dto.SilverVolunteersNeeded,
+                    BronzeVolunteersNeeded = dto.BronzeVolunteersNeeded,
+                    NewbieVolunteersNeeded = dto.NewbieVolunteersNeeded,
+                    AutoSendVolunteerRequests = dto.AutoSendVolunteerRequests
                 };
 
                 Console.WriteLine($"Campaign object created, saving to database...");
+                Console.WriteLine($"NeedsVolunteers: {dto.NeedsVolunteers}");
+                Console.WriteLine($"AutoSendVolunteerRequests: {dto.AutoSendVolunteerRequests}");
+                Console.WriteLine($"PlatinumNeeded: {dto.PlatinumVolunteersNeeded}, GoldNeeded: {dto.GoldVolunteersNeeded}");
+                
                 _context.Campaigns.Add(campaign);
                 await _context.SaveChangesAsync();
                 Console.WriteLine($"Campaign saved with ID: {campaign.Id}");
+
+                // Send volunteer requests if auto-send is enabled
+                Console.WriteLine($"Checking volunteer request conditions...");
+                Console.WriteLine($"  AutoSendVolunteerRequests = {dto.AutoSendVolunteerRequests}");
+                Console.WriteLine($"  NeedsVolunteers = {dto.NeedsVolunteers}");
+                
+                if (dto.AutoSendVolunteerRequests && dto.NeedsVolunteers)
+                {
+                    Console.WriteLine($"✅ CONDITIONS MET - Auto-sending volunteer requests for campaign {campaign.Id}");
+                    await SendVolunteerRequests(campaign);
+                }
+                else
+                {
+                    Console.WriteLine($"❌ CONDITIONS NOT MET - Skipping volunteer requests");
+                }
 
                 return Ok(new
                 {
@@ -432,6 +459,36 @@ namespace DonationManagementSystem.API.Controllers
                 if (dto.IsFeatured.HasValue)
                     campaign.IsFeatured = dto.IsFeatured.Value;
 
+                // Update volunteer fields
+                if (dto.NeedsVolunteers.HasValue)
+                    campaign.NeedsVolunteers = dto.NeedsVolunteers.Value;
+
+                if (dto.PlatinumVolunteersNeeded.HasValue)
+                    campaign.PlatinumVolunteersNeeded = dto.PlatinumVolunteersNeeded.Value;
+
+                if (dto.GoldVolunteersNeeded.HasValue)
+                    campaign.GoldVolunteersNeeded = dto.GoldVolunteersNeeded.Value;
+
+                if (dto.SilverVolunteersNeeded.HasValue)
+                    campaign.SilverVolunteersNeeded = dto.SilverVolunteersNeeded.Value;
+
+                if (dto.BronzeVolunteersNeeded.HasValue)
+                    campaign.BronzeVolunteersNeeded = dto.BronzeVolunteersNeeded.Value;
+
+                if (dto.NewbieVolunteersNeeded.HasValue)
+                    campaign.NewbieVolunteersNeeded = dto.NewbieVolunteersNeeded.Value;
+
+                bool sendRequests = false;
+                if (dto.AutoSendVolunteerRequests.HasValue)
+                {
+                    // Check if auto-send was just enabled
+                    if (dto.AutoSendVolunteerRequests.Value && !campaign.AutoSendVolunteerRequests && campaign.VolunteerRequestsSentAt == null)
+                    {
+                        sendRequests = true;
+                    }
+                    campaign.AutoSendVolunteerRequests = dto.AutoSendVolunteerRequests.Value;
+                }
+
                 // Handle image upload
                 if (dto.Image != null)
                 {
@@ -451,6 +508,13 @@ namespace DonationManagementSystem.API.Controllers
 
                 campaign.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
+
+                // Send volunteer requests if auto-send was just enabled
+                if (sendRequests && campaign.NeedsVolunteers)
+                {
+                    Console.WriteLine($"Auto-sending volunteer requests for updated campaign {campaign.Id}");
+                    await SendVolunteerRequests(campaign);
+                }
 
                 return Ok(new { message = "Campaign updated successfully" });
             }
@@ -688,6 +752,148 @@ namespace DonationManagementSystem.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Failed to fetch campaign details", error = ex.Message });
+            }
+        }
+
+        // Helper method to send volunteer requests automatically
+        private async Task SendVolunteerRequests(Campaign campaign)
+        {
+            try
+            {
+                Console.WriteLine($"\n========================================");
+                Console.WriteLine($"=== SENDING VOLUNTEER REQUESTS ===");
+                Console.WriteLine($"Campaign ID: {campaign.Id}");
+                Console.WriteLine($"Campaign Title: {campaign.Title}");
+                Console.WriteLine($"========================================\n");
+                
+                // Define rank requirements with counts
+                var rankRequirements = new Dictionary<string, int>
+                {
+                    { "platinum", campaign.PlatinumVolunteersNeeded },
+                    { "gold", campaign.GoldVolunteersNeeded },
+                    { "silver", campaign.SilverVolunteersNeeded },
+                    { "bronze", campaign.BronzeVolunteersNeeded },
+                    { "newbie", campaign.NewbieVolunteersNeeded }
+                };
+
+                Console.WriteLine("Rank Requirements:");
+                foreach (var (rank, count) in rankRequirements)
+                {
+                    Console.WriteLine($"  {rank}: {count} volunteers needed");
+                }
+                Console.WriteLine();
+
+                int totalRequestsSent = 0;
+
+                // First, check how many volunteer profiles exist
+                var totalProfiles = await _context.VolunteerProfiles.CountAsync();
+                var verifiedProfiles = await _context.VolunteerProfiles.CountAsync(vp => vp.Status == "verified");
+                Console.WriteLine($"📊 Total volunteer profiles in database: {totalProfiles}");
+                Console.WriteLine($"✅ Verified volunteer profiles: {verifiedProfiles}");
+                Console.WriteLine();
+
+                foreach (var (rank, count) in rankRequirements)
+                {
+                    if (count <= 0)
+                    {
+                        Console.WriteLine($"⏭️  Skipping {rank} - no volunteers needed (count = 0)");
+                        continue;
+                    }
+
+                    Console.WriteLine($"\n--- Processing {rank.ToUpper()} volunteers ---");
+                    Console.WriteLine($"Looking for {count} volunteers with rank '{rank}'...");
+
+                    // Debug: Check all profiles with this rank
+                    var allRankProfiles = await _context.VolunteerProfiles
+                        .Where(vp => vp.Rank.ToLower() == rank)
+                        .ToListAsync();
+                    Console.WriteLine($"  Total profiles with rank '{rank}': {allRankProfiles.Count}");
+                    
+                    if (allRankProfiles.Any())
+                    {
+                        foreach (var p in allRankProfiles)
+                        {
+                            Console.WriteLine($"    - Profile ID {p.Id}: Status={p.Status}, IsVerified={p.IsVerified}, AcceptEmail={p.AcceptEmailNotifications}");
+                        }
+                    }
+
+                    // Find active and verified volunteers with the specified rank
+                    // Status should be "active" and IsVerified should be true
+                    var volunteers = await _context.VolunteerProfiles
+                        .Include(vp => vp.User)
+                        .Where(vp => 
+                            (vp.Status == "active" || vp.Status == "verified") && // Accept both active and verified status
+                            vp.IsVerified == true && // Must be verified
+                            vp.Rank.ToLower() == rank &&
+                            vp.AcceptEmailNotifications) // Only send to those who accept notifications
+                        .OrderByDescending(vp => vp.TotalHoursVolunteered) // Prioritize by experience
+                        .Take(count)
+                        .ToListAsync();
+
+                    Console.WriteLine($"✅ Found {volunteers.Count} qualified volunteers with rank '{rank}'");
+
+                    // Create volunteer requests
+                    if (volunteers.Count == 0)
+                    {
+                        Console.WriteLine($"⚠️  No qualified volunteers found for rank '{rank}'");
+                        Console.WriteLine($"   Possible reasons:");
+                        Console.WriteLine($"   - No volunteers with this rank exist");
+                        Console.WriteLine($"   - Volunteers not verified (status != 'verified')");
+                        Console.WriteLine($"   - Volunteers have disabled email notifications");
+                    }
+                    else
+                    {
+                        foreach (var volunteer in volunteers)
+                        {
+                            Console.WriteLine($"\n  Creating request for volunteer:");
+                            Console.WriteLine($"    Email: {volunteer.User.Email}");
+                            Console.WriteLine($"    Name: {volunteer.User.FirstName} {volunteer.User.LastName}");
+                            Console.WriteLine($"    Rank: {rank}");
+                            Console.WriteLine($"    Status: {volunteer.Status}");
+                            
+                            var request = new VolunteerRequest
+                            {
+                                CampaignId = campaign.Id,
+                                VolunteerProfileId = volunteer.Id,
+                                Title = $"Volunteer Request for {campaign.Title}",
+                                Description = $"We need your help! The campaign '{campaign.Title}' is looking for {rank} rank volunteers with your expertise.",
+                                TaskType = campaign.Category.ToLower(), // Use campaign category as task type
+                                Status = "pending",
+                                Priority = campaign.IsUrgent ? "high" : "medium",
+                                RequestedBy = campaign.CreatedBy,
+                                StartDate = campaign.StartDate,
+                                EndDate = campaign.EndDate,
+                                EstimatedHours = 10, // Default estimated hours
+                                CreatedAt = DateTime.UtcNow,
+                                ExpiresAt = DateTime.UtcNow.AddDays(7) // Request expires in 7 days
+                            };
+
+                            _context.VolunteerRequests.Add(request);
+                            totalRequestsSent++;
+
+                            Console.WriteLine($"    ✅ Request created successfully");
+                        }
+                    }
+                }
+
+                // Update campaign to mark that requests were sent
+                campaign.VolunteerRequestsSentAt = DateTime.UtcNow;
+                
+                await _context.SaveChangesAsync();
+                
+                Console.WriteLine($"\n========================================");
+                Console.WriteLine($"✅ SUCCESS: Sent {totalRequestsSent} volunteer requests");
+                Console.WriteLine($"Campaign {campaign.Id} marked as requests sent");
+                Console.WriteLine($"========================================\n");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n========================================");
+                Console.WriteLine($"❌ ERROR sending volunteer requests");
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                Console.WriteLine($"========================================\n");
+                // Don't throw - campaign creation should still succeed even if request sending fails
             }
         }
     }
