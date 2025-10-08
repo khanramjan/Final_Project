@@ -93,5 +93,64 @@ namespace DonationManagementSystem.API.Controllers
                 return StatusCode(500, new { message = "Analytics failed", error = ex.Message });
             }
         }
+
+        [HttpGet("campaign-metrics")]
+        public async Task<IActionResult> GetCampaignMetrics()
+        {
+            try
+            {
+                var campaigns = await _context.Campaigns
+                    .Select(c => new
+                    {
+                        c.Id,
+                        c.Title,
+                        c.Category,
+                        c.TargetAmount,
+                        c.Status,
+                        c.CreatedAt,
+                        c.ImagePath,
+                        c.IsUrgent,
+                        c.IsFeatured,
+                        // Calculate raised amount from donations
+                        RaisedAmount = _context.Donations
+                            .Where(d => d.CampaignId == c.Id)
+                            .Sum(d => (decimal?)d.Amount) ?? 0,
+                        // Count donations for this campaign
+                        DonationCount = _context.Donations
+                            .Count(d => d.CampaignId == c.Id),
+                        // Get recent donation time
+                        LastDonationDate = _context.Donations
+                            .Where(d => d.CampaignId == c.Id)
+                            .OrderByDescending(d => d.CreatedAt)
+                            .Select(d => (DateTime?)d.CreatedAt)
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                var campaignMetrics = campaigns.Select(c => new
+                {
+                    c.Id,
+                    c.Title,
+                    c.Category,
+                    c.TargetAmount,
+                    c.RaisedAmount,
+                    c.DonationCount,
+                    c.Status,
+                    c.IsUrgent,
+                    c.IsFeatured,
+                    ProgressPercentage = c.TargetAmount > 0 ? (c.RaisedAmount / c.TargetAmount) * 100 : 0,
+                    AverageDonation = c.DonationCount > 0 ? c.RaisedAmount / c.DonationCount : 0,
+                    DaysActive = (DateTime.UtcNow - c.CreatedAt).Days,
+                    c.LastDonationDate,
+                    c.ImagePath
+                }).OrderByDescending(c => c.RaisedAmount).ToList();
+
+                return Ok(campaignMetrics);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch campaign metrics", error = ex.Message });
+            }
+        }
     }
 }

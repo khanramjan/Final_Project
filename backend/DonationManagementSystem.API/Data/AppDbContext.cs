@@ -21,6 +21,9 @@ namespace DonationManagementSystem.API.Data
 		public DbSet<VolunteerActivity> VolunteerActivities { get; set; }
 		public DbSet<VolunteerAchievement> VolunteerAchievements { get; set; }
 		public DbSet<VolunteerRankHistory> VolunteerRankHistories { get; set; }
+		
+		// Testimonials
+		public DbSet<Testimonial> Testimonials { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -279,6 +282,31 @@ namespace DonationManagementSystem.API.Data
 				entity.HasOne(e => e.UpgradedByUser)
 					  .WithMany()
 					  .HasForeignKey(e => e.UpgradedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// Testimonial configurations
+			modelBuilder.Entity<Testimonial>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Position).HasMaxLength(200);
+				entity.Property(e => e.Organization).HasMaxLength(300);
+				entity.Property(e => e.Email).HasMaxLength(255);
+				entity.Property(e => e.AvatarUrl).HasMaxLength(500);
+				entity.Property(e => e.Comment).IsRequired().HasMaxLength(1000);
+				entity.Property(e => e.BadgeType).HasMaxLength(50);
+
+				// Configure relationship with User (who submitted it, if logged in)
+				entity.HasOne(e => e.User)
+					  .WithMany()
+					  .HasForeignKey(e => e.UserId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				// Configure relationship with ApprovedBy User
+				entity.HasOne(e => e.ApprovedBy)
+					  .WithMany()
+					  .HasForeignKey(e => e.ApprovedByUserId)
 					  .OnDelete(DeleteBehavior.NoAction);
 			});
 		}

@@ -148,8 +148,18 @@ const CampaignManagement = () => {
       formData.append('endDate', campaignForm.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
       formData.append('category', campaignForm.category);
       formData.append('location', campaignForm.location || '');
+      formData.append('status', campaignForm.status);
       formData.append('isUrgent', campaignForm.isUrgent.toString());
       formData.append('isFeatured', campaignForm.isFeatured.toString());
+      
+      // Add volunteer request fields
+      formData.append('needsVolunteers', campaignForm.needsVolunteers.toString());
+      formData.append('platinumVolunteersNeeded', campaignForm.platinumVolunteersNeeded.toString());
+      formData.append('goldVolunteersNeeded', campaignForm.goldVolunteersNeeded.toString());
+      formData.append('silverVolunteersNeeded', campaignForm.silverVolunteersNeeded.toString());
+      formData.append('bronzeVolunteersNeeded', campaignForm.bronzeVolunteersNeeded.toString());
+      formData.append('newbieVolunteersNeeded', campaignForm.newbieVolunteersNeeded.toString());
+      formData.append('autoSendVolunteerRequests', campaignForm.autoSendVolunteerRequests.toString());
       
       if (campaignForm.image) {
         formData.append('image', campaignForm.image);
@@ -193,8 +203,18 @@ const CampaignManagement = () => {
       formData.append('endDate', campaignForm.endDate);
       formData.append('category', campaignForm.category);
       formData.append('location', campaignForm.location);
+      formData.append('status', campaignForm.status);
       formData.append('isUrgent', campaignForm.isUrgent.toString());
       formData.append('isFeatured', campaignForm.isFeatured.toString());
+      
+      // Add volunteer request fields
+      formData.append('needsVolunteers', campaignForm.needsVolunteers.toString());
+      formData.append('platinumVolunteersNeeded', campaignForm.platinumVolunteersNeeded.toString());
+      formData.append('goldVolunteersNeeded', campaignForm.goldVolunteersNeeded.toString());
+      formData.append('silverVolunteersNeeded', campaignForm.silverVolunteersNeeded.toString());
+      formData.append('bronzeVolunteersNeeded', campaignForm.bronzeVolunteersNeeded.toString());
+      formData.append('newbieVolunteersNeeded', campaignForm.newbieVolunteersNeeded.toString());
+      formData.append('autoSendVolunteerRequests', campaignForm.autoSendVolunteerRequests.toString());
       
       if (campaignForm.image) {
         formData.append('image', campaignForm.image);

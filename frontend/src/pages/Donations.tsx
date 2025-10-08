@@ -179,7 +179,7 @@ const Donations = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Donated</p>
               <p className="text-2xl font-bold text-gray-900 mt-2">
-                ${stats.totalAmount.toLocaleString()}
+                ৳{stats.totalAmount.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500 mt-1">{stats.total} donations</p>
             </div>
@@ -207,7 +207,7 @@ const Donations = () => {
             <div>
               <p className="text-sm font-medium text-gray-600">Average Amount</p>
               <p className="text-2xl font-bold text-purple-600 mt-2">
-                ${stats.averageAmount.toFixed(0)}
+                ৳{stats.averageAmount.toFixed(0)}
               </p>
               <p className="text-xs text-gray-500 mt-1">Per donation</p>
             </div>
@@ -354,7 +354,7 @@ const Donations = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-semibold text-gray-900">
-                        ${donation.amount.toLocaleString()}
+                        ৳{donation.amount.toLocaleString()}
                       </span>
                       <br />
                       <span className="text-xs text-gray-500">{donation.paymentMethod}</span>

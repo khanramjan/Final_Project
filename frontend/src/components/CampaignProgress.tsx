@@ -33,8 +33,8 @@ const CampaignProgress = () => {
                   ></div>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>${campaign.currentAmount.toLocaleString()}</span>
-                  <span>Goal: ${campaign.goalAmount.toLocaleString()}</span>
+                  <span>৳{campaign.currentAmount.toLocaleString()}</span>
+                  <span>Goal: ৳{campaign.goalAmount.toLocaleString()}</span>
                 </div>
               </div>
             );

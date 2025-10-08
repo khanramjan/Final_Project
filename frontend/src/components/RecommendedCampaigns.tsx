@@ -75,7 +75,7 @@ const RecommendedCampaigns = () => {
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-600">
-                      ${campaign.raisedAmount.toLocaleString()} raised
+                      ৳{campaign.raisedAmount.toLocaleString()} raised
                     </span>
                     <span className="text-gray-500">
                       {Math.round(progress)}%
@@ -94,7 +94,7 @@ const RecommendedCampaigns = () => {
                       <ClockIcon className="h-3.5 w-3.5" />
                       <span>{daysLeft} days left</span>
                     </div>
-                    <span>Goal: ${campaign.targetAmount.toLocaleString()}</span>
+                    <span>Goal: ৳{campaign.targetAmount.toLocaleString()}</span>
                   </div>
 
                   <button className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">

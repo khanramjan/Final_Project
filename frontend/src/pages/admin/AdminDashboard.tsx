@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAppSelector } from '../../store/hooks';
 import {
   UsersIcon,
-  CurrencyDollarIcon,
+  BanknotesIcon,
   ChartBarIcon,
   HeartIcon,
   DocumentArrowDownIcon,
@@ -10,7 +10,7 @@ import {
   ArrowDownIcon,
   CogIcon
 } from '@heroicons/react/24/outline';
-import analyticsService, { AnalyticsOverview } from '../../services/analyticsService';
+import analyticsService, { AnalyticsOverview, CampaignMetric } from '../../services/analyticsService';
 import campaignService from '../../services/campaignService';
 import donationService from '../../services/donationService';
 import NotificationSystem from '../../components/NotificationSystem';
@@ -31,20 +31,24 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [campaignMetrics, setCampaignMetrics] = useState<CampaignMetric[]>([]);
+  const [uniqueDonorsToday, setUniqueDonorsToday] = useState(0);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      const [analyticsData, campaignsData, donationsData] = await Promise.all([
+      const [analyticsData, campaignsData, donationsData, metricsData] = await Promise.all([
         analyticsService.getDashboardAnalytics(),
         campaignService.getAllCampaigns({ status: 'pending', pageSize: 10 }),
-        donationService.getAllDonations({ pageSize: 5 })
+        donationService.getAllDonations({ pageSize: 5 }),
+        analyticsService.getCampaignMetrics()
       ]);
       
       setAnalytics(analyticsData);
       setPendingCampaigns(campaignsData.totalCount || campaignsData.campaigns?.length || 0);
+      setCampaignMetrics(metricsData);
       
       // Map DonationOverview to RecentDonation
       const mappedDonations: RecentDonation[] = (donationsData.donations || []).map(donation => ({
@@ -55,6 +59,14 @@ const AdminDashboard = () => {
         createdAt: donation.createdAt
       }));
       setRecentDonations(mappedDonations);
+      
+      // Calculate unique donors from today's donations
+      const today = new Date().toISOString().split('T')[0];
+      const todaysDonations = mappedDonations.filter(d => 
+        d.createdAt.startsWith(today)
+      );
+      const uniqueDonors = new Set(todaysDonations.map(d => d.donorName.toLowerCase())).size;
+      setUniqueDonorsToday(uniqueDonors);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
       console.error('Error details:', JSON.stringify(error, null, 2));
@@ -149,7 +161,7 @@ const AdminDashboard = () => {
             <dd className="flex items-baseline">
               <div className="text-2xl font-semibold text-gray-900">
                 {typeof value === 'number' && title.includes('Amount') 
-                  ? `$${value.toLocaleString()}` 
+                  ? `৳${value.toLocaleString()}` 
                   : value.toLocaleString()}
               </div>
               {trend && (
@@ -270,7 +282,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Real-time Statistics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard
           icon={UsersIcon}
           title="Total Users"
@@ -279,48 +291,128 @@ const AdminDashboard = () => {
           subtitle={`${analytics.today.newUsers} new today`}
         />
         <StatCard
-          icon={CurrencyDollarIcon}
+          icon={BanknotesIcon}
           title="Total Donations"
           value={analytics.overview.totalDonations}
           trend={{ value: `+${analytics.today.donations}`, type: 'up' }}
           subtitle={`${analytics.today.donations} today`}
         />
-        <StatCard
-          icon={ChartBarIcon}
-          title="Active Campaigns"
-          value={analytics.overview.activeCampaigns}
-          trend={{ value: `${pendingCampaigns}`, type: 'up' }}
-          subtitle={`${pendingCampaigns} pending approval`}
-        />
-        <StatCard
-          icon={HeartIcon}
-          title="Total Amount"
-          value={analytics.overview.totalAmount}
-          trend={{ value: `+${analytics.monthly.growth}%`, type: 'up' }}
-          subtitle={`$${analytics.today.amount.toLocaleString()} today`}
-        />
+      </div>
+
+      {/* Campaign-Based Donation Metrics */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900 flex items-center">
+            <ChartBarIcon className="h-5 w-5 mr-3 text-primary-600" />
+            Campaign-Based Donation Performance
+          </h3>
+          <span className="text-xs text-gray-500">
+            Real-time campaign metrics
+          </span>
+        </div>
+        
+        {campaignMetrics.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {campaignMetrics.slice(0, 6).map((campaign) => (
+              <div key={campaign.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-gray-900 text-sm mb-1 line-clamp-2">
+                      {campaign.title}
+                    </h4>
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                      campaign.status === 'active' ? 'bg-green-100 text-green-800' :
+                      campaign.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {campaign.status}
+                    </span>
+                  </div>
+                  {campaign.isUrgent && (
+                    <span className="ml-2 text-red-500 text-xs font-bold">🔴 URGENT</span>
+                  )}
+                </div>
+                
+                <div className="space-y-2 mb-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Raised:</span>
+                    <span className="font-semibold text-green-600">
+                      ৳{campaign.raisedAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Target:</span>
+                    <span className="font-medium text-gray-900">
+                      ৳{campaign.targetAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Donations:</span>
+                    <span className="font-medium text-blue-600">
+                      {campaign.donationCount}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="mb-2">
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Progress</span>
+                    <span className="font-semibold">{Math.round(campaign.progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full transition-all ${
+                        campaign.progressPercentage >= 100 ? 'bg-green-500' :
+                        campaign.progressPercentage >= 75 ? 'bg-blue-500' :
+                        campaign.progressPercentage >= 50 ? 'bg-yellow-500' :
+                        'bg-orange-500'
+                      }`}
+                      style={{ width: `${Math.min(campaign.progressPercentage, 100)}%` }}
+                    />
+                  </div>
+                </div>
+                
+                <div className="pt-2 border-t border-gray-100">
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>Avg: ৳{campaign.averageDonation.toFixed(0)}</span>
+                    <span>{campaign.daysActive} days active</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No campaign data available</p>
+          </div>
+        )}
+        
+        {campaignMetrics.length > 6 && (
+          <button 
+            onClick={() => window.location.href = '/admin/campaigns'}
+            className="w-full mt-4 text-sm text-primary-600 hover:text-primary-700 font-medium border-t pt-4"
+          >
+            View All {campaignMetrics.length} Campaigns →
+          </button>
+        )}
       </div>
 
       {/* Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard
-          icon={CurrencyDollarIcon}
+          icon={BanknotesIcon}
           title="Average Donation"
-          value={`$${analytics.overview.averageDonation}`}
+          value={`৳${analytics.overview.averageDonation}`}
           subtitle="Per transaction"
         />
         <StatCard
-          icon={ChartBarIcon}
-          title="Success Rate"
-          value={`${analytics.overview.successRate}%`}
-          subtitle="Completed donations"
-        />
-        <StatCard
-          icon={HeartIcon}
-          title="Monthly Growth"
-          value={`${analytics.monthly.growth}%`}
-          trend={{ value: `$${analytics.monthly.amount.toLocaleString()}`, type: 'up' }}
-          subtitle="This month"
+          icon={UsersIcon}
+          title="Donor Increased"
+          value={`+${uniqueDonorsToday}`}
+          trend={{ value: `${analytics.today.donations} donations`, type: 'up' }}
+          subtitle="Unique donors today"
         />
       </div>
 
@@ -342,11 +434,11 @@ const AdminDashboard = () => {
               recentDonations.map((donation) => (
                 <div key={donation.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex-shrink-0 p-1 rounded-full bg-green-100 text-green-600">
-                    <CurrencyDollarIcon className="h-4 w-4" />
+                    <BanknotesIcon className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900">
-                      💰 ${donation.amount?.toLocaleString() || 'N/A'} donation
+                      💰 ৳{donation.amount?.toLocaleString() || 'N/A'} donation
                     </p>
                     <p className="text-sm text-gray-600">
                       {donation.campaignTitle || 'General Fund'} • by {donation.donorName || 'Anonymous'}
@@ -360,7 +452,7 @@ const AdminDashboard = () => {
               ))
             ) : (
               <div className="text-center py-8">
-                <CurrencyDollarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                <BanknotesIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Waiting for live donations...</p>
                 <p className="text-xs text-gray-400">Updates automatically every 15 seconds</p>
               </div>
@@ -430,7 +522,7 @@ const AdminDashboard = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-gray-600">Revenue Today</span>
-                <span className="text-xs font-medium text-green-600">${analytics?.today.amount.toLocaleString() || '0'}</span>
+                <span className="text-xs font-medium text-green-600">৳{analytics?.today.amount.toLocaleString() || '0'}</span>
               </div>
             </div>
           </div>
@@ -444,7 +536,7 @@ const AdminDashboard = () => {
           Admin Action Center
         </h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <button 
             onClick={() => window.location.href = '/admin/campaigns'}
             className="group p-4 text-left border border-orange-200 rounded-lg hover:bg-orange-50 hover:border-orange-300 transition-all duration-200"
@@ -480,22 +572,6 @@ const AdminDashboard = () => {
             </div>
             <div className="text-xs text-gray-500 mt-1">
               +{analytics?.today.newUsers || 0} new today
-            </div>
-          </button>
-
-          <button 
-            onClick={() => window.location.href = '/admin/advanced-analytics'}
-            className="group p-4 text-left border border-green-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all duration-200"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <ChartBarIcon className="h-5 w-5 text-green-600" />
-              <span className="bg-green-500 text-white text-xs px-1 py-1 rounded">LIVE</span>
-            </div>
-            <div className="text-sm font-medium text-gray-900 group-hover:text-green-700">
-              Advanced Analytics
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              Real-time insights
             </div>
           </button>
 

@@ -140,7 +140,7 @@ namespace DonationManagementSystem.API.Controllers
                 // Fetch real campaigns from database
                 var query = _context.Campaigns
                     .Include(c => c.Creator)
-                    .Where(c => c.Status == "approved"); // Only show approved campaigns to public
+                    .Where(c => c.Status == "approved" || c.Status == "active"); // Show both approved and active campaigns to public
 
                 Console.WriteLine("Database query created");
 

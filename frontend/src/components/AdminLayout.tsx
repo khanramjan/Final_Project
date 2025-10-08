@@ -6,8 +6,7 @@ import {
   HomeIcon,
   UsersIcon,
   HeartIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
+  BanknotesIcon,
   CogIcon,
   Bars3Icon,
   XMarkIcon
@@ -22,10 +21,9 @@ const AdminLayout = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon, current: location.pathname === '/admin/dashboard' },
-    { name: 'Analytics', href: '/admin/analytics', icon: ChartBarIcon, current: location.pathname === '/admin/analytics' },
     { name: 'User Management', href: '/admin/users', icon: UsersIcon, current: location.pathname === '/admin/users' },
     { name: 'Campaign Management', href: '/admin/campaigns', icon: HeartIcon, current: location.pathname === '/admin/campaigns' },
-    { name: 'Donations', href: '/admin/donations', icon: CurrencyDollarIcon, current: location.pathname === '/admin/donations' },
+    { name: 'Donations', href: '/admin/donations', icon: BanknotesIcon, current: location.pathname === '/admin/donations' },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon, current: location.pathname === '/admin/settings' },
   ];
 

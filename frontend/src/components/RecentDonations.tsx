@@ -24,7 +24,7 @@ const RecentDonations = () => {
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-semibold text-green-600">${donation.amount}</p>
+                <p className="font-semibold text-green-600">৳{donation.amount}</p>
                 <p className="text-xs text-gray-500 capitalize">{donation.status}</p>
               </div>
             </div>

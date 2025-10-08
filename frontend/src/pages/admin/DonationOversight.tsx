@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   EyeIcon,
-  CurrencyDollarIcon,
+  BanknotesIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
   DocumentArrowDownIcon,
@@ -110,7 +110,7 @@ const DonationOversight = () => {
       case 'failed': return <XCircleIcon className="h-4 w-4 text-red-500" />;
       case 'pending': return <ExclamationTriangleIcon className="h-4 w-4 text-yellow-500" />;
       case 'refunded': return <ArrowPathIcon className="h-4 w-4 text-gray-500" />;
-      default: return <CurrencyDollarIcon className="h-4 w-4 text-gray-500" />;
+      default: return <BanknotesIcon className="h-4 w-4 text-gray-500" />;
     }
   };
 
@@ -155,11 +155,11 @@ const DonationOversight = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div className="flex items-center">
-            <CurrencyDollarIcon className="h-8 w-8 text-green-600" />
+            <BanknotesIcon className="h-8 w-8 text-green-600" />
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Amount</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+                ৳{donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
               </p>
             </div>
           </div>
@@ -329,7 +329,7 @@ const DonationOversight = () => {
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-sm font-medium text-gray-900">
-                        ${donation.amount.toLocaleString()}
+                        ৳{donation.amount.toLocaleString()}
                       </div>
                     </td>
                     <td className="px-4 py-4">

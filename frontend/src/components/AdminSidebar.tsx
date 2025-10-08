@@ -3,8 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import {
   HomeIcon,
   UsersIcon,
-  CurrencyDollarIcon,
-  ChartBarIcon,
+  BanknotesIcon,
   HeartIcon,
   CogIcon,
   PowerIcon,
@@ -35,11 +34,6 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
       icon: HomeIcon
     },
     {
-      name: 'Analytics',
-      href: '/admin/analytics',
-      icon: ChartBarIcon
-    },
-    {
       name: 'User Management',
       href: '/admin/users',
       icon: UsersIcon
@@ -52,7 +46,7 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
     {
       name: 'Donations',
       href: '/admin/donations',
-      icon: CurrencyDollarIcon
+      icon: BanknotesIcon
     },
     {
       name: 'Settings',

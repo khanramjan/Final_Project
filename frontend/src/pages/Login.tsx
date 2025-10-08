@@ -1,20 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { login } from '../store/slices/authSlice';
-import { Navigate, Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HeartIcon } from '@heroicons/react/24/outline';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [authMessage, setAuthMessage] = useState('');
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { loading, error, isAuthenticated, user } = useAppSelector((state) => state.auth);
 
-  if (isAuthenticated && user) {
-    // Redirect admin users to admin dashboard, others to regular dashboard
-    const redirectPath = user.userType === 'admin' ? '/admin' : '/dashboard';
-    return <Navigate to={redirectPath} replace />;
-  }
+  // Show message if redirected from a protected action
+  useEffect(() => {
+    if (location.state?.message) {
+      setAuthMessage(location.state.message);
+    }
+  }, [location]);
+
+  // Handle redirect after successful login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Check for return URL in localStorage
+      const returnUrl = localStorage.getItem('returnUrl');
+      if (returnUrl) {
+        localStorage.removeItem('returnUrl');
+        navigate(returnUrl, { replace: true });
+        return;
+      }
+      // Otherwise redirect based on user type
+      const redirectPath = user.userType === 'admin' ? '/admin' : '/dashboard';
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +77,11 @@ const Login = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             Donation Management System
           </p>
+          {authMessage && (
+            <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800 text-center">{authMessage}</p>
+            </div>
+          )}
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">

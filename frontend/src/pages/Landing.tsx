@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   HeartIcon, 
   UsersIcon, 
@@ -19,14 +19,26 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
+import testimonialService, { Testimonial } from '../services/testimonialService';
 
 const Landing = () => {
   const dispatch = useAppDispatch();
   const { campaigns, loading } = useAppSelector((state) => state.campaigns);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
   useEffect(() => {
     dispatch(fetchCampaigns());
+    loadTestimonials();
   }, [dispatch]);
+
+  const loadTestimonials = async () => {
+    try {
+      const data = await testimonialService.getPublicTestimonials(6);
+      setTestimonials(data);
+    } catch (error) {
+      console.error('Failed to load testimonials:', error);
+    }
+  };
 
   // Get latest and recent campaigns
   const activeCampaigns = campaigns.filter(campaign => campaign.status === 'active');
@@ -102,36 +114,6 @@ const Landing = () => {
       title: 'Compliance Ready',
       description: 'Built with security and compliance standards from day one for peace of mind',
       metric: 'Secure by design'
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: 'Dr. Sarah Mitchell',
-      role: 'Executive Director',
-      company: 'Community Health Foundation',
-      content: 'We\'ve been beta testing this platform and are impressed with its intuitive design and comprehensive features. The team is responsive and the roadmap looks promising for our growing organization.',
-      rating: 5,
-      raised: 'Beta tester',
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b5e5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Michael Rodriguez',
-      role: 'Development Coordinator',
-      company: 'Local Education Alliance',
-      content: 'As an early adopter, I\'m excited about the potential of this platform. The features we\'ve tested so far show great promise for streamlining our donation processes.',
-      rating: 5,
-      raised: 'Early adopter',
-      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Jennifer Wang',
-      role: 'Operations Manager',
-      company: 'Green Future Initiative',
-      content: 'The development team has been fantastic to work with during the beta phase. The platform addresses real pain points we face in donor management and campaign tracking.',
-      rating: 5,
-      raised: 'Beta participant',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     }
   ];
 
@@ -330,10 +312,10 @@ const Landing = () => {
                               <div className="flex justify-between items-center">
                                 <div>
                                   <div className="text-lg font-bold text-gray-900">
-                                    ${campaign.currentAmount.toLocaleString()}
+                                    ৳{campaign.currentAmount.toLocaleString()}
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    raised of ${campaign.goalAmount.toLocaleString()}
+                                    raised of ৳{campaign.goalAmount.toLocaleString()}
                                   </div>
                                 </div>
                                 <div className="text-right">
@@ -420,10 +402,10 @@ const Landing = () => {
                               <div className="flex justify-between items-center">
                                 <div>
                                   <div className="text-lg font-bold text-gray-900">
-                                    ${campaign.currentAmount.toLocaleString()}
+                                    ৳{campaign.currentAmount.toLocaleString()}
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    raised of ${campaign.goalAmount.toLocaleString()}
+                                    raised of ৳{campaign.goalAmount.toLocaleString()}
                                   </div>
                                 </div>
                                 <div className="text-right">
@@ -553,37 +535,53 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <StarIcon key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-gray-700 mb-6 italic leading-relaxed">
-                  "{testimonial.content}"
-                </blockquote>
-                <div className="flex items-center">
-                  <img 
-                    src={testimonial.avatar} 
-                    alt={testimonial.name}
-                    className="h-12 w-12 rounded-full object-cover mr-4"
-                  />
-                  <div>
-                    <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                    <div className="text-gray-600 text-sm">{testimonial.role}</div>
-                    <div className="text-primary-600 text-sm font-medium">{testimonial.company}</div>
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            {testimonials.length > 0 ? (
+              testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
+                  <div className="flex mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <StarIcon key={i} className="h-5 w-5 text-yellow-400 fill-current" />
+                    ))}
                   </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                    <div className="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
-                    <span className="text-green-700 text-sm font-medium">{testimonial.raised}</span>
+                  <blockquote className="text-gray-700 mb-6 italic leading-relaxed">
+                    "{testimonial.comment}"
+                  </blockquote>
+                  <div className="flex items-center">
+                    {testimonial.avatarUrl ? (
+                      <img 
+                        src={testimonial.avatarUrl} 
+                        alt={testimonial.name}
+                        className="h-12 w-12 rounded-full object-cover mr-4"
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mr-4">
+                        <span className="text-white font-bold text-lg">
+                          {testimonial.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                      <div className="text-gray-600 text-sm">{testimonial.position}</div>
+                      <div className="text-primary-600 text-sm font-medium">{testimonial.organization}</div>
+                    </div>
                   </div>
+                  {testimonial.badgeType && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+                        <div className="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
+                        <span className="text-green-700 text-sm font-medium">{testimonial.badgeType}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-gray-500 text-lg">Loading testimonials...</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>

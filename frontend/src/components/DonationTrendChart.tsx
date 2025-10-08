@@ -37,7 +37,7 @@ const DonationTrendChart: React.FC<DonationTrendChartProps> = ({ data }) => {
           <YAxis 
             stroke="#6b7280"
             style={{ fontSize: '12px' }}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `৳${value}`}
           />
           <Tooltip 
             contentStyle={{
@@ -47,7 +47,7 @@ const DonationTrendChart: React.FC<DonationTrendChartProps> = ({ data }) => {
               padding: '12px'
             }}
             formatter={(value: number, name: string) => {
-              if (name === 'amount') return [`$${value.toLocaleString()}`, 'Amount'];
+              if (name === 'amount') return [`৳${value.toLocaleString()}`, 'Amount'];
               return [value, 'Donations'];
             }}
           />
@@ -65,7 +65,7 @@ const DonationTrendChart: React.FC<DonationTrendChartProps> = ({ data }) => {
         <div>
           <p className="text-xs text-gray-500">Total Donated</p>
           <p className="text-lg font-semibold text-gray-900">
-            ${data.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
+            ৳{data.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}
           </p>
         </div>
         <div>

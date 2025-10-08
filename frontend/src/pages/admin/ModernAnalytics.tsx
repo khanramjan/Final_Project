@@ -3,7 +3,7 @@ import {
   ChartBarIcon,
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
-  CurrencyDollarIcon,
+  BanknotesIcon,
   UsersIcon,
   HeartIcon,
   DocumentArrowDownIcon,
@@ -187,9 +187,9 @@ const ModernAnalytics = () => {
       {analytics && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
-            icon={CurrencyDollarIcon}
+            icon={BanknotesIcon}
             title="Total Revenue"
-            value={`$${analytics.overview.totalAmount.toLocaleString()}`}
+            value={`৳${analytics.overview.totalAmount.toLocaleString()}`}
             trend="up"
             trendValue={`+${analytics.monthly.growth}%`}
             color="bg-blue-600"
@@ -299,7 +299,7 @@ const ModernAnalytics = () => {
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => `$${value.toLocaleString()}`}
+                formatter={(value: number) => `৳${value.toLocaleString()}`}
                 contentStyle={{ 
                   backgroundColor: '#fff', 
                   border: '1px solid #E5E7EB',
@@ -386,10 +386,10 @@ const ModernAnalytics = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${campaign.targetAmount.toLocaleString()}
+                    ৳{campaign.targetAmount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                    ${campaign.raisedAmount.toLocaleString()}
+                    ৳{campaign.raisedAmount.toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
@@ -435,7 +435,7 @@ const ModernAnalytics = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-lg font-bold text-green-600">
-                      ${donor.totalDonated.toLocaleString()}
+                      ৳{donor.totalDonated.toLocaleString()}
                     </p>
                   </div>
                 </div>

@@ -97,7 +97,7 @@ const DonationHistoryTimeline: React.FC<DonationHistoryTimelineProps> = ({ donat
                   </div>
                   <div className="text-right ml-4">
                     <p className="text-lg font-bold text-blue-600">
-                      ${donation.amount.toLocaleString()}
+                      ৳{donation.amount.toLocaleString()}
                     </p>
                     <span className={`text-xs font-medium px-2 py-1 rounded ${
                       donation.status === 'completed' ? 'bg-green-100 text-green-700' : 

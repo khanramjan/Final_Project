@@ -107,6 +107,23 @@ export interface RecentActivity {
   relatedEntityId?: number;
 }
 
+export interface CampaignMetric {
+  id: number;
+  title: string;
+  category: string;
+  targetAmount: number;
+  raisedAmount: number;
+  donationCount: number;
+  status: string;
+  isUrgent: boolean;
+  isFeatured: boolean;
+  progressPercentage: number;
+  averageDonation: number;
+  daysActive: number;
+  lastDonationDate?: string;
+  imagePath?: string;
+}
+
 class AnalyticsService {
   // Get dashboard analytics
   async getDashboardAnalytics(): Promise<AnalyticsOverview> {
@@ -141,6 +158,11 @@ class AnalyticsService {
   // Get recent activities
   async getRecentActivities(limit: number = 20): Promise<RecentActivity[]> {
     return api.get(`/analytics/recent-activities?limit=${limit}`);
+  }
+
+  // Get campaign metrics
+  async getCampaignMetrics(): Promise<CampaignMetric[]> {
+    return api.get('/analytics/campaign-metrics');
   }
 
   // Export analytics

@@ -49,7 +49,7 @@ const CategoryDistributionChart: React.FC<CategoryDistributionChartProps> = ({ d
             ))}
           </Pie>
           <Tooltip 
-            formatter={(value: number) => `$${value.toLocaleString()}`}
+            formatter={(value: number) => `৳${value.toLocaleString()}`}
             contentStyle={{
               backgroundColor: '#fff',
               border: '1px solid #e5e7eb',
@@ -73,7 +73,7 @@ const CategoryDistributionChart: React.FC<CategoryDistributionChartProps> = ({ d
                 <span className="text-sm font-medium text-gray-700">{item.name}</span>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900">${item.value.toLocaleString()}</p>
+                <p className="text-sm font-semibold text-gray-900">৳{item.value.toLocaleString()}</p>
                 <p className="text-xs text-gray-500">{percent}%</p>
               </div>
             </div>
