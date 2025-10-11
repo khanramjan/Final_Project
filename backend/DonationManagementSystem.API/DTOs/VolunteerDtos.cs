@@ -241,6 +241,19 @@ namespace DonationManagementSystem.API.DTOs
         public string? ProgressNotes { get; set; }
     }
 
+    public class CompleteAssignmentDto
+    {
+        public string CompletionNotes { get; set; } = string.Empty;
+        public string? CompletionEvidence { get; set; } // JSON array of photo URLs
+    }
+
+    public class VerifyAssignmentDto
+    {
+        public bool Approve { get; set; }
+        public int Rating { get; set; } // 1-5
+        public string? Feedback { get; set; }
+    }
+
     public class RateVolunteerDto
     {
         public int AssignmentId { get; set; }
@@ -378,5 +391,35 @@ namespace DonationManagementSystem.API.DTOs
         public int VolunteerProfileId { get; set; }
         public bool Approved { get; set; }
         public string? Notes { get; set; }
+    }
+
+    // ===== ADMIN VOLUNTEER APPROVAL DTOs =====
+
+    public class ApproveVolunteerDto
+    {
+        public bool Approve { get; set; } // true = approve, false = reject
+        public string? ApprovalNotes { get; set; } // Admin's notes/reason
+    }
+
+    public class PendingVolunteerDto
+    {
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserEmail { get; set; } = string.Empty;
+        
+        public List<string> Skills { get; set; } = new();
+        public List<string> Interests { get; set; } = new();
+        public string? ExperienceLevel { get; set; }
+        public int YearsOfExperience { get; set; }
+        public string? Location { get; set; }
+        
+        // Uploaded documents
+        public string? NidPhotoPath { get; set; }
+        public string? VolunteerPhotoPath { get; set; }
+        public string? UtilityBillPath { get; set; }
+        
+        public string AdminApprovalStatus { get; set; } = "pending";
+        public DateTime CreatedAt { get; set; }
     }
 }

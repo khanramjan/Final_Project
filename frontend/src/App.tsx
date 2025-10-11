@@ -22,6 +22,8 @@ import UserManagement from './pages/admin/UserManagement';
 import CampaignManagement from './pages/admin/CampaignManagement';
 import DonationOversight from './pages/admin/DonationOversight';
 import SystemSettings from './pages/admin/SystemSettings';
+import VolunteerApprovals from './pages/admin/VolunteerApprovals';
+import VolunteerReview from './pages/admin/VolunteerReview';
 import ProtectedRoute from './components/ProtectedRoute';
 import ApiTest from './components/ApiTest';
 // Volunteer Pages
@@ -79,6 +81,8 @@ function AppContent() {
           <Route path="users" element={<UserManagement />} />
           <Route path="campaigns" element={<CampaignManagement />} />
           <Route path="donations" element={<DonationOversight />} />
+          <Route path="volunteer-approvals" element={<VolunteerApprovals />} />
+          <Route path="volunteer-review" element={<VolunteerReview />} />
           <Route path="settings" element={<SystemSettings />} />
         </Route>
         <Route

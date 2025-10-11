@@ -45,6 +45,13 @@ namespace DonationManagementSystem.API.Models
         public DateTime? VerifiedAt { get; set; }
         public int? VerifiedBy { get; set; } // Admin ID
         
+        // Admin Approval System
+        public bool IsApprovedByAdmin { get; set; } = false;
+        public string AdminApprovalStatus { get; set; } = "pending"; // pending, approved, rejected
+        public int? ApprovedBy { get; set; } // Admin ID who approved/rejected
+        public DateTime? ApprovedAt { get; set; }
+        public string? ApprovalNotes { get; set; } // Admin's notes/reason for approval/rejection
+        
         // Preferences
         public bool AcceptSmsNotifications { get; set; } = true;
         public bool AcceptEmailNotifications { get; set; } = true;
@@ -58,6 +65,7 @@ namespace DonationManagementSystem.API.Models
         // Navigation properties
         public User User { get; set; } = null!;
         public User? Verifier { get; set; }
+        public User? Approver { get; set; } // Admin who approved the volunteer
         public List<VolunteerRequest> Requests { get; set; } = new();
         public List<VolunteerAssignment> Assignments { get; set; } = new();
         public List<VolunteerActivity> Activities { get; set; } = new();
@@ -154,9 +162,12 @@ namespace DonationManagementSystem.API.Models
         // Completion & Review
         public DateTime? CompletedAt { get; set; }
         public string? CompletionNotes { get; set; }
+        public string? CompletionEvidence { get; set; } // JSON array of photo URLs
         public decimal? Rating { get; set; } // Admin rating (1-5)
         public string? Feedback { get; set; } // Admin feedback
-        public int? RatedBy { get; set; } // Admin ID
+        public int? VerifiedBy { get; set; } // Admin ID who verified
+        public DateTime? VerifiedAt { get; set; }
+        public int? RatedBy { get; set; } // Admin ID (kept for backward compatibility)
         public DateTime? RatedAt { get; set; }
         
         // Certificate

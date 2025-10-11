@@ -4,6 +4,7 @@ using DonationManagementSystem.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DonationManagementSystem.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251008145950_AddVolunteerVerificationFields")]
+    partial class AddVolunteerVerificationFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -397,20 +400,8 @@ namespace DonationManagementSystem.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AccountStatus")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ApprovalNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ApprovedBy")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -434,9 +425,6 @@ namespace DonationManagementSystem.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsApprovedByAdmin")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsEmailVerified")
@@ -756,22 +744,6 @@ namespace DonationManagementSystem.API.Migrations
                     b.Property<bool>("AcceptSmsNotifications")
                         .HasColumnType("bit");
 
-                    b.Property<string>("AdminApprovalStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ApprovalNotes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ApprovedBy")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ApproverId")
-                        .HasColumnType("int");
-
                     b.Property<string>("AvailableDays")
                         .HasColumnType("nvarchar(max)");
 
@@ -799,9 +771,6 @@ namespace DonationManagementSystem.API.Migrations
 
                     b.Property<string>("Interests")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsApprovedByAdmin")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsProfilePublic")
                         .HasColumnType("bit");
@@ -870,8 +839,6 @@ namespace DonationManagementSystem.API.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApproverId");
 
                     b.HasIndex("UserId")
                         .IsUnique();
@@ -1186,10 +1153,6 @@ namespace DonationManagementSystem.API.Migrations
 
             modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerProfile", b =>
                 {
-                    b.HasOne("DonationManagementSystem.API.Models.User", "Approver")
-                        .WithMany()
-                        .HasForeignKey("ApproverId");
-
                     b.HasOne("DonationManagementSystem.API.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -1200,8 +1163,6 @@ namespace DonationManagementSystem.API.Migrations
                         .WithMany()
                         .HasForeignKey("VerifiedBy")
                         .OnDelete(DeleteBehavior.NoAction);
-
-                    b.Navigation("Approver");
 
                     b.Navigation("User");
 

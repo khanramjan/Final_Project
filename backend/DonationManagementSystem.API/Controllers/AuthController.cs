@@ -84,6 +84,43 @@ namespace DonationManagementSystem.API.Controllers
 				_context.Users.Add(user);
 				await _context.SaveChangesAsync();
 
+				// Create VolunteerProfile for volunteers (copy all relevant fields)
+				if (user.UserType == "volunteer")
+				{
+					// Parse skills and interests as JSON arrays
+					var skillsList = new List<string>();
+					if (!string.IsNullOrEmpty(dto.Skills))
+					{
+						skillsList = dto.Skills.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+					}
+
+					var interestsList = new List<string>();
+					if (!string.IsNullOrEmpty(dto.Interests))
+					{
+						interestsList = dto.Interests.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToList();
+					}
+
+					var volunteerProfile = new VolunteerProfile
+					{
+						UserId = user.Id,
+						Status = "pending",
+						Skills = System.Text.Json.JsonSerializer.Serialize(skillsList),
+						Interests = System.Text.Json.JsonSerializer.Serialize(interestsList),
+						ExperienceLevel = "beginner", // Default or map from dto if available
+						YearsOfExperience = 0,
+						Location = dto.Address ?? "",
+						EmergencyContactName = user.FirstName + " " + user.LastName,
+						EmergencyContactPhone = dto.Phone ?? "",
+						AcceptSmsNotifications = true,
+						AcceptEmailNotifications = true,
+						IsProfilePublic = false,
+						IsApprovedByAdmin = false,
+						AdminApprovalStatus = "pending",
+						CreatedAt = DateTime.UtcNow
+					};
+					_context.VolunteerProfiles.Add(volunteerProfile);
+					await _context.SaveChangesAsync();
+				}
 				// Send verification email
 				try
 				{

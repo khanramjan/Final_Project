@@ -9,7 +9,9 @@ import {
   BanknotesIcon,
   CogIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  CheckBadgeIcon,
+  ClipboardDocumentCheckIcon
 } from '@heroicons/react/24/outline';
 import NotificationSystem from './NotificationSystem';
 
@@ -24,6 +26,8 @@ const AdminLayout = () => {
     { name: 'User Management', href: '/admin/users', icon: UsersIcon, current: location.pathname === '/admin/users' },
     { name: 'Campaign Management', href: '/admin/campaigns', icon: HeartIcon, current: location.pathname === '/admin/campaigns' },
     { name: 'Donations', href: '/admin/donations', icon: BanknotesIcon, current: location.pathname === '/admin/donations' },
+    { name: 'Volunteer Approvals', href: '/admin/volunteer-approvals', icon: CheckBadgeIcon, current: location.pathname === '/admin/volunteer-approvals' },
+    { name: 'Work Review', href: '/admin/volunteer-review', icon: ClipboardDocumentCheckIcon, current: location.pathname === '/admin/volunteer-review' },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon, current: location.pathname === '/admin/settings' },
   ];
 

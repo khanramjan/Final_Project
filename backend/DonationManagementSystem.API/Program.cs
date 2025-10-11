@@ -63,6 +63,14 @@ var app = builder.Build();
 // Use CORS
 app.UseCors("AllowFrontend");
 
+// Serve static files from Uploads folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    RequestPath = "/Uploads"
+});
+
 // Use Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();

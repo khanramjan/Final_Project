@@ -203,6 +203,13 @@ namespace DonationManagementSystem.API.Controllers
             if (profile == null)
                 return NotFound(new { message = "Volunteer profile not found" });
 
+            // ✅ CHECK IF VOLUNTEER IS APPROVED BY ADMIN
+            if (!profile.IsApprovedByAdmin || profile.AdminApprovalStatus != "approved")
+                return BadRequest(new { 
+                    message = "Your volunteer profile is pending admin approval. You cannot accept requests until approved.",
+                    approvalStatus = profile.AdminApprovalStatus
+                });
+
             var request = await _context.VolunteerRequests
                 .Include(vr => vr.Campaign)
                 .FirstOrDefaultAsync(vr => vr.Id == dto.RequestId && vr.VolunteerProfileId == profile.Id);
@@ -212,6 +219,42 @@ namespace DonationManagementSystem.API.Controllers
 
             if (request.Status != "pending")
                 return BadRequest(new { message = "Request has already been responded to" });
+
+            // ✅ CHECK IF POSITIONS ARE STILL AVAILABLE (First-Come-First-Serve)
+            var campaign = request.Campaign;
+            var volunteerRank = profile.Rank.ToLower();
+            
+            // Count currently assigned volunteers for this rank
+            var assignedCount = await _context.VolunteerAssignments
+                .Join(_context.VolunteerProfiles,
+                    va => va.VolunteerProfileId,
+                    vp => vp.Id,
+                    (va, vp) => new { va, vp })
+                .Where(x => x.va.CampaignId == campaign.Id && 
+                           x.vp.Rank.ToLower() == volunteerRank &&
+                           (x.va.Status == "assigned" || x.va.Status == "in_progress" || x.va.Status == "completed"))
+                .CountAsync();
+
+            // Get positions needed for this rank
+            int positionsNeeded = volunteerRank switch
+            {
+                "platinum" => campaign.PlatinumVolunteersNeeded,
+                "gold" => campaign.GoldVolunteersNeeded,
+                "silver" => campaign.SilverVolunteersNeeded,
+                "bronze" => campaign.BronzeVolunteersNeeded,
+                "newbie" => campaign.NewbieVolunteersNeeded,
+                _ => 0
+            };
+
+            // Check if all positions are filled
+            if (assignedCount >= positionsNeeded)
+            {
+                return BadRequest(new { 
+                    message = "Sorry, all volunteer positions for your rank have been filled",
+                    positionsNeeded = positionsNeeded,
+                    positionsFilled = assignedCount
+                });
+            }
 
             // Update request status
             request.Status = "accepted";
@@ -433,10 +476,7 @@ namespace DonationManagementSystem.API.Controllers
             assignment.CheckOutLocation = dto.Location;
             assignment.CheckOutLatitude = dto.Latitude;
             assignment.CheckOutLongitude = dto.Longitude;
-            assignment.CompletionNotes = dto.CompletionNotes;
-            assignment.Status = "completed";
-            assignment.CompletedAt = DateTime.UtcNow;
-
+            
             // Calculate actual hours
             if (assignment.CheckInTime.HasValue && assignment.CheckOutTime.HasValue)
             {
@@ -444,38 +484,59 @@ namespace DonationManagementSystem.API.Controllers
                 assignment.ActualHours = (int)Math.Ceiling(duration.TotalHours);
             }
 
-            // Update profile statistics
-            profile.TotalTasksCompleted++;
-            profile.TotalHoursVolunteered += assignment.ActualHours;
+            // Status remains in_progress after checkout - volunteer needs to mark as complete
+            // Stats will be updated after admin verification
             profile.LastActivityAt = DateTime.UtcNow;
-
-            // Track campaign completion for rank progression
-            var campaignAlreadyCounted = await _context.VolunteerAssignments
-                .AnyAsync(va => va.VolunteerProfileId == profile.Id && 
-                               va.CampaignId == assignment.CampaignId && 
-                               va.Status == "completed" && 
-                               va.Id != assignment.Id);
-
-            // Only increment if this is first completed task for this campaign
-            if (!campaignAlreadyCounted)
-            {
-                profile.CompletedCampaigns++;
-                profile.TotalCampaignsSupported++;
-            }
 
             await _context.SaveChangesAsync();
 
             // Log activity
             await LogActivity(profile.Id, "checked_out", "Checked Out", 
-                $"Completed task: {assignment.Title}", assignment.CampaignId, assignment.Id);
-
-            // Check for achievements
-            await CheckAndAwardAchievements(profile.Id);
-
-            // Check and upgrade rank if eligible
-            await _rankService.CheckAndUpgradeRank(profile.Id);
+                $"Checked out from: {assignment.Title}", assignment.CampaignId, assignment.Id);
 
             return Ok(MapToAssignmentDto(assignment));
+        }
+
+        // POST: api/volunteer/assignments/{id}/complete
+        [HttpPost("assignments/{id}/complete")]
+        public async Task<ActionResult<VolunteerAssignmentDto>> MarkComplete(int id, [FromBody] CompleteAssignmentDto dto)
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var profile = await _context.VolunteerProfiles
+                .FirstOrDefaultAsync(vp => vp.UserId == userId);
+
+            if (profile == null)
+                return NotFound(new { message = "Volunteer profile not found" });
+
+            var assignment = await _context.VolunteerAssignments
+                .Include(va => va.Campaign)
+                .FirstOrDefaultAsync(va => va.Id == id && va.VolunteerProfileId == profile.Id);
+
+            if (assignment == null)
+                return NotFound(new { message = "Assignment not found" });
+
+            if (assignment.Status != "in_progress")
+                return BadRequest(new { message = "Assignment must be in progress to mark as complete" });
+
+            // Mark as pending review - awaiting admin verification
+            assignment.Status = "pending_review";
+            assignment.CompletionNotes = dto.CompletionNotes;
+            assignment.CompletionEvidence = dto.CompletionEvidence;
+            assignment.CompletedAt = DateTime.UtcNow;
+            
+            await _context.SaveChangesAsync();
+
+            // Log activity
+            await LogActivity(profile.Id, "marked_complete", "Marked Complete", 
+                $"Marked as complete: {assignment.Title} - Awaiting admin verification", assignment.CampaignId, assignment.Id);
+
+            return Ok(new
+            {
+                message = "Assignment marked as complete. Awaiting admin verification.",
+                assignment = MapToAssignmentDto(assignment)
+            });
         }
 
         // PUT: api/volunteer/assignments/progress
@@ -776,6 +837,355 @@ namespace DonationManagementSystem.API.Controllers
                 await _context.SaveChangesAsync();
             }
         }
+
+        // ===== ADMIN ENDPOINTS =====
+
+        // GET: api/volunteer/admin/assignments/pending-review
+        [HttpGet("admin/assignments/pending-review")]
+        [Authorize]
+        public async Task<ActionResult<List<VolunteerAssignmentDto>>> GetPendingReviews()
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var assignments = await _context.VolunteerAssignments
+                .Include(va => va.Campaign)
+                .Include(va => va.VolunteerProfile)
+                    .ThenInclude(vp => vp.User)
+                .Where(va => va.Status == "pending_review")
+                .OrderBy(va => va.CompletedAt)
+                .ToListAsync();
+
+            return Ok(assignments.Select(MapToAssignmentDto));
+        }
+
+        // GET: api/volunteer/admin/campaigns/{campaignId}/assignments
+        [HttpGet("admin/campaigns/{campaignId}/assignments")]
+        [Authorize]
+        public async Task<ActionResult<List<VolunteerAssignmentDto>>> GetCampaignAssignments(int campaignId)
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var assignments = await _context.VolunteerAssignments
+                .Include(va => va.Campaign)
+                .Include(va => va.VolunteerProfile)
+                    .ThenInclude(vp => vp.User)
+                .Where(va => va.CampaignId == campaignId)
+                .OrderBy(va => va.CreatedAt)
+                .ToListAsync();
+
+            return Ok(assignments.Select(MapToAssignmentDto));
+        }
+
+        // POST: api/volunteer/admin/assignments/{id}/verify
+        [HttpPost("admin/assignments/{id}/verify")]
+        [Authorize]
+        public async Task<ActionResult> VerifyAssignment(int id, [FromBody] VerifyAssignmentDto dto)
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var adminId = GetCurrentUserId();
+            if (adminId == null) return Unauthorized();
+
+            var assignment = await _context.VolunteerAssignments
+                .Include(va => va.Campaign)
+                .Include(va => va.VolunteerProfile)
+                .FirstOrDefaultAsync(va => va.Id == id);
+
+            if (assignment == null)
+                return NotFound(new { message = "Assignment not found" });
+
+            if (assignment.Status != "pending_review")
+                return BadRequest(new { message = "Assignment is not pending review" });
+
+            var profile = assignment.VolunteerProfile;
+
+            if (dto.Approve)
+            {
+                // APPROVE & RATE
+                assignment.Status = "verified";
+                assignment.Rating = dto.Rating;
+                assignment.Feedback = dto.Feedback;
+                assignment.VerifiedAt = DateTime.UtcNow;
+                assignment.VerifiedBy = adminId.Value;
+
+                // ✅ NOW UPDATE VOLUNTEER STATS (after admin verification)
+                profile.TotalTasksCompleted++;
+                profile.TotalHoursVolunteered += assignment.ActualHours;
+                
+                // Track campaign completion for rank progression
+                var campaignAlreadyCounted = await _context.VolunteerAssignments
+                    .AnyAsync(va => va.VolunteerProfileId == profile.Id && 
+                                   va.CampaignId == assignment.CampaignId && 
+                                   va.Status == "verified" && 
+                                   va.Id != assignment.Id);
+
+                if (!campaignAlreadyCounted)
+                {
+                    profile.CompletedCampaigns++;
+                    profile.TotalCampaignsSupported++;
+                }
+
+                // Update average rating
+                if (profile.TotalRatings == 0)
+                {
+                    profile.Rating = dto.Rating;
+                    profile.TotalRatings = 1;
+                }
+                else
+                {
+                    profile.Rating = ((profile.Rating * profile.TotalRatings) + dto.Rating) / (profile.TotalRatings + 1);
+                    profile.TotalRatings++;
+                }
+
+                profile.LastActivityAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                // Check for achievements
+                await CheckAndAwardAchievements(profile.Id);
+
+                // Check and upgrade rank if eligible
+                await _rankService.CheckAndUpgradeRank(profile.Id);
+
+                // Log activity
+                await LogActivity(profile.Id, "work_verified", "Work Verified", 
+                    $"Admin verified and rated work: {assignment.Title} - Rating: {dto.Rating}/5", assignment.CampaignId, assignment.Id);
+
+                return Ok(new
+                {
+                    message = "Assignment verified successfully",
+                    profile = new
+                    {
+                        totalHoursVolunteered = profile.TotalHoursVolunteered,
+                        totalTasksCompleted = profile.TotalTasksCompleted,
+                        completedCampaigns = profile.CompletedCampaigns,
+                        rating = Math.Round(profile.Rating, 2),
+                        rank = profile.Rank
+                    }
+                });
+            }
+            else
+            {
+                // REJECT - Request revisions
+                assignment.Status = "in_progress";
+                assignment.Feedback = dto.Feedback;
+                assignment.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                // Log activity
+                await LogActivity(profile.Id, "work_rejected", "Work Rejected", 
+                    $"Admin requested revisions for: {assignment.Title}", assignment.CampaignId, assignment.Id);
+
+                return Ok(new
+                {
+                    message = "Assignment sent back for revisions",
+                    feedback = dto.Feedback
+                });
+            }
+        }
+
+        // ===== ADMIN VOLUNTEER APPROVAL ENDPOINTS =====
+
+        // Helper method to safely parse Skills/Interests (handles both JSON arrays and plain strings)
+        private List<string> SafeParseStringList(string? value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return new List<string>();
+
+            try
+            {
+                // Try to deserialize as JSON array first
+                var list = JsonSerializer.Deserialize<List<string>>(value);
+                return list ?? new List<string>();
+            }
+            catch (JsonException)
+            {
+                // If it's not valid JSON, treat it as a comma-separated plain string
+                return value.Split(',')
+                    .Select(s => s.Trim())
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .ToList();
+            }
+        }
+
+        // GET: api/volunteer/admin/pending-approvals
+        [HttpGet("admin/pending-approvals")]
+        [Authorize]
+        public async Task<ActionResult<List<PendingVolunteerDto>>> GetPendingApprovals()
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var pendingVolunteers = await _context.VolunteerProfiles
+                .Include(vp => vp.User)
+                .Where(vp => vp.AdminApprovalStatus == "pending")
+                .OrderBy(vp => vp.CreatedAt)
+                .ToListAsync();
+
+            var result = pendingVolunteers.Select(vp => new PendingVolunteerDto
+            {
+                Id = vp.Id,
+                UserId = vp.UserId,
+                UserName = $"{vp.User.FirstName} {vp.User.LastName}",
+                UserEmail = vp.User.Email ?? "",
+                Skills = SafeParseStringList(vp.Skills),
+                Interests = SafeParseStringList(vp.Interests),
+                ExperienceLevel = vp.ExperienceLevel,
+                YearsOfExperience = vp.YearsOfExperience,
+                Location = vp.Location,
+                NidPhotoPath = !string.IsNullOrEmpty(vp.User.NidPhotoPath) ? $"/Uploads/{vp.User.NidPhotoPath}" : null,
+                VolunteerPhotoPath = !string.IsNullOrEmpty(vp.User.VolunteerPhotoPath) ? $"/Uploads/{vp.User.VolunteerPhotoPath}" : null,
+                UtilityBillPath = !string.IsNullOrEmpty(vp.User.UtilityBillPath) ? $"/Uploads/{vp.User.UtilityBillPath}" : null,
+                AdminApprovalStatus = vp.AdminApprovalStatus,
+                CreatedAt = vp.CreatedAt
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        // GET: api/volunteer/admin/all-volunteers
+        [HttpGet("admin/all-volunteers")]
+        [Authorize]
+        public async Task<ActionResult<List<PendingVolunteerDto>>> GetAllVolunteers([FromQuery] string? status = null)
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var query = _context.VolunteerProfiles
+                .Include(vp => vp.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                query = query.Where(vp => vp.AdminApprovalStatus == status);
+            }
+
+            var volunteers = await query
+                .OrderByDescending(vp => vp.CreatedAt)
+                .ToListAsync();
+
+            var result = volunteers.Select(vp => new PendingVolunteerDto
+            {
+                Id = vp.Id,
+                UserId = vp.UserId,
+                UserName = $"{vp.User.FirstName} {vp.User.LastName}",
+                UserEmail = vp.User.Email ?? "",
+                Skills = SafeParseStringList(vp.Skills),
+                Interests = SafeParseStringList(vp.Interests),
+                ExperienceLevel = vp.ExperienceLevel,
+                YearsOfExperience = vp.YearsOfExperience,
+                Location = vp.Location,
+                NidPhotoPath = !string.IsNullOrEmpty(vp.User.NidPhotoPath) ? $"/Uploads/{vp.User.NidPhotoPath}" : null,
+                VolunteerPhotoPath = !string.IsNullOrEmpty(vp.User.VolunteerPhotoPath) ? $"/Uploads/{vp.User.VolunteerPhotoPath}" : null,
+                UtilityBillPath = !string.IsNullOrEmpty(vp.User.UtilityBillPath) ? $"/Uploads/{vp.User.UtilityBillPath}" : null,
+                AdminApprovalStatus = vp.AdminApprovalStatus,
+                CreatedAt = vp.CreatedAt
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        // POST: api/volunteer/admin/approve/{volunteerId}
+        [HttpPost("admin/approve/{volunteerId}")]
+        [Authorize]
+        public async Task<ActionResult> ApproveVolunteer(int volunteerId, [FromBody] ApproveVolunteerDto dto)
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            var adminId = GetCurrentUserId();
+            if (adminId == null) return Unauthorized();
+
+            var volunteer = await _context.VolunteerProfiles
+                .Include(vp => vp.User)
+                .FirstOrDefaultAsync(vp => vp.Id == volunteerId);
+
+            if (volunteer == null)
+                return NotFound(new { message = "Volunteer not found" });
+
+            if (volunteer.AdminApprovalStatus != "pending")
+                return BadRequest(new { message = $"Volunteer is already {volunteer.AdminApprovalStatus}" });
+
+            if (dto.Approve)
+            {
+                // APPROVE VOLUNTEER
+                volunteer.IsApprovedByAdmin = true;
+                volunteer.AdminApprovalStatus = "approved";
+                volunteer.Status = "active";
+                volunteer.ApprovedBy = adminId.Value;
+                volunteer.ApprovedAt = DateTime.UtcNow;
+                volunteer.ApprovalNotes = dto.ApprovalNotes;
+
+                // Log activity
+                await LogActivity(volunteer.Id, "profile_approved", "Profile Approved", 
+                    "Your volunteer profile has been approved by admin. You can now receive volunteer requests.", null, null);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Volunteer approved successfully",
+                    volunteer = new
+                    {
+                        id = volunteer.Id,
+                        userName = $"{volunteer.User.FirstName} {volunteer.User.LastName}",
+                        email = volunteer.User.Email,
+                        status = volunteer.AdminApprovalStatus,
+                        approvedAt = volunteer.ApprovedAt
+                    }
+                });
+            }
+            else
+            {
+                // REJECT VOLUNTEER
+                volunteer.IsApprovedByAdmin = false;
+                volunteer.AdminApprovalStatus = "rejected";
+                volunteer.Status = "inactive";
+                volunteer.ApprovedBy = adminId.Value;
+                volunteer.ApprovedAt = DateTime.UtcNow;
+                volunteer.ApprovalNotes = dto.ApprovalNotes;
+
+                // Log activity
+                await LogActivity(volunteer.Id, "profile_rejected", "Profile Rejected", 
+                    dto.ApprovalNotes ?? "Your volunteer profile was rejected by admin.", null, null);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Volunteer rejected",
+                    volunteer = new
+                    {
+                        id = volunteer.Id,
+                        userName = $"{volunteer.User.FirstName} {volunteer.User.LastName}",
+                        email = volunteer.User.Email,
+                        status = volunteer.AdminApprovalStatus,
+                        rejectedAt = volunteer.ApprovedAt,
+                        reason = volunteer.ApprovalNotes
+                    }
+                });
+            }
+        }
+
+        // ===== HELPER METHODS =====
 
         private VolunteerProfileDto MapToProfileDto(VolunteerProfile profile)
         {
