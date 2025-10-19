@@ -1,16 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
-using Newtonsoft.Json;
+using DonationManagementSystem.API.Data;
+using DonationManagementSystem.API.Models;
 
 namespace DonationManagementSystem.API.Services
 {
     /// <summary>
     /// SSLCommerz Payment Gateway Service
-    /// FREE Integration for Bangladesh Payments
-    /// Supports: BKash, Nagad, Rocket, Card, Bank Transfer
+    /// Supports: bKash, Nagad, Rocket, Card, Bank Transfer
     /// </summary>
     public interface IPaymentGatewayService
     {
@@ -23,264 +21,278 @@ namespace DonationManagementSystem.API.Services
     {
         private readonly string _storeId;
         private readonly string _storePassword;
-        private readonly string _baseUrl;
+        private readonly string _sessionApiUrl;
+        private readonly string _validationApiUrl;
         private readonly bool _isSandbox;
-        private readonly RestClient _client;
 
         public SSLCommerzPaymentService(IConfiguration configuration)
         {
             _storeId = configuration["Payment:SSLCommerz:StoreId"] ?? "";
             _storePassword = configuration["Payment:SSLCommerz:StorePassword"] ?? "";
+            _sessionApiUrl = configuration["Payment:SSLCommerz:SessionApiUrl"] ?? "https://sandbox.sslcommerz.com/gwprocess/v3/api.php";
+            _validationApiUrl = configuration["Payment:SSLCommerz:ValidationApiUrl"] ?? "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php";
             _isSandbox = configuration.GetValue<bool>("Payment:SSLCommerz:IsSandbox", true);
-            _baseUrl = _isSandbox 
-                ? "https://sandbox.sslcommerz.com/gwprocess/v4/api.php"
-                : "https://securepay.sslcommerz.com/gwprocess/v4/api.php";
-            
-            _client = new RestClient();
         }
 
-        /// <summary>
-        /// Initiates a payment transaction
-        /// Returns a payment gateway URL for user to complete payment
-        /// </summary>
         public async Task<PaymentInitResponse> InitiatePaymentAsync(PaymentRequest request)
         {
             try
             {
-                var paymentRequest = new Dictionary<string, string>
-                {
-                    { "store_id", _storeId },
-                    { "store_passwd", _storePassword },
-                    { "total_amount", request.Amount.ToString() },
-                    { "currency", "BDT" },
-                    { "tran_id", request.TransactionId },
-                    { "product_name", request.CampaignTitle },
-                    { "product_category", "donation" },
-                    { "product_profile", "general" },
-                    { "cus_name", request.DonorName ?? "Anonymous" },
-                    { "cus_email", request.DonorEmail ?? "donor@donation.com" },
-                    { "cus_phone", request.DonorPhone ?? "01700000000" },
-                    { "success_url", request.SuccessUrl },
-                    { "fail_url", request.FailUrl },
-                    { "cancel_url", request.CancelUrl },
-                    { "ipn_url", request.IpnUrl },
-                    { "value_a", request.CampaignId.ToString() }, // Custom field for campaign ID
-                    { "value_b", request.UserId?.ToString() ?? "guest" } // Custom field for user ID
-                };
+                var client = new RestClient();
+                var restRequest = new RestRequest(_sessionApiUrl, Method.Post);
 
-                var requestObj = new RestRequest(_baseUrl, Method.Post);
-                
-                foreach (var param in paymentRequest)
-                {
-                    requestObj.AddParameter(param.Key, param.Value);
-                }
+                // SSLCommerz required parameters
+                restRequest.AddParameter("store_id", _storeId);
+                restRequest.AddParameter("store_passwd", _storePassword);
+                restRequest.AddParameter("total_amount", request.Amount.ToString("F2"));
+                restRequest.AddParameter("currency", "BDT");
+                restRequest.AddParameter("tran_id", request.TransactionId);
+                restRequest.AddParameter("success_url", request.SuccessUrl);
+                restRequest.AddParameter("fail_url", request.FailUrl);
+                restRequest.AddParameter("cancel_url", request.CancelUrl);
+                restRequest.AddParameter("ipn_url", request.IpnUrl);
 
-                var response = await _client.ExecuteAsync(requestObj);
+                // Customer information
+                restRequest.AddParameter("cus_name", request.CustomerName);
+                restRequest.AddParameter("cus_email", request.CustomerEmail);
+                restRequest.AddParameter("cus_phone", request.CustomerPhone);
+                restRequest.AddParameter("cus_add1", request.CustomerAddress ?? "N/A");
+                restRequest.AddParameter("cus_city", "Dhaka");
+                restRequest.AddParameter("cus_country", "Bangladesh");
 
-                if (response.IsSuccessful)
-                {
-                    // Parse response
-                    var content = response.Content ?? "";
-                    
-                    return new PaymentInitResponse
-                    {
-                        Success = true,
-                        GatewayUrl = ExtractGatewayUrl(content),
-                        TransactionId = request.TransactionId,
-                        Message = "Payment initiated successfully"
-                    };
-                }
-                else
+                // Product information
+                restRequest.AddParameter("product_name", request.ProductName);
+                restRequest.AddParameter("product_category", "Donation");
+                restRequest.AddParameter("product_profile", "non-physical-goods");
+
+                // Shipping information (required even for donations)
+                restRequest.AddParameter("shipping_method", "NO");
+                restRequest.AddParameter("num_of_item", "1");
+
+                // Value fields for custom data
+                restRequest.AddParameter("value_a", request.CampaignId.ToString());
+                restRequest.AddParameter("value_b", request.DonationId.ToString());
+                restRequest.AddParameter("value_c", request.IsAnonymous ? "1" : "0");
+
+                var response = await client.ExecuteAsync(restRequest);
+
+                if (!response.IsSuccessful || string.IsNullOrEmpty(response.Content))
                 {
                     return new PaymentInitResponse
                     {
                         Success = false,
-                        Message = "Failed to initiate payment",
-                        Error = response.ErrorMessage
+                        Message = "Failed to connect to payment gateway",
+                        GatewayPageURL = null
                     };
                 }
+
+                // Parse response
+                var jsonResponse = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(response.Content);
+                
+                if (jsonResponse != null && jsonResponse.ContainsKey("status"))
+                {
+                    var status = jsonResponse["status"].ToString();
+                    
+                    if (status == "SUCCESS" && jsonResponse.ContainsKey("GatewayPageURL"))
+                    {
+                        return new PaymentInitResponse
+                        {
+                            Success = true,
+                            Message = "Payment session created successfully",
+                            GatewayPageURL = jsonResponse["GatewayPageURL"].ToString(),
+                            TransactionId = request.TransactionId
+                        };
+                    }
+                }
+
+                return new PaymentInitResponse
+                {
+                    Success = false,
+                    Message = "Payment gateway returned an error",
+                    GatewayPageURL = null
+                };
             }
             catch (Exception ex)
             {
                 return new PaymentInitResponse
                 {
                     Success = false,
-                    Message = "Payment initiation error",
-                    Error = ex.Message
+                    Message = $"Error initiating payment: {ex.Message}",
+                    GatewayPageURL = null
                 };
             }
         }
 
-        /// <summary>
-        /// Validates a completed payment transaction
-        /// </summary>
         public async Task<PaymentValidationResponse> ValidatePaymentAsync(string transactionId)
         {
             try
             {
-                var validationRequest = new RestRequest(_baseUrl, Method.Post);
-                validationRequest.AddParameter("store_id", _storeId);
-                validationRequest.AddParameter("store_passwd", _storePassword);
-                validationRequest.AddParameter("tran_id", transactionId);
-                validationRequest.AddParameter("val_id", transactionId); // SSLCommerz validation ID
+                var client = new RestClient();
+                var validationUrl = $"{_validationApiUrl}?val_id={transactionId}&store_id={_storeId}&store_passwd={_storePassword}&format=json";
+                var restRequest = new RestRequest(validationUrl, Method.Get);
 
-                var response = await _client.ExecuteAsync(validationRequest);
+                var response = await client.ExecuteAsync(restRequest);
 
-                if (response.IsSuccessful && response.Content?.Contains("valid") == true)
+                if (!response.IsSuccessful || string.IsNullOrEmpty(response.Content))
                 {
                     return new PaymentValidationResponse
                     {
-                        Success = true,
-                        IsValid = true,
-                        TransactionId = transactionId,
-                        Message = "Payment validated successfully"
-                    };
-                }
-                else
-                {
-                    return new PaymentValidationResponse
-                    {
-                        Success = false,
                         IsValid = false,
-                        Message = "Payment validation failed"
+                        Status = "FAILED",
+                        Message = "Failed to validate payment"
                     };
                 }
+
+                var jsonResponse = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(response.Content);
+                
+                if (jsonResponse != null && jsonResponse.ContainsKey("status"))
+                {
+                    var status = jsonResponse["status"].ToString();
+                    
+                    return new PaymentValidationResponse
+                    {
+                        IsValid = status == "VALID" || status == "VALIDATED",
+                        Status = status ?? "UNKNOWN",
+                        Message = status == "VALID" || status == "VALIDATED" ? "Payment validated successfully" : "Payment validation failed",
+                        TransactionId = transactionId,
+                        Amount = jsonResponse.ContainsKey("amount") ? decimal.Parse(jsonResponse["amount"].ToString() ?? "0") : 0,
+                        Currency = jsonResponse.ContainsKey("currency") ? jsonResponse["currency"].ToString() : "BDT"
+                    };
+                }
+
+                return new PaymentValidationResponse
+                {
+                    IsValid = false,
+                    Status = "UNKNOWN",
+                    Message = "Unable to parse validation response"
+                };
             }
             catch (Exception ex)
             {
                 return new PaymentValidationResponse
                 {
-                    Success = false,
                     IsValid = false,
-                    Message = "Validation error",
-                    Error = ex.Message
+                    Status = "ERROR",
+                    Message = $"Error validating payment: {ex.Message}"
                 };
             }
         }
 
-        /// <summary>
-        /// Gets available payment methods for Bangladesh
-        /// </summary>
-        public Task<List<PaymentMethod>> GetAvailablePaymentMethodsAsync()
+        public async Task<List<PaymentMethod>> GetAvailablePaymentMethodsAsync()
         {
-            var methods = new List<PaymentMethod>
+            return await Task.FromResult(new List<PaymentMethod>
             {
-                new PaymentMethod 
-                { 
-                    Id = "bkash", 
-                    Name = "bKash", 
-                    Description = "Send Money from bKash", 
-                    Icon = "bkash.png",
-                    Country = "BD",
+                new PaymentMethod
+                {
+                    Id = "bkash",
+                    Name = "bKash",
+                    Description = "Pay with bKash mobile wallet",
+                    Icon = "💳",
+                    Country = "Bangladesh",
                     IsActive = true,
-                    Type = "mobile_money"
+                    Type = "mobile_money",
+                    MinAmount = 10,
+                    MaxAmount = 500000
                 },
-                new PaymentMethod 
-                { 
-                    Id = "nagad", 
-                    Name = "Nagad", 
-                    Description = "Send Money from Nagad", 
-                    Icon = "nagad.png",
-                    Country = "BD",
+                new PaymentMethod
+                {
+                    Id = "nagad",
+                    Name = "Nagad",
+                    Description = "Pay with Nagad mobile wallet",
+                    Icon = "📱",
+                    Country = "Bangladesh",
                     IsActive = true,
-                    Type = "mobile_money"
+                    Type = "mobile_money",
+                    MinAmount = 10,
+                    MaxAmount = 500000
                 },
-                new PaymentMethod 
-                { 
-                    Id = "rocket", 
-                    Name = "Rocket", 
-                    Description = "Send Money from Rocket", 
-                    Icon = "rocket.png",
-                    Country = "BD",
+                new PaymentMethod
+                {
+                    Id = "rocket",
+                    Name = "Rocket",
+                    Description = "Pay with Rocket mobile wallet",
+                    Icon = "🚀",
+                    Country = "Bangladesh",
                     IsActive = true,
-                    Type = "mobile_money"
+                    Type = "mobile_money",
+                    MinAmount = 10,
+                    MaxAmount = 500000
                 },
-                new PaymentMethod 
-                { 
-                    Id = "visa", 
-                    Name = "Visa/Mastercard", 
-                    Description = "Pay with Debit/Credit Card", 
-                    Icon = "card.png",
-                    Country = "Global",
+                new PaymentMethod
+                {
+                    Id = "card",
+                    Name = "Credit/Debit Card",
+                    Description = "Visa, Mastercard, Amex accepted",
+                    Icon = "💳",
+                    Country = "International",
                     IsActive = true,
-                    Type = "card"
+                    Type = "card",
+                    MinAmount = 10,
+                    MaxAmount = 1000000
                 },
-                new PaymentMethod 
-                { 
-                    Id = "bank", 
-                    Name = "Bank Transfer", 
-                    Description = "Direct Bank Transfer", 
-                    Icon = "bank.png",
-                    Country = "BD",
+                new PaymentMethod
+                {
+                    Id = "bank",
+                    Name = "Bank Transfer",
+                    Description = "Direct bank transfer",
+                    Icon = "🏦",
+                    Country = "Bangladesh",
                     IsActive = true,
-                    Type = "bank_transfer"
+                    Type = "bank_transfer",
+                    MinAmount = 100,
+                    MaxAmount = 10000000
                 },
-                new PaymentMethod 
-                { 
-                    Id = "cod", 
-                    Name = "Cash/Check", 
-                    Description = "Manual donation (Cash/Check)", 
-                    Icon = "cash.png",
-                    Country = "BD",
+                new PaymentMethod
+                {
+                    Id = "cash",
+                    Name = "Cash/Check",
+                    Description = "Manual collection",
+                    Icon = "💵",
+                    Country = "Bangladesh",
                     IsActive = true,
-                    Type = "cash"
+                    Type = "cash",
+                    MinAmount = 10,
+                    MaxAmount = null
                 }
-            };
-
-            return Task.FromResult(methods);
-        }
-
-        private string ExtractGatewayUrl(string response)
-        {
-            // SSLCommerz returns a form with action URL
-            // Extract the gateway URL from response
-            try
-            {
-                var startIndex = response.IndexOf("action=\"") + 8;
-                var endIndex = response.IndexOf("\"", startIndex);
-                return response.Substring(startIndex, endIndex - startIndex);
-            }
-            catch
-            {
-                return "";
-            }
+            });
         }
     }
 
-    // ============ DTOs ============
-
+    // DTOs
     public class PaymentRequest
     {
-        public decimal Amount { get; set; }
-        public string? DonorName { get; set; }
-        public string? DonorEmail { get; set; }
-        public string? DonorPhone { get; set; }
-        public string CampaignTitle { get; set; } = string.Empty;
+        public string TransactionId { get; set; } = string.Empty;
         public int CampaignId { get; set; }
-        public int? UserId { get; set; }
-        public string TransactionId { get; set; } = Guid.NewGuid().ToString();
+        public int DonationId { get; set; }
+        public decimal Amount { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerEmail { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public string? CustomerAddress { get; set; }
+        public string ProductName { get; set; } = string.Empty;
         public string SuccessUrl { get; set; } = string.Empty;
         public string FailUrl { get; set; } = string.Empty;
         public string CancelUrl { get; set; } = string.Empty;
         public string IpnUrl { get; set; } = string.Empty;
+        public bool IsAnonymous { get; set; }
     }
 
     public class PaymentInitResponse
     {
         public bool Success { get; set; }
-        public string GatewayUrl { get; set; } = string.Empty;
-        public string TransactionId { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
-        public string? Error { get; set; }
+        public string? GatewayPageURL { get; set; }
+        public string? TransactionId { get; set; }
     }
 
     public class PaymentValidationResponse
     {
-        public bool Success { get; set; }
         public bool IsValid { get; set; }
-        public string TransactionId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
-        public string? Error { get; set; }
+        public string? TransactionId { get; set; }
+        public decimal Amount { get; set; }
+        public string? Currency { get; set; }
     }
 
     public class PaymentMethod
@@ -291,38 +303,44 @@ namespace DonationManagementSystem.API.Services
         public string Icon { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public bool IsActive { get; set; }
-        public string Type { get; set; } = string.Empty; // mobile_money, card, bank_transfer, cash
+        public string Type { get; set; } = string.Empty;
         public decimal? MinAmount { get; set; }
         public decimal? MaxAmount { get; set; }
     }
 
     public class PaymentCallback
     {
-        [JsonProperty("tran_id")]
+        [JsonPropertyName("tran_id")]
         public string? TransactionId { get; set; }
 
-        [JsonProperty("status")]
+        [JsonPropertyName("val_id")]
+        public string? ValidationId { get; set; }
+
+        [JsonPropertyName("status")]
         public string? Status { get; set; }
 
-        [JsonProperty("currency")]
+        [JsonPropertyName("currency")]
         public string? Currency { get; set; }
 
-        [JsonProperty("amount")]
+        [JsonPropertyName("amount")]
         public decimal Amount { get; set; }
 
-        [JsonProperty("card_type")]
+        [JsonPropertyName("card_type")]
         public string? CardType { get; set; }
 
-        [JsonProperty("cus_email")]
+        [JsonPropertyName("cus_email")]
         public string? CustomerEmail { get; set; }
 
-        [JsonProperty("cus_name")]
+        [JsonPropertyName("cus_name")]
         public string? CustomerName { get; set; }
 
-        [JsonProperty("value_a")]
+        [JsonPropertyName("value_a")]
         public string? CampaignId { get; set; }
 
-        [JsonProperty("value_b")]
-        public string? UserId { get; set; }
+        [JsonPropertyName("value_b")]
+        public string? DonationId { get; set; }
+
+        [JsonPropertyName("value_c")]
+        public string? IsAnonymous { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.Services;
-using System.Security.Claims;
 
 namespace DonationManagementSystem.API.Controllers
 {
@@ -27,21 +26,15 @@ namespace DonationManagementSystem.API.Controllers
         }
 
         /// <summary>
-        /// Get available payment methods
+        /// Get all available payment methods
         /// </summary>
         [HttpGet("methods")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetPaymentMethods()
         {
             try
             {
                 var methods = await _paymentService.GetAvailablePaymentMethodsAsync();
-                return Ok(new
-                {
-                    success = true,
-                    methods = methods,
-                    message = "Available payment methods for Bangladesh"
-                });
+                return Ok(new { success = true, methods });
             }
             catch (Exception ex)
             {
@@ -53,7 +46,6 @@ namespace DonationManagementSystem.API.Controllers
         /// Initiate a payment transaction
         /// </summary>
         [HttpPost("initiate")]
-        [AllowAnonymous]
         public async Task<IActionResult> InitiatePayment([FromBody] InitiatePaymentRequest request)
         {
             try
@@ -61,106 +53,140 @@ namespace DonationManagementSystem.API.Controllers
                 // Validate campaign exists
                 var campaign = await _context.Campaigns.FindAsync(request.CampaignId);
                 if (campaign == null)
+                {
                     return NotFound(new { success = false, message = "Campaign not found" });
+                }
 
-                // Create donation record
+                // Validate amount
+                if (request.Amount < 10)
+                {
+                    return BadRequest(new { success = false, message = "Minimum donation amount is 10 BDT" });
+                }
+
+                // Create donation record with pending status
                 var donation = new Donation
                 {
-                    Amount = request.Amount,
-                    DonorName = request.DonorName ?? "Anonymous",
-                    DonorEmail = request.DonorEmail,
-                    Message = request.Message,
-                    IsAnonymous = request.IsAnonymous,
-                    PaymentMethod = request.PaymentMethod,
-                    Status = "pending",
                     CampaignId = request.CampaignId,
-                    UserId = GetCurrentUserId(),
-                    PaymentReference = Guid.NewGuid().ToString()
+                    UserId = request.UserId,
+                    Amount = request.Amount,
+                    PaymentMethod = request.PaymentMethod,
+                    DonorName = request.IsAnonymous ? "Anonymous" : request.DonorName,
+                    DonorEmail = request.DonorEmail,
+                    IsAnonymous = request.IsAnonymous,
+                    Status = "pending",
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _context.Donations.Add(donation);
                 await _context.SaveChangesAsync();
 
+                // Generate unique transaction ID
+                var transactionId = $"TXN{donation.Id}_{DateTime.UtcNow.Ticks}";
+
+                // Get frontend URL from configuration
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+
                 // Prepare payment request
-                var baseUrl = $"{Request.Scheme}://{Request.Host}";
                 var paymentRequest = new PaymentRequest
                 {
+                    TransactionId = transactionId,
+                    CampaignId = campaign.Id,
+                    DonationId = donation.Id,
                     Amount = request.Amount,
-                    DonorName = request.DonorName,
-                    DonorEmail = request.DonorEmail,
-                    DonorPhone = request.DonorPhone,
-                    CampaignTitle = campaign.Title,
-                    CampaignId = request.CampaignId,
-                    UserId = GetCurrentUserId(),
-                    TransactionId = donation.PaymentReference,
-                    SuccessUrl = $"{baseUrl}/api/payment/success?ref={donation.PaymentReference}",
-                    FailUrl = $"{baseUrl}/api/payment/fail?ref={donation.PaymentReference}",
-                    CancelUrl = $"{baseUrl}/api/payment/cancel?ref={donation.PaymentReference}",
-                    IpnUrl = $"{baseUrl}/api/payment/ipn"
+                    CustomerName = request.IsAnonymous ? "Anonymous Donor" : request.DonorName,
+                    CustomerEmail = request.DonorEmail ?? "noreply@donation.com",
+                    CustomerPhone = request.DonorPhone ?? "01700000000",
+                    ProductName = $"Donation to {campaign.Title}",
+                    SuccessUrl = $"{frontendUrl}/payment/success",
+                    FailUrl = $"{frontendUrl}/payment/failed",
+                    CancelUrl = $"{frontendUrl}/payment/cancelled",
+                    IpnUrl = $"{Request.Scheme}://{Request.Host}/api/payment/ipn",
+                    IsAnonymous = request.IsAnonymous
                 };
 
+                // Initiate payment with SSLCommerz
                 var paymentResponse = await _paymentService.InitiatePaymentAsync(paymentRequest);
 
-                if (paymentResponse.Success)
+                if (!paymentResponse.Success || string.IsNullOrEmpty(paymentResponse.GatewayPageURL))
                 {
-                    return Ok(new
-                    {
-                        success = true,
-                        gatewayUrl = paymentResponse.GatewayUrl,
-                        transactionId = paymentResponse.TransactionId,
-                        donationId = donation.Id,
-                        message = "Payment gateway initiated"
-                    });
-                }
-                else
-                {
-                    return StatusCode(400, new
+                    donation.Status = "failed";
+                    await _context.SaveChangesAsync();
+
+                    return BadRequest(new
                     {
                         success = false,
-                        message = paymentResponse.Message,
-                        error = paymentResponse.Error
+                        message = paymentResponse.Message
                     });
                 }
+
+                // Update donation with transaction ID
+                donation.PaymentReference = transactionId;
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Payment initiated successfully",
+                    gatewayUrl = paymentResponse.GatewayPageURL,
+                    donationId = donation.Id,
+                    transactionId = transactionId
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = $"Error initiating payment: {ex.Message}"
+                });
             }
         }
 
         /// <summary>
-        /// Handle successful payment callback
+        /// Payment success callback from SSLCommerz
         /// </summary>
         [HttpPost("success")]
-        [AllowAnonymous]
-        public async Task<IActionResult> PaymentSuccess([FromQuery] string? ref_id)
+        public async Task<IActionResult> PaymentSuccess([FromForm] PaymentCallback callback)
         {
             try
             {
-                if (string.IsNullOrEmpty(ref_id))
-                    return BadRequest("Invalid reference");
+                // Validate payment with SSLCommerz
+                var validation = await _paymentService.ValidatePaymentAsync(callback.ValidationId ?? callback.TransactionId ?? "");
 
+                if (!validation.IsValid)
+                {
+                    return BadRequest(new { success = false, message = "Payment validation failed" });
+                }
+
+                // Find donation by transaction ID
                 var donation = await _context.Donations
-                    .FirstOrDefaultAsync(d => d.PaymentReference == ref_id);
+                    .Include(d => d.Campaign)
+                    .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
                 if (donation == null)
-                    return NotFound("Donation not found");
+                {
+                    return NotFound(new { success = false, message = "Donation not found" });
+                }
 
                 // Update donation status
                 donation.Status = "completed";
                 donation.CompletedAt = DateTime.UtcNow;
 
                 // Update campaign raised amount
-                var campaign = await _context.Campaigns.FindAsync(donation.CampaignId);
-                if (campaign != null)
+                if (donation.Campaign != null)
                 {
-                    campaign.RaisedAmount += donation.Amount;
+                    donation.Campaign.RaisedAmount += donation.Amount;
                 }
 
                 await _context.SaveChangesAsync();
 
-                // Return success page or redirect to frontend
-                return Redirect($"http://localhost:5173/payment/success?donation={donation.Id}");
+                return Ok(new
+                {
+                    success = true,
+                    message = "Payment completed successfully",
+                    donationId = donation.Id,
+                    amount = donation.Amount
+                });
             }
             catch (Exception ex)
             {
@@ -169,28 +195,23 @@ namespace DonationManagementSystem.API.Controllers
         }
 
         /// <summary>
-        /// Handle failed payment callback
+        /// Payment failure callback from SSLCommerz
         /// </summary>
         [HttpPost("fail")]
-        [AllowAnonymous]
-        public async Task<IActionResult> PaymentFail([FromQuery] string? ref_id)
+        public async Task<IActionResult> PaymentFail([FromForm] PaymentCallback callback)
         {
             try
             {
-                if (string.IsNullOrEmpty(ref_id))
-                    return BadRequest("Invalid reference");
-
                 var donation = await _context.Donations
-                    .FirstOrDefaultAsync(d => d.PaymentReference == ref_id);
+                    .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
                 if (donation != null)
                 {
                     donation.Status = "failed";
+                    await _context.SaveChangesAsync();
                 }
 
-                await _context.SaveChangesAsync();
-
-                return Redirect($"http://localhost:5173/payment/failed?donation={donation?.Id}");
+                return Ok(new { success = false, message = "Payment failed" });
             }
             catch (Exception ex)
             {
@@ -199,28 +220,23 @@ namespace DonationManagementSystem.API.Controllers
         }
 
         /// <summary>
-        /// Handle payment cancellation
+        /// Payment cancellation callback from SSLCommerz
         /// </summary>
         [HttpPost("cancel")]
-        [AllowAnonymous]
-        public async Task<IActionResult> PaymentCancel([FromQuery] string? ref_id)
+        public async Task<IActionResult> PaymentCancel([FromForm] PaymentCallback callback)
         {
             try
             {
-                if (string.IsNullOrEmpty(ref_id))
-                    return BadRequest("Invalid reference");
-
                 var donation = await _context.Donations
-                    .FirstOrDefaultAsync(d => d.PaymentReference == ref_id);
+                    .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
                 if (donation != null)
                 {
                     donation.Status = "cancelled";
+                    await _context.SaveChangesAsync();
                 }
 
-                await _context.SaveChangesAsync();
-
-                return Redirect($"http://localhost:5173/payment/cancelled?donation={donation?.Id}");
+                return Ok(new { success = false, message = "Payment cancelled by user" });
             }
             catch (Exception ex)
             {
@@ -229,55 +245,50 @@ namespace DonationManagementSystem.API.Controllers
         }
 
         /// <summary>
-        /// IPN callback for instant payment notifications
+        /// IPN (Instant Payment Notification) from SSLCommerz
         /// </summary>
         [HttpPost("ipn")]
-        [AllowAnonymous]
         public async Task<IActionResult> PaymentIPN([FromForm] PaymentCallback callback)
         {
             try
             {
-                if (callback == null || string.IsNullOrEmpty(callback.TransactionId))
-                    return BadRequest("Invalid callback");
+                // Validate the payment
+                var validation = await _paymentService.ValidatePaymentAsync(callback.ValidationId ?? callback.TransactionId ?? "");
+
+                if (!validation.IsValid)
+                {
+                    return BadRequest(new { success = false, message = "IPN validation failed" });
+                }
 
                 var donation = await _context.Donations
+                    .Include(d => d.Campaign)
                     .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
-                if (donation == null)
-                    return NotFound();
-
-                // Update donation based on callback status
-                if (callback.Status?.ToLower() == "valid")
+                if (donation != null && donation.Status == "pending")
                 {
                     donation.Status = "completed";
                     donation.CompletedAt = DateTime.UtcNow;
 
-                    var campaign = await _context.Campaigns.FindAsync(donation.CampaignId);
-                    if (campaign != null)
+                    if (donation.Campaign != null)
                     {
-                        campaign.RaisedAmount += donation.Amount;
+                        donation.Campaign.RaisedAmount += donation.Amount;
                     }
-                }
-                else
-                {
-                    donation.Status = "failed";
+
+                    await _context.SaveChangesAsync();
                 }
 
-                await _context.SaveChangesAsync();
-
-                return Ok(new { status = "success" });
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
 
         /// <summary>
-        /// Get payment status
+        /// Get payment status by donation ID
         /// </summary>
         [HttpGet("status/{donationId}")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetPaymentStatus(int donationId)
         {
             try
@@ -287,16 +298,19 @@ namespace DonationManagementSystem.API.Controllers
                     .FirstOrDefaultAsync(d => d.Id == donationId);
 
                 if (donation == null)
+                {
                     return NotFound(new { success = false, message = "Donation not found" });
+                }
 
                 return Ok(new
                 {
                     success = true,
                     donationId = donation.Id,
-                    amount = donation.Amount,
                     status = donation.Status,
+                    amount = donation.Amount,
+                    paymentMethod = donation.PaymentMethod,
+                    transactionId = donation.PaymentReference,
                     campaignTitle = donation.Campaign?.Title,
-                    donorName = donation.IsAnonymous ? "Anonymous" : donation.DonorName,
                     createdAt = donation.CreatedAt,
                     completedAt = donation.CompletedAt
                 });
@@ -306,25 +320,18 @@ namespace DonationManagementSystem.API.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-        private int? GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            return string.IsNullOrEmpty(userIdClaim) ? null : int.Parse(userIdClaim);
-        }
     }
 
-    // ============ DTOs ============
-
+    // Request DTOs
     public class InitiatePaymentRequest
     {
+        public int CampaignId { get; set; }
+        public int? UserId { get; set; }
         public decimal Amount { get; set; }
-        public string? DonorName { get; set; }
+        public string PaymentMethod { get; set; } = string.Empty;
+        public string DonorName { get; set; } = string.Empty;
         public string? DonorEmail { get; set; }
         public string? DonorPhone { get; set; }
-        public string? Message { get; set; }
-        public bool IsAnonymous { get; set; } = false;
-        public string PaymentMethod { get; set; } = "bkash"; // Default to bKash
-        public int CampaignId { get; set; }
+        public bool IsAnonymous { get; set; }
     }
 }

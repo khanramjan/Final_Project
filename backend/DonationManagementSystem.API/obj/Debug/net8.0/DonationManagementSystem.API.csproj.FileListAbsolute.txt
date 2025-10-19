@@ -171,3 +171,4 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationM
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\obj\Debug\net8.0\DonationManagementSystem.API.genruntimeconfig.cache
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\obj\Debug\net8.0\ref\DonationManagementSystem.API.dll
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\appsettings.TEMPLATE.json
+C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\DonationManagementSystem.API\bin\Debug\net8.0\RestSharp.dll

@@ -46,6 +46,9 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 // Register Volunteer Rank Service
 builder.Services.AddScoped<IVolunteerRankService, VolunteerRankService>();
 
+// Register Payment Gateway Service
+builder.Services.AddScoped<IPaymentGatewayService, SSLCommerzPaymentService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
