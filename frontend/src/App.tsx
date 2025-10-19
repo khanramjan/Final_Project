@@ -16,6 +16,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
 import ResendVerification from './pages/ResendVerification';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailed from './pages/PaymentFailed';
+import PaymentCancelled from './pages/PaymentCancelled';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ModernAnalytics from './pages/admin/ModernAnalytics';
 import UserManagement from './pages/admin/UserManagement';
@@ -50,6 +53,9 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/failed" element={<PaymentFailed />} />
+        <Route path="/payment/cancelled" element={<PaymentCancelled />} />
         <Route
           path="/dashboard/*"
           element={

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SSLCommerz Payment Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .response {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .response.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        
+        .response.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        
+        .response h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .response pre {
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .method-card {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .method-card:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        
+        .method-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .method-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .method-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .method-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .method-card.active .method-desc {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .test-credentials {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ffc107;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        
+        .test-credentials strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #ff6b00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 SSLCommerz Payment Gateway Test</h1>
+        <p class="subtitle">Test your payment integration in sandbox mode</p>
+        
+        <!-- Section 1: Get Payment Methods -->
+        <div class="section">
+            <h2>1. Get Available Payment Methods</h2>
+            <button class="btn-primary" onclick="getPaymentMethods()">
+                Get Payment Methods
+            </button>
+            <button class="btn-secondary" onclick="clearResponse('methods-response')">
+                Clear
+            </button>
+            <div id="methods-response" class="response"></div>
+            <div id="methods-grid" class="methods-grid"></div>
+        </div>
+        
+        <!-- Section 2: Initiate Payment -->
+        <div class="section">
+            <h2>2. Initiate Payment</h2>
+            
+            <div class="form-group">
+                <label>Campaign ID *</label>
+                <input type="number" id="campaignId" value="1" placeholder="Enter campaign ID">
+            </div>
+            
+            <div class="form-group">
+                <label>Amount (BDT) *</label>
+                <input type="number" id="amount" value="500" placeholder="Minimum 10 BDT">
+            </div>
+            
+            <div class="form-group">
+                <label>Payment Method *</label>
+                <select id="paymentMethod">
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                    <option value="rocket">Rocket</option>
+                    <option value="card">Credit/Debit Card</option>
+                    <option value="bank">Bank Transfer</option>
+                    <option value="cash">Cash/Check</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Donor Name *</label>
+                <input type="text" id="donorName" value="Test Donor" placeholder="Enter donor name">
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="donorEmail" value="test@example.com" placeholder="donor@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" id="donorPhone" value="01700000000" placeholder="01XXXXXXXXX">
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="isAnonymous" style="width: auto; margin-right: 8px;">
+                    Make this donation anonymous
+                </label>
+            </div>
+            
+            <button class="btn-primary" onclick="initiatePayment()">
+                Initiate Payment
+            </button>
+            <button class="btn-secondary" onclick="clearResponse('payment-response')">
+                Clear
+            </button>
+            
+            <div class="test-credentials">
+                <strong>🧪 Sandbox Test Credentials:</strong>
+                <strong>bKash/Nagad/Rocket:</strong> Phone: 01611111111, PIN: 1234, OTP: 1234<br>
+                <strong>Credit Card:</strong> 4111111111111111, Expiry: 12/25, CVV: 123
+            </div>
+            
+            <div id="payment-response" class="response"></div>
+        </div>
+        
+        <!-- Section 3: Check Payment Status -->
+        <div class="section">
+            <h2>3. Check Payment Status</h2>
+            
+            <div class="form-group">
+                <label>Donation ID</label>
+                <input type="number" id="donationId" value="1" placeholder="Enter donation ID">
+            </div>
+            
+            <button class="btn-primary" onclick="checkPaymentStatus()">
+                Check Status
+            </button>
+            <button class="btn-secondary" onclick="clearResponse('status-response')">
+                Clear
+            </button>
+            <div id="status-response" class="response"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:5000/api/payment';
+        
+        async function getPaymentMethods() {
+            const responseDiv = document.getElementById('methods-response');
+            const methodsGrid = document.getElementById('methods-grid');
+            responseDiv.innerHTML = '<div class="loading"></div> Loading...';
+            responseDiv.className = 'response success';
+            
+            try {
+                const response = await fetch(`${API_BASE}/methods`);
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `
+                    <h3>✅ Success</h3>
+                    <p>Found ${data.methods?.length || 0} payment methods</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                responseDiv.className = 'response success';
+                
+                // Display methods as cards
+                if (data.methods) {
+                    methodsGrid.innerHTML = data.methods.map(method => `
+                        <div class="method-card">
+                            <div class="method-icon">${method.icon}</div>
+                            <div class="method-name">${method.name}</div>
+                            <div class="method-desc">${method.description}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                    <p>Make sure backend is running on http://localhost:5000</p>
+                `;
+                responseDiv.className = 'response error';
+            }
+        }
+        
+        async function initiatePayment() {
+            const responseDiv = document.getElementById('payment-response');
+            responseDiv.innerHTML = '<div class="loading"></div> Initiating payment...';
+            responseDiv.className = 'response success';
+            
+            const payload = {
+                campaignId: parseInt(document.getElementById('campaignId').value),
+                amount: parseFloat(document.getElementById('amount').value),
+                paymentMethod: document.getElementById('paymentMethod').value,
+                donorName: document.getElementById('donorName').value,
+                donorEmail: document.getElementById('donorEmail').value || null,
+                donorPhone: document.getElementById('donorPhone').value || null,
+                isAnonymous: document.getElementById('isAnonymous').checked
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.gatewayUrl) {
+                    responseDiv.innerHTML = `
+                        <h3>✅ Payment Initiated Successfully!</h3>
+                        <p><strong>Donation ID:</strong> ${data.donationId}</p>
+                        <p><strong>Transaction ID:</strong> ${data.transactionId}</p>
+                        <p style="margin-top: 15px;">
+                            <button class="btn-primary" onclick="window.open('${data.gatewayUrl}', '_blank')">
+                                Open Payment Gateway
+                            </button>
+                        </p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    responseDiv.className = 'response success';
+                    
+                    // Auto-fill donation ID for status check
+                    document.getElementById('donationId').value = data.donationId;
+                } else {
+                    responseDiv.innerHTML = `
+                        <h3>❌ Payment Failed</h3>
+                        <p>${data.message || 'Unknown error'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                    <p>Make sure backend is running on http://localhost:5000</p>
+                `;
+                responseDiv.className = 'response error';
+            }
+        }
+        
+        async function checkPaymentStatus() {
+            const donationId = document.getElementById('donationId').value;
+            const responseDiv = document.getElementById('status-response');
+            responseDiv.innerHTML = '<div class="loading"></div> Checking status...';
+            responseDiv.className = 'response success';
+            
+            try {
+                const response = await fetch(`${API_BASE}/status/${donationId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const statusEmoji = {
+                        'pending': '⏳',
+                        'completed': '✅',
+                        'failed': '❌',
+                        'cancelled': '🚫'
+                    };
+                    
+                    responseDiv.innerHTML = `
+                        <h3>${statusEmoji[data.status] || '❓'} Payment Status: ${data.status.toUpperCase()}</h3>
+                        <p><strong>Amount:</strong> ${data.amount} BDT</p>
+                        <p><strong>Method:</strong> ${data.paymentMethod}</p>
+                        <p><strong>Transaction ID:</strong> ${data.transactionId || 'N/A'}</p>
+                        <p><strong>Campaign:</strong> ${data.campaignTitle || 'N/A'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                    responseDiv.className = 'response success';
+                } else {
+                    responseDiv.innerHTML = `
+                        <h3>❌ Not Found</h3>
+                        <p>${data.message}</p>
+                    `;
+                    responseDiv.className = 'response error';
+                }
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p>${error.message}</p>
+                `;
+                responseDiv.className = 'response error';
+            }
+        }
+        
+        function clearResponse(id) {
+            document.getElementById(id).className = 'response';
+            document.getElementById(id).innerHTML = '';
+        }
+        
+        // Auto-load payment methods on page load
+        window.addEventListener('load', () => {
+            setTimeout(getPaymentMethods, 500);
+        });
+    </script>
+</body>
+</html>

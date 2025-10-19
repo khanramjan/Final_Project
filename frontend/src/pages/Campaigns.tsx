@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
+import DonationModal from '../components/DonationModal';
 import { 
   MagnifyingGlassIcon,
   CalendarDaysIcon,
@@ -20,6 +21,8 @@ const Campaigns = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   
   // Check if we're in the dashboard (authenticated view)
   const isInDashboard = location.pathname.startsWith('/dashboard');
@@ -411,9 +414,28 @@ const Campaigns = () => {
                         </div>
                         
                         <div className="pt-3 border-t border-gray-100">
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-center mb-3">
                             <span className="text-sm text-gray-600">By {campaign.createdBy}</span>
                           </div>
+                          
+                          {/* Donate Button */}
+                          {campaign.status === 'active' && (
+                            <button
+                              onClick={() => {
+                                setSelectedCampaign(campaign);
+                                setIsDonationModalOpen(true);
+                              }}
+                              className="w-full px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
+                            >
+                              <HeartIcon className="h-5 w-5 mr-2" />
+                              Donate Now
+                            </button>
+                          )}
+                          {campaign.status !== 'active' && (
+                            <div className="w-full px-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg font-semibold text-center cursor-not-allowed">
+                              Campaign {campaign.status}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -438,6 +460,16 @@ const Campaigns = () => {
           </div>
         </div>
       </div>
+
+      {/* Donation Modal */}
+      <DonationModal
+        isOpen={isDonationModalOpen}
+        onClose={() => {
+          setIsDonationModalOpen(false);
+          setSelectedCampaign(null);
+        }}
+        campaign={selectedCampaign}
+      />
     </div>
   );
 };
