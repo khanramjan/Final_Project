@@ -19,4 +19,10 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Exclude backup folder from compilation -->
+    <Compile Remove="Controllers\backup\**" />
+    <EmbeddedResource Remove="Controllers\backup\**" />
+    <None Remove="Controllers\backup\**" />
+  </ItemGroup>
 </Project>

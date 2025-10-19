@@ -873,23 +873,7 @@ namespace DonationManagementSystem.API.Controllers
                             _context.VolunteerRequests.Add(request);
                             totalRequestsSent++;
 
-                            // Create notification for volunteer
-                            var notification = new Notification
-                            {
-                                UserId = volunteer.User.Id,
-                                Title = "🎯 New Volunteer Request!",
-                                Message = $"You have a new {request.Priority} priority volunteer request for '{campaign.Title}'. Check it out!",
-                                Type = "volunteer_request",
-                                RelatedEntityId = campaign.Id,
-                                RelatedEntityType = "volunteer_request",
-                                ActionUrl = "/volunteer/requests",
-                                IsRead = false,
-                                CreatedAt = DateTime.UtcNow
-                            };
-
-                            _context.Notifications.Add(notification);
-
-                            Console.WriteLine($"    ✅ Request and notification created successfully");
+                            Console.WriteLine($"    ✅ Request created successfully");
                         }
                     }
                 }
