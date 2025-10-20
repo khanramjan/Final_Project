@@ -1,19 +1,45 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircleIcon, HeartIcon } from '@heroicons/react/24/outline';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchCampaigns } from '../store/slices/campaignSlice';
+
+interface DonationDetails {
+  donationId: number;
+  campaignId: number;
+  status: string;
+  amount: number;
+  paymentMethod: string;
+  transactionId: string;
+  campaignTitle: string;
+  createdAt: string;
+  completedAt: string;
+}
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
+  const dispatch = useAppDispatch();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [loading, setLoading] = useState(true);
-  const [donationDetails, setDonationDetails] = useState<any>(null);
+  const [donationDetails, setDonationDetails] = useState<DonationDetails | null>(null);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const fetchDonationStatus = async () => {
+    // Refresh campaigns data after successful payment
+    // Add delay to allow backend to process the donation and update RaisedAmount
+    const timer = setTimeout(() => {
+      console.log('PaymentSuccess: Fetching fresh campaign data...');
+      dispatch(fetchCampaigns());
+    }, 2000); // Increased to 2 seconds
+
+    return () => clearTimeout(timer);
+  }, [dispatch]);
+
+  useEffect(() => {
+    const fetchDonationDetails = async () => {
       try {
-        // Get transaction details from URL params if available
-        const transactionId = searchParams.get('tran_id');
-        const donationId = searchParams.get('value_b');
+        // Get donation ID from URL parameters (set by backend redirect)
+        const donationId = searchParams.get('donationId');
         
         if (donationId) {
           const response = await fetch(`http://localhost:5000/api/payment/status/${donationId}`);
@@ -21,16 +47,21 @@ const PaymentSuccess = () => {
           
           if (data.success) {
             setDonationDetails(data);
+          } else {
+            setError('Failed to fetch donation details');
           }
+        } else {
+          setError('Invalid payment confirmation');
         }
       } catch (err) {
+        console.error('Error fetching donation details:', err);
         setError('Failed to fetch donation details');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDonationStatus();
+    fetchDonationDetails();
   }, [searchParams]);
 
   if (loading) {
@@ -113,15 +144,23 @@ const PaymentSuccess = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            {donationDetails?.campaignId && (
+              <Link
+                to={`/campaigns/${donationDetails.campaignId}`}
+                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg text-center"
+              >
+                📊 View Updated Campaign
+              </Link>
+            )}
             <Link
-              to="/campaigns"
+              to={isAuthenticated ? "/dashboard/campaigns" : "/campaigns"}
               className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors text-center"
             >
               <HeartIcon className="h-5 w-5 inline mr-2" />
               Donate to More Campaigns
             </Link>
             <Link
-              to="/"
+              to={isAuthenticated ? "/dashboard" : "/"}
               className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-center"
             >
               Go to Home

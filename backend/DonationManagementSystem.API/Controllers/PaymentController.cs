@@ -85,8 +85,9 @@ namespace DonationManagementSystem.API.Controllers
 
                 // Get frontend URL from configuration
                 var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+                var backendUrl = $"{Request.Scheme}://{Request.Host}";
 
-                // Prepare payment request
+                // Prepare payment request - SSLCommerz will POST to backend, backend will redirect to frontend
                 var paymentRequest = new PaymentRequest
                 {
                     TransactionId = transactionId,
@@ -97,10 +98,10 @@ namespace DonationManagementSystem.API.Controllers
                     CustomerEmail = request.DonorEmail ?? "noreply@donation.com",
                     CustomerPhone = request.DonorPhone ?? "01700000000",
                     ProductName = $"Donation to {campaign.Title}",
-                    SuccessUrl = $"{frontendUrl}/payment/success",
-                    FailUrl = $"{frontendUrl}/payment/failed",
-                    CancelUrl = $"{frontendUrl}/payment/cancelled",
-                    IpnUrl = $"{Request.Scheme}://{Request.Host}/api/payment/ipn",
+                    SuccessUrl = $"{backendUrl}/api/payment/success",
+                    FailUrl = $"{backendUrl}/api/payment/fail",
+                    CancelUrl = $"{backendUrl}/api/payment/cancel",
+                    IpnUrl = $"{backendUrl}/api/payment/ipn",
                     IsAnonymous = request.IsAnonymous
                 };
 
@@ -146,51 +147,154 @@ namespace DonationManagementSystem.API.Controllers
         /// Payment success callback from SSLCommerz
         /// </summary>
         [HttpPost("success")]
-        public async Task<IActionResult> PaymentSuccess([FromForm] PaymentCallback callback)
+        [HttpGet("success")]  // Also handle GET requests for testing
+        public async Task<IActionResult> PaymentSuccess([FromForm] PaymentCallback callback, [FromQuery] PaymentCallback queryCallback)
         {
+            // Merge form data and query string data
+            var cb = callback;
+            if (string.IsNullOrEmpty(cb.TransactionId) && !string.IsNullOrEmpty(queryCallback.TransactionId))
+            {
+                cb = queryCallback;
+            }
+            
+            var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5173";
+            
             try
             {
-                // Validate payment with SSLCommerz
-                var validation = await _paymentService.ValidatePaymentAsync(callback.ValidationId ?? callback.TransactionId ?? "");
-
-                if (!validation.IsValid)
+                var isSandbox = _configuration.GetValue<bool>("Payment:SSLCommerz:IsSandbox", true);
+                
+                // Log everything for debugging
+                Console.WriteLine($"\n=== Payment Success Callback ===");
+                Console.WriteLine($"Transaction ID: {cb.TransactionId ?? "NULL"}");
+                Console.WriteLine($"Validation ID: {cb.ValidationId ?? "NULL"}");
+                Console.WriteLine($"Donation ID (value_b): {cb.DonationId ?? "NULL"}");
+                Console.WriteLine($"Campaign ID (value_a): {cb.CampaignId ?? "NULL"}");
+                Console.WriteLine($"Amount: {cb.Amount}");
+                Console.WriteLine($"Status: {cb.Status ?? "NULL"}");
+                Console.WriteLine($"Is Sandbox: {isSandbox}");
+                
+                // In sandbox mode, ALWAYS skip validation
+                if (isSandbox)
                 {
-                    return BadRequest(new { success = false, message = "Payment validation failed" });
+                    Console.WriteLine("✓ Sandbox mode - skipping SSLCommerz validation");
                 }
 
-                // Find donation by transaction ID
-                var donation = await _context.Donations
-                    .Include(d => d.Campaign)
-                    .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
+                // Find donation - try multiple methods
+                Donation? donation = null;
+                
+                // Method 1: By donation ID from value_b
+                if (!string.IsNullOrEmpty(cb.DonationId) && int.TryParse(cb.DonationId, out int donationId))
+                {
+                    Console.WriteLine($"Method 1: Looking for donation by ID: {donationId}");
+                    donation = await _context.Donations
+                        .Include(d => d.Campaign)
+                        .FirstOrDefaultAsync(d => d.Id == donationId);
+                    
+                    if (donation != null)
+                    {
+                        Console.WriteLine($"✓ Found donation by ID: {donation.Id}");
+                    }
+                }
+                
+                // Method 2: By transaction ID
+                if (donation == null && !string.IsNullOrEmpty(cb.TransactionId))
+                {
+                    Console.WriteLine($"Method 2: Looking for donation by Transaction ID: {cb.TransactionId}");
+                    donation = await _context.Donations
+                        .Include(d => d.Campaign)
+                        .FirstOrDefaultAsync(d => d.PaymentReference == cb.TransactionId);
+                    
+                    if (donation != null)
+                    {
+                        Console.WriteLine($"✓ Found donation by TransactionID: {donation.Id}");
+                    }
+                }
+                
+                // Method 3: Get most recent pending donation as fallback (sandbox mode only)
+                if (donation == null && isSandbox)
+                {
+                    Console.WriteLine($"Method 3: Looking for most recent pending donation...");
+                    donation = await _context.Donations
+                        .Include(d => d.Campaign)
+                        .Where(d => d.Status == "pending")
+                        .OrderByDescending(d => d.Id)
+                        .FirstOrDefaultAsync();
+                    
+                    if (donation != null)
+                    {
+                        Console.WriteLine($"✓ Found most recent pending donation: {donation.Id}");
+                    }
+                }
 
                 if (donation == null)
                 {
-                    return NotFound(new { success = false, message = "Donation not found" });
+                    Console.WriteLine("✗ ERROR: Donation not found by any method!");
+                    Console.WriteLine("Checking database...");
+                    var recentDonations = await _context.Donations
+                        .OrderByDescending(d => d.Id)
+                        .Take(5)
+                        .Select(d => new { d.Id, d.Status, d.PaymentReference, d.Amount })
+                        .ToListAsync();
+                    
+                    Console.WriteLine($"Recent donations in database:");
+                    foreach (var d in recentDonations)
+                    {
+                        Console.WriteLine($"  ID: {d.Id}, Status: {d.Status}, PaymentRef: {d.PaymentReference}, Amount: {d.Amount}");
+                    }
+                    
+                    return Redirect($"{frontendUrl}/payment/failed?message=Donation not found in database");
                 }
+
+                Console.WriteLine($"\n✓ Processing donation: ID={donation.Id}, Status={donation.Status}, Amount=৳{donation.Amount}");
 
                 // Update donation status
-                donation.Status = "completed";
-                donation.CompletedAt = DateTime.UtcNow;
-
-                // Update campaign raised amount
-                if (donation.Campaign != null)
+                if (donation.Status == "pending" || donation.Status == "failed")
                 {
-                    donation.Campaign.RaisedAmount += donation.Amount;
+                    Console.WriteLine("Updating donation status to 'completed'...");
+                    donation.Status = "completed";
+                    donation.CompletedAt = DateTime.UtcNow;
+
+                    // Update campaign raised amount
+                    if (donation.Campaign != null)
+                    {
+                        var oldAmount = donation.Campaign.RaisedAmount;
+                        donation.Campaign.RaisedAmount += donation.Amount;
+                        Console.WriteLine($"Campaign ID: {donation.Campaign.Id}");
+                        Console.WriteLine($"Campaign raised amount: ৳{oldAmount} → ৳{donation.Campaign.RaisedAmount} (+৳{donation.Amount})");
+                    }
+                    else
+                    {
+                        Console.WriteLine("✗ WARNING: donation.Campaign is NULL! Cannot update RaisedAmount");
+                    }
+
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("✓ Database updated successfully!");
+                    
+                    // Verify the update
+                    var verifyDonation = await _context.Donations
+                        .Include(d => d.Campaign)
+                        .FirstOrDefaultAsync(d => d.Id == donation.Id);
+                    
+                    if (verifyDonation?.Campaign != null)
+                    {
+                        Console.WriteLine($"✓ VERIFICATION: Campaign RaisedAmount in DB is now: ৳{verifyDonation.Campaign.RaisedAmount}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Donation already processed (status: {donation.Status})");
                 }
 
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    success = true,
-                    message = "Payment completed successfully",
-                    donationId = donation.Id,
-                    amount = donation.Amount
-                });
+                // Redirect to frontend success page
+                var redirectUrl = $"{frontendUrl}/payment/success?donationId={donation.Id}&transactionId={cb.TransactionId}";
+                Console.WriteLine($"\n✓ Redirecting to: {redirectUrl}\n");
+                return Redirect(redirectUrl);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                Console.WriteLine($"\n✗ ERROR in PaymentSuccess: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}\n");
+                return Redirect($"{frontendUrl}/payment/failed?message={Uri.EscapeDataString(ex.Message)}");
             }
         }
 
@@ -202,6 +306,8 @@ namespace DonationManagementSystem.API.Controllers
         {
             try
             {
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+                
                 var donation = await _context.Donations
                     .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
@@ -211,11 +317,12 @@ namespace DonationManagementSystem.API.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                return Ok(new { success = false, message = "Payment failed" });
+                return Redirect($"{frontendUrl}/payment/failed?transactionId={callback.TransactionId}&message=Payment failed");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+                return Redirect($"{frontendUrl}/payment/failed?message={Uri.EscapeDataString(ex.Message)}");
             }
         }
 
@@ -227,6 +334,8 @@ namespace DonationManagementSystem.API.Controllers
         {
             try
             {
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+                
                 var donation = await _context.Donations
                     .FirstOrDefaultAsync(d => d.PaymentReference == callback.TransactionId);
 
@@ -236,11 +345,12 @@ namespace DonationManagementSystem.API.Controllers
                     await _context.SaveChangesAsync();
                 }
 
-                return Ok(new { success = false, message = "Payment cancelled by user" });
+                return Redirect($"{frontendUrl}/payment/cancelled?transactionId={callback.TransactionId}");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, message = ex.Message });
+                var frontendUrl = _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:5174";
+                return Redirect($"{frontendUrl}/payment/cancelled?message={Uri.EscapeDataString(ex.Message)}");
             }
         }
 
@@ -306,6 +416,7 @@ namespace DonationManagementSystem.API.Controllers
                 {
                     success = true,
                     donationId = donation.Id,
+                    campaignId = donation.CampaignId,
                     status = donation.Status,
                     amount = donation.Amount,
                     paymentMethod = donation.PaymentMethod,

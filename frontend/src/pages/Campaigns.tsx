@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
+import { logout } from '../store/slices/authSlice';
 import DonationModal from '../components/DonationModal';
 import { 
   MagnifyingGlassIcon,
@@ -10,14 +11,16 @@ import {
   BanknotesIcon,
   ChartBarIcon,
   ClockIcon,
-  HeartIcon
+  HeartIcon,
+  PowerIcon
 } from '@heroicons/react/24/outline';
 
 const Campaigns = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const { campaigns, loading, error } = useAppSelector((state) => state.campaigns);
-  const user = useAppSelector((state) => (state as any).auth.user);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -26,6 +29,11 @@ const Campaigns = () => {
   
   // Check if we're in the dashboard (authenticated view)
   const isInDashboard = location.pathname.startsWith('/dashboard');
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   useEffect(() => {
     dispatch(fetchCampaigns());
@@ -93,18 +101,40 @@ const Campaigns = () => {
                   <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Link 
-                    to="/login" 
-                    className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link 
-                    to="/login" 
-                    className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    Get Started
-                  </Link>
+                  {isAuthenticated && user ? (
+                    <>
+                      <div className="hidden sm:flex items-center space-x-3">
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                        </div>
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="ml-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <PowerIcon className="h-5 w-5" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        to="/login" 
+                        className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                      >
+                        Sign In
+                      </Link>
+                      <Link 
+                        to="/login" 
+                        className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -150,18 +180,40 @@ const Campaigns = () => {
                   <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <Link 
-                    to="/login" 
-                    className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <Link 
-                    to="/login" 
-                    className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                  >
-                    Get Started
-                  </Link>
+                  {isAuthenticated && user ? (
+                    <>
+                      <div className="hidden sm:flex items-center space-x-3">
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
+                          <p className="text-xs text-gray-500">{user.email}</p>
+                        </div>
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleLogout}
+                        className="ml-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <PowerIcon className="h-5 w-5" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        to="/login" 
+                        className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                      >
+                        Sign In
+                      </Link>
+                      <Link 
+                        to="/login" 
+                        className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      >
+                        Get Started
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -206,18 +258,40 @@ const Campaigns = () => {
                 <a href="/#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
               </div>
               <div className="flex items-center space-x-4">
-                <Link 
-                  to="/login" 
-                  className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  to="/login" 
-                  className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                >
-                  Get Started
-                </Link>
+                {isAuthenticated && user ? (
+                  <>
+                    <div className="hidden sm:flex items-center space-x-3">
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="ml-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <PowerIcon className="h-5 w-5" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    <Link 
+                      to="/login" 
+                      className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -344,7 +418,9 @@ const Campaigns = () => {
             {/* Campaigns Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredCampaigns.map((campaign) => {
-                const progress = Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100);
+                const rawProgress = (campaign.currentAmount / campaign.goalAmount) * 100;
+                const progress = Math.min(rawProgress, 100);
+                const progressPercentage = rawProgress.toFixed(2);
                 const daysLeft = calculateDaysLeft(campaign.endDate);
                 
                 return (
@@ -385,7 +461,7 @@ const Campaigns = () => {
                         <div>
                           <div className="flex justify-between text-sm mb-1">
                             <span className="text-gray-600">Progress</span>
-                            <span className="font-medium">{Math.round(progress)}%</span>
+                            <span className="font-medium">{progressPercentage}%</span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
