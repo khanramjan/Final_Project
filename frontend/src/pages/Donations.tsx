@@ -38,8 +38,6 @@ const Donations = () => {
     const fetchDonations = async () => {
       try {
         const token = localStorage.getItem('token');
-        console.log('🔑 Token exists:', !!token);
-        console.log('📡 Fetching donations from: http://localhost:5000/api/donation/my-donations');
         
         const response = await fetch('http://localhost:5000/api/donation/my-donations', {
           headers: {
@@ -47,9 +45,7 @@ const Donations = () => {
           }
         });
         
-        console.log('📊 Response status:', response.status);
         const data = await response.json();
-        console.log('📦 Response data:', data);
         
         if (data.success && Array.isArray(data.donations)) {
           console.log('✅ Found donations:', data.donations.length);

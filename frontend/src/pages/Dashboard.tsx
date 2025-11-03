@@ -28,9 +28,8 @@ const Dashboard = () => {
   const [submitting, setSubmitting] = useState(false);
   const [canReview, setCanReview] = useState(true);
   const [daysUntilNextReview, setDaysUntilNextReview] = useState(0);
-
-  // Mock data - Replace with real API calls
-  const userStats = {
+  
+  const [userStats, setUserStats] = useState({
     totalDonated: 0,
     totalDonations: 0,
     campaignsSupported: 0,
@@ -38,26 +37,26 @@ const Dashboard = () => {
     givingStreak: 0,
     monthsActive: 0,
     peopleImpacted: 0
-  };
+  });
 
-  const donationTrends = [
+  const [donationTrends, setDonationTrends] = useState([
     { month: 'Jan', amount: 0, count: 0 },
     { month: 'Feb', amount: 0, count: 0 },
     { month: 'Mar', amount: 0, count: 0 },
     { month: 'Apr', amount: 0, count: 0 },
     { month: 'May', amount: 0, count: 0 },
     { month: 'Jun', amount: 0, count: 0 }
-  ];
+  ]);
 
-  const categoryDistribution = [
+  const [categoryDistribution, setCategoryDistribution] = useState([
     { name: 'Education', value: 0, color: '#3b82f6' },
     { name: 'Healthcare', value: 0, color: '#10b981' },
     { name: 'Emergency', value: 0, color: '#ef4444' },
     { name: 'Environment', value: 0, color: '#059669' },
     { name: 'Community', value: 0, color: '#8b5cf6' }
-  ];
+  ]);
 
-  const donationHistory: Array<{
+  const [donationHistory, setDonationHistory] = useState<Array<{
     id: number;
     amount: number;
     campaignTitle: string;
@@ -65,18 +64,132 @@ const Dashboard = () => {
     date: string;
     status: 'completed' | 'pending' | 'failed';
     impactMessage?: string;
-  }> = [];
+  }>>([]);
 
   useEffect(() => {
-    // TODO: Fetch user's personal donation data from API
-    // Example: GET /api/donations/my-donations
-    // Example: GET /api/donations/my-stats
-    // Example: GET /api/donations/my-trends
-    
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // Fetch user's donations
+        const response = await fetch('http://localhost:5000/api/donation/my-donations', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const donations = data.donations || [];
+          
+          // Calculate stats
+          const completedDonations = donations.filter((d: any) => d.status === 'completed');
+          const totalDonated = completedDonations.reduce((sum: number, d: any) => sum + d.amount, 0);
+          const totalDonations = completedDonations.length;
+          
+          // Get unique campaigns
+          const uniqueCampaigns = new Set(completedDonations.map((d: any) => d.campaignId));
+          const campaignsSupported = uniqueCampaigns.size;
+          
+          // Calculate average
+          const averageDonation = totalDonations > 0 ? Math.round(totalDonated / totalDonations) : 0;
+          
+          // Calculate months active (from first donation to now)
+          const dates = completedDonations.map((d: any) => new Date(d.date).getTime());
+          const monthsActive = dates.length > 0 
+            ? Math.max(1, Math.ceil((Date.now() - Math.min(...dates)) / (1000 * 60 * 60 * 24 * 30)))
+            : 0;
+          
+          // Calculate giving streak (consecutive months with donations)
+          const monthsWithDonations = new Set(
+            completedDonations.map((d: any) => {
+              const date = new Date(d.date);
+              return `${date.getFullYear()}-${date.getMonth()}`;
+            })
+          );
+          const givingStreak = monthsWithDonations.size;
+          
+          // Estimate people impacted (rough estimate: 1 person per 1000 taka)
+          const peopleImpacted = Math.floor(totalDonated / 1000);
+
+          setUserStats({
+            totalDonated,
+            totalDonations,
+            campaignsSupported,
+            averageDonation,
+            givingStreak,
+            monthsActive,
+            peopleImpacted
+          });
+
+          // Calculate donation trends by month
+          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+          const currentMonth = new Date().getMonth();
+          const trends = [];
+          
+          for (let i = 5; i >= 0; i--) {
+            const monthIndex = (currentMonth - i + 12) % 12;
+            const monthName = monthNames[monthIndex];
+            const monthDonations = completedDonations.filter((d: any) => {
+              const donationMonth = new Date(d.date).getMonth();
+              return donationMonth === monthIndex;
+            });
+            
+            trends.push({
+              month: monthName,
+              amount: monthDonations.reduce((sum: number, d: any) => sum + d.amount, 0),
+              count: monthDonations.length
+            });
+          }
+          setDonationTrends(trends);
+
+          // Calculate category distribution
+          const categoryMap: { [key: string]: number } = {};
+          completedDonations.forEach((d: any) => {
+            const category = d.campaignCategory || 'Other';
+            categoryMap[category] = (categoryMap[category] || 0) + d.amount;
+          });
+
+          const categoryColors: { [key: string]: string } = {
+            'education': '#3b82f6',
+            'healthcare': '#10b981',
+            'emergency': '#ef4444',
+            'environment': '#059669',
+            'community': '#8b5cf6',
+            'other': '#6b7280'
+          };
+
+          const categoryDist = Object.entries(categoryMap).map(([name, value]) => ({
+            name: name.charAt(0).toUpperCase() + name.slice(1),
+            value,
+            color: categoryColors[name.toLowerCase()] || '#6b7280'
+          }));
+          setCategoryDistribution(categoryDist);
+
+          // Format donation history
+          const history = completedDonations.slice(0, 10).map((d: any) => ({
+            id: d.id,
+            amount: d.amount,
+            campaignTitle: d.campaignTitle,
+            campaignCategory: d.campaignCategory,
+            date: d.date,
+            status: d.status,
+            impactMessage: d.impactMessage
+          }));
+          setDonationHistory(history);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
     dispatch(fetchDonations());
     dispatch(fetchCampaigns());
     dispatch(fetchDonors());
-    setLoading(false);
   }, [dispatch]);
 
   return (
