@@ -144,14 +144,13 @@ const PaymentSuccess = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mt-8">
-            {donationDetails?.campaignId && (
-              <Link
-                to={`/campaigns/${donationDetails.campaignId}`}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg text-center"
-              >
-                📊 View Updated Campaign
-              </Link>
-            )}
+            <Link
+              to={isAuthenticated ? "/dashboard/donations" : "/campaigns"}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg text-center"
+            >
+              <HeartIcon className="h-5 w-5 inline mr-2" />
+              View My Donations
+            </Link>
             <Link
               to={isAuthenticated ? "/dashboard/campaigns" : "/campaigns"}
               className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-semibold hover:bg-primary-700 transition-colors text-center"

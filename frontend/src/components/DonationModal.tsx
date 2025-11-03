@@ -1,6 +1,7 @@
 import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, HeartIcon, SparklesIcon, LockClosedIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useAppSelector } from '../store/hooks';
 
 interface Campaign {
   id: number;
@@ -16,6 +17,7 @@ interface DonationModalProps {
 }
 
 const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
+  const { user } = useAppSelector((state) => state.auth);
   const [step, setStep] = useState<'amount' | 'details'>('amount');
   const [amount, setAmount] = useState<number>(500);
   const [customAmount, setCustomAmount] = useState<string>('');
@@ -29,13 +31,33 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
 
   const presetAmounts = [100, 250, 500, 1000, 2500, 5000];
 
-  const paymentMethods = [
-    { id: 'bkash', name: 'bKash', icon: '🔴', bgColor: 'bg-pink-50', borderColor: 'border-pink-300' },
-    { id: 'nagad', name: 'Nagad', icon: '🟠', bgColor: 'bg-orange-50', borderColor: 'border-orange-300' },
-    { id: 'rocket', name: 'Rocket', icon: '🟣', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
-    { id: 'card', name: 'Card', icon: '💳', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
-    { id: 'bank', name: 'Bank', icon: '🏦', bgColor: 'bg-green-50', borderColor: 'border-green-300' },
-  ];
+  const [paymentTab, setPaymentTab] = useState<'mobile' | 'cards' | 'netbanking'>('mobile');
+
+  const paymentMethods = {
+    mobile: [
+      { id: 'bkash', name: 'bKash', logo: 'https://download.logo.wine/logo/BKash/BKash-Logo.wine.png', bgColor: 'bg-pink-50', borderColor: 'border-pink-300' },
+      { id: 'nagad', name: 'Nagad', logo: 'https://seeklogo.com/images/N/nagad-logo-7A70CCFB12-seeklogo.com.png', bgColor: 'bg-orange-50', borderColor: 'border-orange-300' },
+      { id: 'rocket', name: 'Rocket', logo: 'https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
+      { id: 'okwallet', name: 'OK Wallet', logo: '🔵', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
+      { id: 'cellfin', name: 'Cellfin', logo: '📱', bgColor: 'bg-teal-50', borderColor: 'border-teal-300' },
+      { id: 'upay', name: 'Upay', logo: '💰', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300' },
+    ],
+    cards: [
+      { id: 'visa', name: 'Visa', logo: '💳', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
+      { id: 'mastercard', name: 'Mastercard', logo: '💳', bgColor: 'bg-red-50', borderColor: 'border-red-300' },
+      { id: 'amex', name: 'American Express', logo: '💳', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
+      { id: 'visa-debit', name: 'Visa Debit', logo: '💳', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300' },
+      { id: 'master-debit', name: 'Master Debit', logo: '💳', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
+    ],
+    netbanking: [
+      { id: 'citybank', name: 'City Bank', logo: '🏦', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
+      { id: 'dbbl', name: 'DBBL', logo: '🏦', bgColor: 'bg-green-50', borderColor: 'border-green-300' },
+      { id: 'brac', name: 'BRAC Bank', logo: '🏦', bgColor: 'bg-orange-50', borderColor: 'border-orange-300' },
+      { id: 'eastern', name: 'Eastern Bank', logo: '🏦', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
+      { id: 'islamibank', name: 'Islami Bank', logo: '🏦', bgColor: 'bg-teal-50', borderColor: 'border-teal-300' },
+      { id: 'scb', name: 'Standard Chartered', logo: '🏦', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
+    ],
+  };
 
   const handleAmountSelect = (value: number) => {
     setAmount(value);
@@ -78,7 +100,10 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
     try {
       const response = await fetch('http://localhost:5000/api/payment/initiate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify({
           campaignId: campaign?.id,
           amount: amount,
@@ -87,6 +112,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
           donorEmail: donorEmail || null,
           donorPhone: donorPhone || null,
           isAnonymous: isAnonymous,
+          userId: user?.id || null,
         }),
       });
 
@@ -276,21 +302,75 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                           <span className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-600 font-bold mr-3 text-sm">2</span>
                           Payment Method
                         </label>
-                        <div className="grid grid-cols-5 gap-3">
-                          {paymentMethods.map((method) => (
+                        
+                        {/* Payment Tabs */}
+                        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl mb-4">
+                          <button
+                            onClick={() => setPaymentTab('mobile')}
+                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                              paymentTab === 'mobile'
+                                ? 'bg-white text-primary-600 shadow-md'
+                                : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                          >
+                            📱 MOBILE BANKING
+                          </button>
+                          <button
+                            onClick={() => setPaymentTab('cards')}
+                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                              paymentTab === 'cards'
+                                ? 'bg-white text-primary-600 shadow-md'
+                                : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                          >
+                            💳 CARDS
+                          </button>
+                          <button
+                            onClick={() => setPaymentTab('netbanking')}
+                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                              paymentTab === 'netbanking'
+                                ? 'bg-white text-primary-600 shadow-md'
+                                : 'text-gray-600 hover:text-gray-900'
+                            }`}
+                          >
+                            🏦 NET BANKING
+                          </button>
+                        </div>
+
+                        {/* Payment Options Grid */}
+                        <div className="grid grid-cols-3 gap-4 max-h-72 overflow-y-auto p-2">
+                          {paymentMethods[paymentTab].map((method) => (
                             <button
                               key={method.id}
                               onClick={() => setPaymentMethod(method.id)}
-                              className={`relative p-4 rounded-2xl border-2 transition-all duration-200 ${
+                              className={`relative p-6 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
                                 paymentMethod === method.id
-                                  ? `${method.borderColor} ${method.bgColor} shadow-lg scale-105`
+                                  ? `${method.borderColor} ${method.bgColor} shadow-lg ring-2 ring-primary-300`
                                   : 'border-gray-200 hover:border-gray-300 hover:shadow-md bg-white'
                               }`}
                             >
-                              <div className="text-3xl mb-2 text-center">{method.icon}</div>
-                              <div className="text-xs font-semibold text-gray-700 text-center">{method.name}</div>
+                              <div className="flex flex-col items-center justify-center space-y-2">
+                                {method.logo.startsWith('http') ? (
+                                  <img 
+                                    src={method.logo} 
+                                    alt={method.name}
+                                    className="h-12 w-12 object-contain"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      target.nextElementSibling?.classList.remove('hidden');
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`text-4xl ${method.logo.startsWith('http') ? 'hidden' : ''}`}>
+                                  {method.logo.startsWith('http') ? '💳' : method.logo}
+                                </div>
+                                <div className="text-sm font-bold text-gray-800 text-center">{method.name}</div>
+                              </div>
                               {paymentMethod === method.id && (
-                                <CheckCircleIcon className="absolute -top-1 -right-1 h-5 w-5 text-primary-600 bg-white rounded-full" />
+                                <div className="absolute top-2 right-2 h-6 w-6 bg-primary-600 rounded-full flex items-center justify-center">
+                                  <CheckCircleIcon className="h-5 w-5 text-white" />
+                                </div>
                               )}
                             </button>
                           ))}
@@ -330,8 +410,12 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium text-gray-600">Method</p>
-                            <p className="text-lg font-bold text-gray-900">
-                              {paymentMethods.find(m => m.id === paymentMethod)?.icon} {paymentMethods.find(m => m.id === paymentMethod)?.name}
+                            <p className="text-lg font-bold text-gray-900 capitalize">
+                              {(() => {
+                                const allMethods = [...paymentMethods.mobile, ...paymentMethods.cards, ...paymentMethods.netbanking];
+                                const selected = allMethods.find(m => m.id === paymentMethod);
+                                return selected ? `${selected.logo.startsWith('http') ? '💳' : selected.logo} ${selected.name}` : paymentMethod;
+                              })()}
                             </p>
                           </div>
                         </div>

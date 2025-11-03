@@ -19,6 +19,7 @@ import ResendVerification from './pages/ResendVerification';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 import PaymentCancelled from './pages/PaymentCancelled';
+import CampaignDetail from './pages/CampaignDetail';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ModernAnalytics from './pages/admin/ModernAnalytics';
 import UserManagement from './pages/admin/UserManagement';
@@ -48,6 +49,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/campaigns" element={<Campaigns />} />
+        <Route path="/campaigns/:campaignId" element={<CampaignDetail />} />
         <Route path="/api-test" element={<ApiTest />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

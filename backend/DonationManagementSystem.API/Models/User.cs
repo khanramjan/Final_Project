@@ -25,13 +25,6 @@ namespace DonationManagementSystem.API.Models
 		public string? EmailVerificationToken { get; set; }
 		public DateTime? EmailVerificationTokenExpiry { get; set; }
 
-		// Admin Approval for Volunteers (Account Level)
-		public string? AccountStatus { get; set; } = "active"; // active, pending, rejected, suspended
-		public bool IsApprovedByAdmin { get; set; } = true; // Default true for non-volunteers
-		public int? ApprovedBy { get; set; } // Admin ID who approved
-		public DateTime? ApprovedAt { get; set; }
-		public string? ApprovalNotes { get; set; } // Admin's notes
-
 		// Navigation properties
 		public List<Donation> Donations { get; set; } = new();
 		public List<Campaign> CampaignsCreated { get; set; } = new();

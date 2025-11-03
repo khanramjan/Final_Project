@@ -28,7 +28,7 @@ namespace DonationManagementSystem.API.Controllers
 
         private int GetCurrentUserId()
         {
-            var userIdClaim = User.FindFirst("userId")?.Value;
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.Parse(userIdClaim ?? "0");
         }
 
@@ -249,6 +249,75 @@ namespace DonationManagementSystem.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Failed to fetch recent donations", error = ex.Message });
+            }
+        }
+
+        // GET: api/donation/my-donations
+        [HttpGet("my-donations")]
+        public async Task<IActionResult> GetMyDonations(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? status = null,
+            [FromQuery] string? sortBy = "latest")
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                if (userId == 0)
+                    return Unauthorized("User not authenticated");
+
+                var query = _context.Donations
+                    .Include(d => d.Campaign)
+                    .Where(d => d.UserId == userId)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(status))
+                {
+                    query = query.Where(d => d.Status == status);
+                }
+
+                var totalCount = await query.CountAsync();
+
+                // Apply sorting
+                if (sortBy == "oldest")
+                {
+                    query = query.OrderBy(d => d.CreatedAt);
+                }
+                else
+                {
+                    query = query.OrderByDescending(d => d.CreatedAt);
+                }
+
+                var donations = await query
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(d => new
+                    {
+                        id = d.Id,
+                        amount = d.Amount,
+                        campaignTitle = d.Campaign.Title,
+                        campaignId = d.Campaign.Id,
+                        campaignCategory = d.Campaign.Category,
+                        date = d.CreatedAt,
+                        status = d.Status,
+                        paymentMethod = d.PaymentMethod,
+                        transactionId = d.PaymentReference
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    donations = donations,
+                    totalCount = totalCount,
+                    page = page,
+                    pageSize = pageSize,
+                    totalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch donations", error = ex.Message });
             }
         }
 

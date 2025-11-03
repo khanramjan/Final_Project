@@ -31,15 +31,40 @@ const Donations = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('all');
 
-  // Mock data - Replace with API call
+  // Fetch donations from API
   useEffect(() => {
-    // TODO: Fetch from API - GET /api/donations/my-donations
-    const mockDonations: Donation[] = [
-      // Empty for now - user hasn't made donations yet
-    ];
-    
-    setDonations(mockDonations);
-    setLoading(false);
+    const fetchDonations = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        console.log('🔑 Token exists:', !!token);
+        console.log('📡 Fetching donations from: http://localhost:5000/api/donation/my-donations');
+        
+        const response = await fetch('http://localhost:5000/api/donation/my-donations', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        console.log('📊 Response status:', response.status);
+        const data = await response.json();
+        console.log('📦 Response data:', data);
+        
+        if (data.success && Array.isArray(data.donations)) {
+          console.log('✅ Found donations:', data.donations.length);
+          setDonations(data.donations);
+        } else {
+          console.log('⚠️ No donations or invalid response');
+          setDonations([]);
+        }
+      } catch (err) {
+        console.error('❌ Error fetching donations:', err);
+        setDonations([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDonations();
   }, []);
 
   // Calculate statistics
