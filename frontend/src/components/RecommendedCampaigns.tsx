@@ -1,23 +1,84 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import campaignService, { Campaign } from '../services/campaignService';
+import { Link, useNavigate } from 'react-router-dom';
+import { Campaign } from '../services/campaignService';
 import { HeartIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 const RecommendedCampaigns = () => {
+  const navigate = useNavigate();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const data = await campaignService.getAllCampaigns({
-          page: 1,
-          pageSize: 3,
-          status: 'approved'
-        });
-        setCampaigns(data.campaigns);
+        const token = localStorage.getItem('token');
+        
+        // First, get user's donated campaign IDs to exclude them
+        let donatedCampaignIds: number[] = [];
+        if (token) {
+          try {
+            const donationsResponse = await fetch('http://localhost:5000/api/donation/my-donations', {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (donationsResponse.ok) {
+              const donationsData = await donationsResponse.json();
+              donatedCampaignIds = [...new Set(
+                donationsData.donations?.map((d: any) => d.campaignId) || []
+              )];
+              console.log('� User already donated to campaign IDs:', donatedCampaignIds);
+            }
+          } catch (err) {
+            console.log('Could not fetch user donations:', err);
+          }
+        }
+        
+        // Fetch all campaigns
+        const response = await fetch('http://localhost:5000/api/campaign/public?pageSize=20');
+        const data = await response.json();
+        
+        if (data.campaigns && Array.isArray(data.campaigns) && data.campaigns.length > 0) {
+          console.log('First campaign raw data:', data.campaigns[0]);
+          
+          // Filter out campaigns user has already donated to
+          const newCampaigns = data.campaigns.filter((c: any) => 
+            !donatedCampaignIds.includes(c.id)
+          );
+          
+          console.log(`✅ Found ${newCampaigns.length} new campaigns (excluded ${donatedCampaignIds.length} already donated)`);
+          
+          // Sort by urgency (ending soon) and need (low completion rate)
+          const sorted = newCampaigns
+            .map((campaign: any) => {
+              const daysLeft = Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              const completion = (campaign.raisedAmount || 0) / (campaign.targetAmount || 1) * 100;
+              const urgencyScore = daysLeft <= 30 ? (30 - daysLeft) : 0; // More urgent = higher score
+              const needScore = 100 - completion; // More needed = higher score
+              return {
+                ...campaign,
+                score: urgencyScore * 2 + needScore // Prioritize urgency
+              };
+            })
+            .sort((a: any, b: any) => b.score - a.score)
+            .slice(0, 3)
+            .map((campaign: any) => ({
+              id: campaign.id,
+              title: campaign.title || 'Untitled Campaign',
+              description: campaign.description || '',
+              imagePath: campaign.imagePath,
+              raisedAmount: campaign.raisedAmount || 0,
+              targetAmount: campaign.targetAmount || 0,
+              endDate: campaign.endDate,
+              status: campaign.status,
+              category: campaign.category
+            }));
+          
+          console.log('✅ Recommended campaigns:', sorted);
+          setCampaigns(sorted);
+        } else {
+          console.log('⚠️ No campaigns in response');
+        }
       } catch (error) {
-        console.error('Failed to fetch campaigns:', error);
+        console.error('❌ Failed to fetch campaigns:', error);
       } finally {
         setLoading(false);
       }
@@ -53,8 +114,10 @@ const RecommendedCampaigns = () => {
       ) : campaigns.length > 0 ? (
         <div className="space-y-4">
           {campaigns.map((campaign) => {
-            const progress = Math.min((campaign.raisedAmount / campaign.targetAmount) * 100, 100);
-            const daysLeft = getDaysLeft(campaign.endDate);
+            const raisedAmount = campaign.raisedAmount || 0;
+            const targetAmount = campaign.targetAmount || 1;
+            const progress = Math.min((raisedAmount / targetAmount) * 100, 100);
+            const daysLeft = campaign.endDate ? getDaysLeft(campaign.endDate) : 0;
             
             return (
               <div key={campaign.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -75,7 +138,7 @@ const RecommendedCampaigns = () => {
                 <div className="mt-3 space-y-2">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-600">
-                      ৳{campaign.raisedAmount.toLocaleString()} raised
+                      ৳{raisedAmount.toLocaleString()} raised
                     </span>
                     <span className="text-gray-500">
                       {Math.round(progress)}%
@@ -94,10 +157,13 @@ const RecommendedCampaigns = () => {
                       <ClockIcon className="h-3.5 w-3.5" />
                       <span>{daysLeft} days left</span>
                     </div>
-                    <span>Goal: ৳{campaign.targetAmount.toLocaleString()}</span>
+                    <span>Goal: ৳{targetAmount.toLocaleString()}</span>
                   </div>
 
-                  <button className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                  <button 
+                    onClick={() => navigate('/dashboard/campaigns')}
+                    className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                  >
                     <HeartIcon className="h-4 w-4" />
                     Donate Now
                   </button>
