@@ -30,6 +30,8 @@ const Donations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState<string>('all');
+  const [selectedDonation, setSelectedDonation] = useState<Donation | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   // Fetch donations from API
   useEffect(() => {
@@ -399,7 +401,13 @@ const Donations = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button className="text-blue-600 hover:text-blue-900">
+                      <button 
+                        onClick={() => {
+                          setSelectedDonation(donation);
+                          setShowModal(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-900 transition-colors"
+                      >
                         View Details
                       </button>
                     </td>
@@ -430,6 +438,129 @@ const Donations = () => {
               </button>
             )}
           </p>
+        </div>
+      )}
+
+      {/* Donation Details Modal */}
+      {showModal && selectedDonation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-white">Donation Details</h3>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Status Badge */}
+              <div className="flex items-center justify-center">
+                {getStatusIcon(selectedDonation.status)}
+                <div className="ml-3">
+                  {getStatusBadge(selectedDonation.status)}
+                </div>
+              </div>
+
+              {/* Campaign Info */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Campaign</h4>
+                <p className="text-lg font-semibold text-gray-900">{selectedDonation.campaignTitle}</p>
+                <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  {selectedDonation.campaignCategory}
+                </div>
+              </div>
+
+              {/* Donation Amount */}
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                <h4 className="text-sm font-medium text-gray-600 mb-1">Donation Amount</h4>
+                <p className="text-3xl font-bold text-green-700">
+                  ৳{selectedDonation.amount.toLocaleString()}
+                </p>
+              </div>
+
+              {/* Transaction Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center">
+                    <CalendarDaysIcon className="w-4 h-4 mr-1" />
+                    Date & Time
+                  </h4>
+                  <p className="text-sm text-gray-900">
+                    {new Date(selectedDonation.date).toLocaleString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Payment Method</h4>
+                  <p className="text-sm text-gray-900 capitalize">{selectedDonation.paymentMethod}</p>
+                </div>
+              </div>
+
+              {/* Transaction ID */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="text-sm font-medium text-gray-500 mb-2">Transaction ID</h4>
+                <p className="text-sm font-mono text-gray-900 break-all">{selectedDonation.transactionId}</p>
+              </div>
+
+              {/* Impact Message */}
+              {selectedDonation.impactMessage && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-start">
+                    <HeartIcon className="w-5 h-5 text-blue-600 mt-1 mr-2 flex-shrink-0" />
+                    <div>
+                      <h4 className="text-sm font-medium text-blue-900 mb-1">Impact Message</h4>
+                      <p className="text-sm text-blue-800">{selectedDonation.impactMessage}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Thank You Message */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center">
+                  <TrophyIcon className="w-6 h-6 text-purple-600 mr-2" />
+                  <div>
+                    <h4 className="text-sm font-semibold text-purple-900">Thank You!</h4>
+                    <p className="text-xs text-purple-700 mt-1">
+                      Your generosity makes a real difference in people's lives.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-gray-50 px-6 py-4 rounded-b-xl flex justify-end space-x-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+              >
+                <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
+                Download Receipt
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
