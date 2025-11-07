@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   HomeIcon, 
@@ -18,6 +18,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
+import volunteerService from '../services/volunteerService';
+import VolunteerNotificationPopup from './VolunteerNotificationPopup';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -52,10 +54,19 @@ const adminNavigation = [
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+  const [newRequests, setNewRequests] = useState<Array<{
+    id: number;
+    title: string;
+    campaignTitle: string;
+    priority: string;
+    createdAt: string;
+  }>>([]);
+  
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => (state as any).auth.user);
+  const user = useAppSelector((state) => (state as { auth: { user: { firstName?: string; lastName?: string; email?: string; userType?: string } } }).auth.user);
   
   // Select navigation based on user role
   let navigation = userNavigation;
@@ -64,6 +75,40 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   } else if (user?.userType === 'volunteer') {
     navigation = volunteerNavigation;
   }
+
+  // Polling for new volunteer requests (only for volunteers)
+  useEffect(() => {
+    if (user?.userType !== 'volunteer') {
+      return; // Only poll for volunteers
+    }
+
+    const checkForNewRequests = async () => {
+      try {
+        console.log('🔔 Checking for new volunteer requests...');
+        const response = await volunteerService.getNewRequestsCount();
+        console.log('📊 Response:', response);
+        
+        if (response.hasNew && response.requests.length > 0) {
+          console.log('✅ New requests found!', response.requests);
+          setNewRequests(response.requests);
+          setShowNotificationPopup(true);
+        } else {
+          console.log('ℹ️ No new requests');
+        }
+      } catch (error) {
+        // Silently fail - don't show errors for background polling
+        console.error('❌ Polling error:', error);
+      }
+    };
+
+    // Check immediately on mount
+    checkForNewRequests();
+
+    // Then poll every 15 seconds (faster for testing)
+    const interval = setInterval(checkForNewRequests, 15000);
+
+    return () => clearInterval(interval);
+  }, [user?.userType]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -159,6 +204,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </main>
       </div>
+
+      {/* Volunteer Notification Popup */}
+      {showNotificationPopup && newRequests.length > 0 && (
+        <VolunteerNotificationPopup
+          requests={newRequests}
+          onClose={() => {
+            setShowNotificationPopup(false);
+            setNewRequests([]);
+          }}
+        />
+      )}
     </div>
   );
 };

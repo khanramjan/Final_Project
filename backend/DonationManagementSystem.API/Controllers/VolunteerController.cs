@@ -178,6 +178,10 @@ namespace DonationManagementSystem.API.Controllers
             if (profile == null)
                 return NotFound(new { message = "Volunteer profile not found" });
 
+            Console.WriteLine($"\n=== GET PENDING REQUESTS ===");
+            Console.WriteLine($"Volunteer Profile ID: {profile.Id}");
+            Console.WriteLine($"User ID: {userId}");
+
             var requests = await _context.VolunteerRequests
                 .Include(vr => vr.Campaign)
                 .Include(vr => vr.RequestedByUser)
@@ -187,7 +191,59 @@ namespace DonationManagementSystem.API.Controllers
                 .ThenByDescending(vr => vr.CreatedAt)
                 .ToListAsync();
 
+            Console.WriteLine($"Found {requests.Count} pending requests");
+            foreach (var req in requests)
+            {
+                Console.WriteLine($"  - Request ID: {req.Id}, Campaign: {req.Campaign?.Title}, Status: {req.Status}, Created: {req.CreatedAt}");
+            }
+
             return Ok(requests.Select(MapToRequestDto));
+        }
+
+        // GET: api/volunteer/requests/new-count
+        [HttpGet("requests/new-count")]
+        public async Task<ActionResult<object>> GetNewRequestsCount()
+        {
+            var userId = GetCurrentUserId();
+            if (userId == null) return Unauthorized();
+
+            var profile = await _context.VolunteerProfiles
+                .FirstOrDefaultAsync(vp => vp.UserId == userId);
+
+            if (profile == null)
+                return NotFound(new { message = "Volunteer profile not found" });
+
+            // Get requests created in the last 5 minutes (extended for testing)
+            var fiveMinutesAgo = DateTime.UtcNow.AddMinutes(-5);
+            var newRequests = await _context.VolunteerRequests
+                .Include(vr => vr.Campaign)
+                .Where(vr => vr.VolunteerProfileId == profile.Id && 
+                            vr.Status == "pending" && 
+                            vr.CreatedAt >= fiveMinutesAgo)
+                .ToListAsync();
+
+            Console.WriteLine($"\n=== NEW REQUESTS CHECK ===");
+            Console.WriteLine($"Volunteer Profile ID: {profile.Id}");
+            Console.WriteLine($"User ID: {userId}");
+            Console.WriteLine($"Checking requests from: {fiveMinutesAgo}");
+            Console.WriteLine($"Found {newRequests.Count} new requests");
+            
+            foreach (var req in newRequests)
+            {
+                Console.WriteLine($"  - Request ID: {req.Id}, Campaign: {req.Campaign?.Title}, Created: {req.CreatedAt}");
+            }
+
+            return Ok(new { 
+                count = newRequests.Count,
+                hasNew = newRequests.Count > 0,
+                requests = newRequests.Select(vr => new {
+                    id = vr.Id,
+                    title = vr.Title,
+                    campaignTitle = vr.Campaign?.Title,
+                    priority = vr.Priority,
+                    createdAt = vr.CreatedAt
+                })
+            });
         }
 
         // POST: api/volunteer/requests/accept

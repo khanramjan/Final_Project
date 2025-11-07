@@ -41,6 +41,30 @@ class VolunteerService {
     return api.get<VolunteerRequest[]>('/volunteer/requests/pending');
   }
 
+  async getNewRequestsCount(): Promise<{ 
+    count: number; 
+    hasNew: boolean; 
+    requests: Array<{
+      id: number;
+      title: string;
+      campaignTitle: string;
+      priority: string;
+      createdAt: string;
+    }>;
+  }> {
+    return api.get<{ 
+      count: number; 
+      hasNew: boolean; 
+      requests: Array<{
+        id: number;
+        title: string;
+        campaignTitle: string;
+        priority: string;
+        createdAt: string;
+      }>;
+    }>('/volunteer/requests/new-count');
+  }
+
   async acceptRequest(data: AcceptRequest): Promise<VolunteerAssignment> {
     return api.post<VolunteerAssignment>('/volunteer/requests/accept', data);
   }
