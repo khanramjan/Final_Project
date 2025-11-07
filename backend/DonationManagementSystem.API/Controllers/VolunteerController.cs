@@ -408,7 +408,7 @@ namespace DonationManagementSystem.API.Controllers
                 query = query.Where(va => va.Status == status);
 
             var assignments = await query
-                .OrderByDescending(va => va.StartDate)
+                .OrderByDescending(va => va.CreatedAt)
                 .ToListAsync();
 
             return Ok(assignments.Select(MapToAssignmentDto));
@@ -528,6 +528,10 @@ namespace DonationManagementSystem.API.Controllers
             if (assignment.CheckOutTime != null)
                 return BadRequest(new { message = "Already checked out" });
 
+            Console.WriteLine($"\n=== CHECK OUT ===");
+            Console.WriteLine($"Assignment ID: {assignment.Id}");
+            Console.WriteLine($"Current Progress: {assignment.ProgressPercentage}%");
+
             assignment.CheckOutTime = DateTime.UtcNow;
             assignment.CheckOutLocation = dto.Location;
             assignment.CheckOutLatitude = dto.Latitude;
@@ -540,13 +544,44 @@ namespace DonationManagementSystem.API.Controllers
                 assignment.ActualHours = (int)Math.Ceiling(duration.TotalHours);
             }
 
-            // Status remains in_progress after checkout - volunteer needs to mark as complete
-            // Stats will be updated after admin verification
+            // ✅ Auto-complete if progress is already 100% when checking out
+            if (assignment.ProgressPercentage >= 100)
+            {
+                Console.WriteLine($"🎉 Auto-completing assignment (progress already 100%)");
+                
+                assignment.Status = "completed";
+                assignment.CompletedAt = DateTime.UtcNow;
+                
+                // Update volunteer profile stats
+                profile.TotalTasksCompleted++;
+                profile.CompletedCampaigns++; // ✅ Increment completed campaigns for rank upgrade
+                if (assignment.ActualHours > 0)
+                {
+                    profile.TotalHoursVolunteered += assignment.ActualHours;
+                }
+                
+                Console.WriteLine($"✅ Assignment {assignment.Id} marked as COMPLETED on checkout");
+                Console.WriteLine($"   Total Tasks: {profile.TotalTasksCompleted}");
+                Console.WriteLine($"   Total Hours: {profile.TotalHoursVolunteered}");
+                Console.WriteLine($"   Completed Campaigns: {profile.CompletedCampaigns}");
+                
+                // Log completion activity
+                await LogActivity(profile.Id, "task_completed", "Task Completed", 
+                    $"Completed: {assignment.Title}", assignment.CampaignId, assignment.Id);
+            }
+
             profile.LastActivityAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
 
-            // Log activity
+            // Check and upgrade rank if assignment was completed
+            if (assignment.Status == "completed")
+            {
+                await _rankService.CheckAndUpgradeRank(profile.Id);
+                Console.WriteLine($"🏆 Checked rank upgrade eligibility for volunteer {profile.Id}");
+            }
+
+            // Log checkout activity
             await LogActivity(profile.Id, "checked_out", "Checked Out", 
                 $"Checked out from: {assignment.Title}", assignment.CampaignId, assignment.Id);
 
@@ -615,11 +650,58 @@ namespace DonationManagementSystem.API.Controllers
             if (assignment == null)
                 return NotFound(new { message = "Assignment not found" });
 
+            Console.WriteLine($"\n=== UPDATE PROGRESS ===");
+            Console.WriteLine($"Assignment ID: {assignment.Id}");
+            Console.WriteLine($"Current Status: {assignment.Status}");
+            Console.WriteLine($"Current Progress: {assignment.ProgressPercentage}%");
+            Console.WriteLine($"New Progress: {dto.ProgressPercentage}%");
+            Console.WriteLine($"Checked Out: {assignment.CheckOutTime.HasValue}");
+
             assignment.ProgressPercentage = Math.Clamp(dto.ProgressPercentage, 0, 100);
             assignment.ProgressNotes = dto.ProgressNotes;
             assignment.UpdatedAt = DateTime.UtcNow;
 
+            // ✅ Auto-complete when progress reaches 100% and volunteer has checked out
+            if (assignment.ProgressPercentage >= 100 && assignment.CheckOutTime.HasValue)
+            {
+                Console.WriteLine($"🎉 Auto-completing assignment (100% + checked out)");
+                
+                assignment.Status = "completed";
+                assignment.CompletedAt = DateTime.UtcNow;
+                
+                // Update volunteer profile stats
+                profile.TotalTasksCompleted++;
+                profile.CompletedCampaigns++; // ✅ Increment completed campaigns for rank upgrade
+                if (assignment.ActualHours > 0)
+                {
+                    profile.TotalHoursVolunteered += assignment.ActualHours;
+                }
+                profile.LastActivityAt = DateTime.UtcNow;
+
+                // Log completion activity
+                await LogActivity(profile.Id, "task_completed", "Task Completed", 
+                    $"Completed: {assignment.Title}", assignment.CampaignId, assignment.Id);
+                
+                Console.WriteLine($"✅ Assignment {assignment.Id} marked as COMPLETED");
+                Console.WriteLine($"   Total Tasks: {profile.TotalTasksCompleted}");
+                Console.WriteLine($"   Total Hours: {profile.TotalHoursVolunteered}");
+                Console.WriteLine($"   Completed Campaigns: {profile.CompletedCampaigns}");
+            }
+            else if (assignment.ProgressPercentage >= 100)
+            {
+                Console.WriteLine($"⚠️ Progress is 100% but volunteer hasn't checked out yet");
+            }
+
             await _context.SaveChangesAsync();
+            
+            // Check and upgrade rank if assignment was completed
+            if (assignment.Status == "completed")
+            {
+                await _rankService.CheckAndUpgradeRank(profile.Id);
+                Console.WriteLine($"🏆 Checked rank upgrade eligibility for volunteer {profile.Id}");
+            }
+            
+            Console.WriteLine($"Final Status: {assignment.Status}");
 
             return Ok(MapToAssignmentDto(assignment));
         }
@@ -1048,6 +1130,54 @@ namespace DonationManagementSystem.API.Controllers
                     feedback = dto.Feedback
                 });
             }
+        }
+
+        // POST: api/volunteer/admin/fix-completed-campaigns
+        [HttpPost("admin/fix-completed-campaigns")]
+        public async Task<IActionResult> FixCompletedCampaignsCount()
+        {
+            // Check if user is admin
+            var userType = User.FindFirst("UserType")?.Value;
+            if (userType != "admin")
+                return Unauthorized(new { message = "Admin access required" });
+
+            Console.WriteLine("\n=== FIXING COMPLETED CAMPAIGNS COUNT ===");
+
+            // Get all volunteer profiles
+            var allProfiles = await _context.VolunteerProfiles.ToListAsync();
+            int updatedCount = 0;
+
+            foreach (var profile in allProfiles)
+            {
+                // Count actual completed assignments
+                var actualCompleted = await _context.VolunteerAssignments
+                    .Where(va => va.VolunteerProfileId == profile.Id && va.Status == "completed")
+                    .CountAsync();
+
+                if (profile.CompletedCampaigns != actualCompleted)
+                {
+                    Console.WriteLine($"Volunteer {profile.Id}: {profile.CompletedCampaigns} -> {actualCompleted}");
+                    profile.CompletedCampaigns = actualCompleted;
+                    updatedCount++;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Now check and upgrade ranks for all volunteers with updated counts
+            foreach (var profile in allProfiles.Where(p => p.CompletedCampaigns > 0))
+            {
+                await _rankService.CheckAndUpgradeRank(profile.Id);
+            }
+
+            Console.WriteLine($"✅ Updated {updatedCount} volunteer profiles");
+
+            return Ok(new
+            {
+                message = $"Fixed CompletedCampaigns count for {updatedCount} volunteers and checked rank upgrades",
+                updatedCount,
+                totalProfiles = allProfiles.Count
+            });
         }
 
         // ===== ADMIN VOLUNTEER APPROVAL ENDPOINTS =====

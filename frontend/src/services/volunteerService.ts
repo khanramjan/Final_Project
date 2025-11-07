@@ -143,6 +143,7 @@ class VolunteerService {
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) return '';
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -152,13 +153,20 @@ class VolunteerService {
   }
 
   formatDateTime(dateString: string): string {
+    if (!dateString) return '';
+    
+    // Parse the UTC date string and convert to local time
     const date = new Date(dateString);
+    
+    // Format in local timezone
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      hour12: true,
+      timeZoneName: 'short'
     }).format(date);
   }
 
