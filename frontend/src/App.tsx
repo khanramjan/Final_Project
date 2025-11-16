@@ -37,6 +37,11 @@ import MyAssignments from './pages/volunteer/MyAssignments';
 import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
 import VolunteerAchievementsPage from './pages/volunteer/VolunteerAchievementsPage';
 import VolunteerProfilePage from './pages/volunteer/VolunteerProfilePage';
+// Legal Pages
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
+import Documentation from './pages/Documentation';
 
 function AppContent() {
   useEffect(() => {
@@ -45,7 +50,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/campaigns" element={<Campaigns />} />
@@ -58,6 +63,10 @@ function AppContent() {
         <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/failed" element={<PaymentFailed />} />
         <Route path="/payment/cancelled" element={<PaymentCancelled />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/cookies" element={<CookiePolicy />} />
+        <Route path="/documentation" element={<Documentation />} />
         <Route
           path="/dashboard/*"
           element={

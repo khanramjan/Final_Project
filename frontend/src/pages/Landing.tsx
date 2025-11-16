@@ -66,108 +66,108 @@ const Landing = () => {
       icon: HeartIcon,
       title: 'Smart Donation Processing',
       description: 'Secure donation processing with multiple payment options and automated receipt generation for seamless donor experience.',
-      stats: 'Ready to deploy'
+      stats: 'Active'
     },
     {
       icon: UsersIcon,
       title: 'Comprehensive Donor Management',
       description: 'Advanced donor profiles, communication tracking, and engagement tools to build lasting relationships with supporters.',
-      stats: 'Full featured'
+      stats: 'Operational'
     },
     {
       icon: MegaphoneIcon,
       title: 'Campaign Management',
       description: 'Create and manage fundraising campaigns with goal tracking, progress monitoring, and automated communication workflows.',
-      stats: 'Beta tested'
+      stats: 'Live'
     },
     {
       icon: ChartBarIcon,
       title: 'Analytics & Reporting',
       description: 'Comprehensive reporting suite with custom dashboards, donation trends, and performance insights for data-driven decisions.',
-      stats: 'Launch ready'
+      stats: 'Available'
     },
     {
       icon: ShieldCheckIcon,
       title: 'Enterprise Security',
       description: 'Bank-level encryption, secure data storage, and compliance-ready infrastructure to protect sensitive donor information.',
-      stats: 'Security first'
+      stats: 'Enabled'
     },
     {
       icon: GlobeAltIcon,
       title: 'Modern Architecture',
       description: 'Built with cutting-edge technology stack for scalability, reliability, and seamless integration capabilities.',
-      stats: 'Future-proof'
+      stats: 'Optimized'
     }
   ];
 
   const benefits = [
     {
       icon: TrophyIcon,
-      title: 'Built for Success',
-      description: 'Designed with industry best practices and proven fundraising methodologies',
-      metric: 'Best practices'
+      title: 'University Focused',
+      description: 'Designed specifically for university donation campaigns and student initiatives',
+      metric: 'Tailored solution'
     },
     {
       icon: LightBulbIcon,
       title: 'Modern Technology',
       description: 'Latest technology stack with responsive design and intuitive user experience',
-      metric: 'Cutting-edge'
+      metric: 'React & .NET'
     },
     {
       icon: CogIcon,
-      title: 'Easy Integration',
-      description: 'Simple setup process with comprehensive documentation and support resources',
-      metric: 'Plug & play'
+      title: 'Easy to Use',
+      description: 'Intuitive interface designed for both donors and campaign managers',
+      metric: 'User-friendly'
     },
     {
       icon: DocumentTextIcon,
-      title: 'Compliance Ready',
-      description: 'Built with security and compliance standards from day one for peace of mind',
-      metric: 'Secure by design'
+      title: 'Fully Secure',
+      description: 'Built with security and data protection standards for safe transactions',
+      metric: 'Protected data'
     }
   ];
 
   const stats = [
-    { label: 'Platform Launch', value: '2025', change: 'Now Available' },
-    { label: 'Beta Organizations', value: '25+', change: 'Testing Phase' },
-    { label: 'Features Ready', value: '95%', change: 'Launch Ready' },
-    { label: 'Security Standards', value: 'A+', change: 'Enterprise Grade' }
+    { label: 'Active Since', value: '2025', change: 'Live Platform' },
+    { label: 'Active Campaigns', value: activeCampaigns.length.toString(), change: 'Running Now' },
+    { label: 'System Uptime', value: '99.9%', change: 'Reliable' },
+    { label: 'Secure Donations', value: '100%', change: 'Protected' }
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       {/* Navigation */}
-      <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
+      <nav className="bg-white/90 backdrop-blur-xl shadow-green-sm border-b border-emerald-100 fixed w-full z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                <div className="h-10 w-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-green-md">
                   <HeartIcon className="h-6 w-6 text-white" />
                 </div>
-                <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                <span className="ml-3 text-xl font-bold text-gradient-green">Donation Management System</span>
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/campaigns" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Campaigns</Link>
-              <a href="#testimonials" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Impact Stories</a>
-              <a href="#features" className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">Features</a>
+              <Link to="/campaigns" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+              <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Impact Stories</a>
+              <a href="#features" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Features</a>
             </div>
             <div className="flex items-center space-x-4">
               {isAuthenticated && user ? (
                 <>
                   <div className="hidden sm:flex items-center space-x-3">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
-                      <p className="text-xs text-gray-500">{user.email}</p>
+                      <p className="text-sm font-semibold text-gray-900">{user.firstName} {user.lastName}</p>
+                      <p className="text-xs text-emerald-600">{user.email}</p>
                     </div>
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-green-md ring-2 ring-emerald-200">
+                      <span className="text-white text-sm font-bold">{user.firstName.charAt(0)}</span>
                     </div>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="ml-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="ml-2 p-2 text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-colors"
                   >
                     <PowerIcon className="h-5 w-5" />
                   </button>
@@ -176,13 +176,13 @@ const Landing = () => {
                 <>
                   <Link 
                     to="/login" 
-                    className="text-gray-600 hover:text-gray-900 px-4 py-2 text-sm font-medium transition-colors"
+                    className="text-gray-700 hover:text-emerald-700 px-4 py-2 text-sm font-semibold transition-colors rounded-lg hover:bg-emerald-50"
                   >
                     Sign In
                   </Link>
                   <Link 
                     to="/login" 
-                    className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    className="btn-primary shadow-green-lg hover:shadow-green-xl"
                   >
                     Get Started
                   </Link>
@@ -194,45 +194,46 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16 bg-gradient-to-br from-gray-50 via-white to-primary-50 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-gray-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+      <section className="relative pt-20 pb-16 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center px-4 py-2 bg-primary-50 border border-primary-200 rounded-full text-primary-700 text-sm font-medium mb-8">
-              <TrophyIcon className="h-4 w-4 mr-2" />
-              Now launching - Join our early adopters program
-            </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-8 leading-tight">
               Transform Your
-              <span className="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-600 bg-clip-text text-transparent"> Fundraising</span>
-              <br />Impact
+              <span className="text-gradient-green block mt-2">Fundraising Impact</span>
             </h1>
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
-              A brand new, modern donation management platform designed to help organizations 
-              <span className="font-semibold text-gray-800"> streamline their fundraising efforts</span> and build meaningful donor relationships from day one.
+            <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-3xl mx-auto leading-relaxed">
+              A comprehensive donation management platform for our university community, empowering students and organizations to 
+              <span className="font-bold text-emerald-700"> launch campaigns, track donations,</span> and make a lasting impact on causes that matter.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link 
                 to="/campaigns" 
-                className="group bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                className="btn-primary text-lg px-10 py-4"
               >
                 Start Donating
                 <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button className="group border-2 border-gray-300 hover:border-primary-400 text-gray-700 hover:text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 bg-white hover:bg-primary-50">
+              <a 
+                href="#features"
+                className="group border-2 border-emerald-300 hover:border-emerald-400 text-emerald-700 hover:text-emerald-800 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 bg-white hover:bg-emerald-50 shadow-green-md hover:shadow-green-lg transform hover:-translate-y-0.5"
+              >
                 Learn More
-              </button>
+              </a>
             </div>
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-500">
-              <div className="flex items-center">
-                <ShieldCheckIcon className="h-5 w-5 text-green-500 mr-2" />
+            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600">
+              <div className="flex items-center px-4 py-2 bg-white/80 rounded-full shadow-green-sm">
+                <ShieldCheckIcon className="h-5 w-5 text-emerald-600 mr-2" />
                 Secure & Compliant
               </div>
-              <div className="flex items-center">
-                <GlobeAltIcon className="h-5 w-5 text-blue-500 mr-2" />
+              <div className="flex items-center px-4 py-2 bg-white/80 rounded-full shadow-green-sm">
+                <GlobeAltIcon className="h-5 w-5 text-teal-600 mr-2" />
                 Modern Architecture
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center px-4 py-2 bg-white/80 rounded-full shadow-green-sm">
                 <StarIcon className="h-5 w-5 text-yellow-500 mr-2" />
                 Launch Ready
               </div>
@@ -242,16 +243,16 @@ const Landing = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-primary-600 to-primary-700">
+      <section className="py-20 gradient-green shadow-green-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+              <div key={index} className="text-center group hover:scale-105 transition-transform duration-300">
+                <div className="text-4xl md:text-5xl font-extrabold text-white mb-2 group-hover:scale-110 transition-transform">
                   {stat.value}
                 </div>
-                <div className="text-primary-100 font-medium mb-1">{stat.label}</div>
-                <div className="text-primary-200 text-sm">{stat.change}</div>
+                <div className="text-emerald-50 font-semibold mb-1">{stat.label}</div>
+                <div className="text-emerald-100 text-sm">{stat.change}</div>
               </div>
             ))}
           </div>
@@ -259,19 +260,19 @@ const Landing = () => {
       </section>
 
       {/* Live Campaigns Section */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white/60 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 text-sm font-medium mb-6">
-              <FireIcon className="h-4 w-4 mr-2" />
+            <div className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full text-green-700 text-sm font-bold mb-6 shadow-green-md border border-green-200">
+              <FireIcon className="h-5 w-5 mr-2 animate-pulse" />
               Live campaigns making impact
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
               Latest & Recent
               <br />
-              <span className="bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">Active Campaigns</span>
+              <span className="text-gradient-green">Active Campaigns</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
               Discover the latest fundraising campaigns and see how communities are making a difference together.
             </p>
           </div>
@@ -287,9 +288,9 @@ const Landing = () => {
               {latestCampaigns.length > 0 && (
                 <div>
                   <div className="flex items-center mb-8">
-                    <SparklesIcon className="h-6 w-6 text-primary-600 mr-3" />
+                    <SparklesIcon className="h-6 w-6 text-emerald-600 mr-3" />
                     <h3 className="text-2xl font-bold text-gray-900">Latest Campaigns</h3>
-                    <div className="ml-4 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                    <div className="ml-4 px-4 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full text-sm font-bold shadow-green-sm border border-green-200">
                       Just launched
                     </div>
                   </div>
@@ -301,16 +302,16 @@ const Landing = () => {
                       const daysLeft = Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
                       
                       return (
-                        <div key={campaign.id} className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200 overflow-hidden">
+                        <div key={campaign.id} className="group card-green hover:scale-[1.02] transition-all duration-300 overflow-hidden">
                           {campaign.imageUrl && (
                             <div className="relative h-48 overflow-hidden">
                               <img 
                                 src={campaign.imageUrl} 
                                 alt={campaign.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                               />
                               <div className="absolute top-4 right-4">
-                                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700">
+                                <div className="bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold text-emerald-700 shadow-green-md border border-emerald-200">
                                   New
                                 </div>
                               </div>
@@ -318,15 +319,15 @@ const Landing = () => {
                           )}
                           <div className="p-6">
                             <div className="flex items-center mb-3">
-                              <div className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                              <div className="badge-green">
                                 {campaign.category}
                               </div>
-                              <div className="ml-auto flex items-center text-gray-500 text-sm">
-                                <ClockIcon className="h-4 w-4 mr-1" />
+                              <div className="ml-auto flex items-center text-gray-600 text-sm font-medium">
+                                <ClockIcon className="h-4 w-4 mr-1 text-emerald-600" />
                                 {daysLeft} days left
                               </div>
                             </div>
-                            <h4 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-primary-700 transition-colors">
+                            <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">
                               {campaign.title}
                             </h4>
                             <p className="text-gray-600 mb-4 line-clamp-2">
@@ -334,29 +335,29 @@ const Landing = () => {
                             </p>
                             <div className="space-y-3">
                               <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Progress</span>
-                                <span className="font-medium text-gray-900">{progressPercentage}%</span>
+                                <span className="text-gray-600 font-medium">Progress</span>
+                                <span className="font-bold text-emerald-700">{progressPercentage}%</span>
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-3">
+                              <div className="w-full bg-emerald-100 rounded-full h-3 overflow-hidden shadow-inner">
                                 <div
-                                  className="bg-gradient-to-r from-primary-500 to-primary-600 h-3 rounded-full transition-all duration-500"
+                                  className="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 h-3 rounded-full transition-all duration-500 shadow-green-sm"
                                   style={{ width: `${progress}%` }}
                                 ></div>
                               </div>
                               <div className="flex justify-between items-center">
                                 <div>
-                                  <div className="text-lg font-bold text-gray-900">
+                                  <div className="text-lg font-extrabold text-gray-900">
                                     ৳{campaign.currentAmount.toLocaleString()}
                                   </div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-sm text-gray-600">
                                     raised of ৳{campaign.goalAmount.toLocaleString()}
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-lg font-bold text-primary-600">
+                                  <div className="text-lg font-extrabold text-emerald-600">
                                     {campaign.donorCount}
                                   </div>
-                                  <div className="text-sm text-gray-500">
+                                  <div className="text-sm text-gray-600">
                                     donors
                                   </div>
                                 </div>
@@ -498,42 +499,43 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-gray-50">
+      <section id="features" className="py-24 bg-gradient-to-br from-white via-emerald-50/30 to-green-50/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center px-4 py-2 bg-primary-100 rounded-full text-primary-700 text-sm font-medium mb-6">
-              <LightBulbIcon className="h-4 w-4 mr-2" />
+            <div className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-100 to-green-100 rounded-full text-emerald-700 text-sm font-bold mb-6 shadow-green-md border border-emerald-200">
+              <LightBulbIcon className="h-5 w-5 mr-2" />
               Cutting-edge technology
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Enterprise-grade solutions
-              <br />for modern fundraising
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+              Complete platform for
+              <br />
+              <span className="text-gradient-green">university fundraising</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Advanced AI-powered tools and comprehensive analytics that help organizations 
-              maximize their impact and build sustainable donor relationships.
+            <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+              Comprehensive tools and analytics that help student organizations and university departments 
+              manage campaigns, track donations, and engage with the community effectively.
             </p>
           </div>
           
           <div className="grid lg:grid-cols-3 gap-8 mb-16">
             {features.map((feature, index) => (
-              <div key={index} className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-primary-200">
+              <div key={index} className="group card-green p-8 hover:scale-[1.02] transition-all duration-300">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <div className="h-14 w-14 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <feature.icon className="h-7 w-7 text-white" />
+                    <div className="h-16 w-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-green-lg">
+                      <feature.icon className="h-8 w-8 text-white" />
                     </div>
                   </div>
                   <div className="ml-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
                       {feature.title}
                     </h3>
-                    <p className="text-gray-600 mb-4 leading-relaxed">
+                    <p className="text-gray-700 mb-4 leading-relaxed">
                       {feature.description}
                     </p>
-                    <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-                      <div className="h-2 w-2 bg-green-400 rounded-full mr-2"></div>
-                      <span className="text-green-700 text-sm font-medium">{feature.stats}</span>
+                    <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-full shadow-green-sm">
+                      <div className="h-2.5 w-2.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
+                      <span className="text-green-700 text-sm font-bold">{feature.stats}</span>
                     </div>
                   </div>
                 </div>
@@ -544,11 +546,11 @@ const Landing = () => {
           {/* Benefits Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
-              <div key={index} className="bg-white p-6 rounded-xl border border-gray-100 hover:border-primary-200 transition-colors">
-                <benefit.icon className="h-8 w-8 text-primary-600 mb-4" />
-                <h4 className="font-semibold text-gray-900 mb-2">{benefit.title}</h4>
+              <div key={index} className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border-2 border-emerald-200 hover:border-emerald-300 transition-all duration-300 hover:shadow-green-md group">
+                <benefit.icon className="h-10 w-10 text-emerald-600 mb-4 group-hover:scale-110 transition-transform" />
+                <h4 className="font-bold text-gray-900 mb-2">{benefit.title}</h4>
                 <p className="text-gray-600 text-sm mb-3">{benefit.description}</p>
-                <span className="text-primary-600 font-medium text-sm">{benefit.metric}</span>
+                <span className="text-emerald-600 font-bold text-sm">{benefit.metric}</span>
               </div>
             ))}
           </div>
@@ -559,15 +561,16 @@ const Landing = () => {
       <section id="testimonials" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center px-4 py-2 bg-yellow-100 rounded-full text-yellow-700 text-sm font-medium mb-6">
-              <StarIcon className="h-4 w-4 mr-2" />
-              Donor impact stories
+            <div className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-yellow-100 to-amber-100 rounded-full text-yellow-700 text-sm font-bold mb-6 shadow-sm border border-yellow-200">
+              <StarIcon className="h-5 w-5 mr-2" />
+              Community testimonials
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Trusted by charitable organizations
+            <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6">
+              Trusted by our
+              <span className="text-gradient-green"> university community</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See how organizations are transforming their fundraising with Donation Management System
+            <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+              See how students and organizations are making an impact through our donation platform
             </p>
           </div>
           
@@ -623,42 +626,47 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
+      <section className="py-24 gradient-green relative overflow-hidden shadow-green-2xl">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
+        <div className="absolute top-0 left-0 w-96 h-96 bg-teal-400 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-emerald-400 rounded-full mix-blend-overlay filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight">
-              Ready to transform your
-              <br />fundraising impact?
+            <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-8 leading-tight drop-shadow-lg">
+              Ready to make a
+              <br />difference today?
             </h2>
-            <p className="text-xl md:text-2xl text-primary-100 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Be among the first organizations to experience the future of donation management. 
-              Join our launch program and help shape the platform that will transform fundraising.
+            <p className="text-xl md:text-2xl text-emerald-50 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow">
+              Join our university community in supporting meaningful causes. 
+              Your donations help fund student initiatives, research projects, and community development programs.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
               <Link 
                 to="/register" 
-                className="group bg-white hover:bg-gray-50 text-primary-700 px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 inline-flex items-center shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                className="group bg-white hover:bg-gray-50 text-emerald-700 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 inline-flex items-center shadow-green-2xl hover:shadow-green-glow transform hover:-translate-y-1"
               >
-                Get Involved
+                Start Contributing
                 <ArrowRightIcon className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <button className="group border-2 border-white/30 hover:border-white text-white px-10 py-4 rounded-xl text-lg font-semibold transition-all duration-300 hover:bg-white/10 backdrop-blur-sm">
-                Contact Us
-              </button>
+              <Link
+                to="/campaigns"
+                className="group border-3 border-white/40 hover:border-white text-white px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 hover:bg-white/20 backdrop-blur-sm shadow-green-lg"
+              >
+                View Campaigns
+              </Link>
             </div>
             <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-2xl font-bold text-white mb-2">Secure</div>
-                <div className="text-primary-200">Donations</div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-3xl font-extrabold text-white mb-2">🔒 Secure</div>
+                <div className="text-emerald-100 font-medium">Donations</div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white mb-2">100%</div>
-                <div className="text-primary-200">Transparent</div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-3xl font-extrabold text-white mb-2">✓ 100%</div>
+                <div className="text-emerald-100 font-medium">Transparent</div>
               </div>
-              <div>
-                <div className="text-2xl font-bold text-white mb-2">Community</div>
-                <div className="text-primary-200">Driven</div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="text-3xl font-extrabold text-white mb-2">🤝 Community</div>
+                <div className="text-emerald-100 font-medium">Driven</div>
               </div>
             </div>
           </div>
@@ -666,72 +674,152 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white">
+      <footer className="bg-gradient-to-br from-gray-900 via-emerald-900 to-gray-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="grid md:grid-cols-5 gap-12">
             <div className="md:col-span-2">
               <div className="flex items-center mb-6">
-                <div className="h-10 w-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
-                  <HeartIcon className="h-6 w-6 text-white" />
+                <div className="h-12 w-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-green-lg">
+                  <HeartIcon className="h-7 w-7 text-white" />
                 </div>
-                <span className="ml-3 text-xl font-bold">Donation Management System</span>
+                <span className="ml-3 text-xl font-extrabold">Donation Management System</span>
               </div>
-              <p className="text-gray-400 mb-6 leading-relaxed">
-                Empowering organizations worldwide to maximize their fundraising impact through 
-                cutting-edge technology, AI-driven insights, and comprehensive donor management solutions.
+              <p className="text-emerald-200 mb-6 leading-relaxed">
+                A modern donation management platform for our university community. 
+                Supporting student initiatives, research projects, and charitable causes through 
+                secure, transparent, and efficient donation processing.
               </p>
               <div className="flex space-x-4">
-                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
-                  <span className="text-sm font-medium">in</span>
+                <div className="h-11 w-11 bg-emerald-800/50 rounded-xl flex items-center justify-center hover:bg-emerald-700 cursor-pointer transition-colors border border-emerald-700">
+                  <span className="text-sm font-bold">in</span>
                 </div>
-                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
-                  <span className="text-sm font-medium">tw</span>
+                <div className="h-11 w-11 bg-emerald-800/50 rounded-xl flex items-center justify-center hover:bg-emerald-700 cursor-pointer transition-colors border border-emerald-700">
+                  <span className="text-sm font-bold">tw</span>
                 </div>
-                <div className="h-10 w-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 cursor-pointer transition-colors">
-                  <span className="text-sm font-medium">fb</span>
+                <div className="h-11 w-11 bg-emerald-800/50 rounded-xl flex items-center justify-center hover:bg-emerald-700 cursor-pointer transition-colors border border-emerald-700">
+                  <span className="text-sm font-bold">fb</span>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-6">Platform</h3>
-              <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Compliance</a></li>
+              <h3 className="font-bold text-lg mb-6 text-emerald-300">Platform</h3>
+              <ul className="space-y-4 text-emerald-200">
+                <li>
+                  <a 
+                    href="#features" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="hover:text-white transition-colors hover:underline cursor-pointer"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li><Link to="/campaigns" className="hover:text-white transition-colors hover:underline">Campaigns</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors hover:underline">Dashboard</Link></li>
+                <li>
+                  <a 
+                    href="#features" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="hover:text-white transition-colors hover:underline cursor-pointer"
+                  >
+                    Security
+                  </a>
+                </li>
+                <li><Link to="/terms" className="hover:text-white transition-colors hover:underline">Compliance</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-6">Solutions</h3>
-              <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Nonprofits</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Healthcare</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Education</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Religious</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Enterprise</a></li>
+              <h3 className="font-bold text-lg mb-6 text-emerald-300">Quick Links</h3>
+              <ul className="space-y-4 text-emerald-200">
+                <li><Link to="/campaigns" className="hover:text-white transition-colors hover:underline">Browse Campaigns</Link></li>
+                <li><Link to="/register" className="hover:text-white transition-colors hover:underline">Create Campaign</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors hover:underline">Donate Now</Link></li>
+                <li>
+                  <a 
+                    href="#testimonials" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="hover:text-white transition-colors hover:underline cursor-pointer"
+                  >
+                    Success Stories
+                  </a>
+                </li>
+                <li><Link to="/register" className="hover:text-white transition-colors hover:underline">Get Started</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-6">Support</h3>
-              <ul className="space-y-4 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Training</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+              <h3 className="font-bold text-lg mb-6 text-emerald-300">Support</h3>
+              <ul className="space-y-4 text-emerald-200">
+                <li>
+                  <a 
+                    href="mailto:khanramjan001@gmail.com" 
+                    className="hover:text-white transition-colors hover:underline"
+                    title="Email: khanramjan001@gmail.com"
+                  >
+                    📧 Help Center
+                  </a>
+                  <div className="text-xs mt-1 text-emerald-300">khanramjan001@gmail.com</div>
+                </li>
+                <li>
+                  <Link 
+                    to="/documentation"
+                    className="hover:text-white transition-colors hover:underline"
+                  >
+                    📚 Documentation
+                  </Link>
+                </li>
+                <li>
+                  <a 
+                    href="#testimonials" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="hover:text-white transition-colors hover:underline cursor-pointer"
+                  >
+                    👥 Community
+                  </a>
+                </li>
+                <li>
+                  <a 
+                    href="https://wa.me/8801518686883" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-white transition-colors hover:underline"
+                    title="WhatsApp: +880 1518-686883"
+                  >
+                    💬 WhatsApp Support
+                  </a>
+                  <div className="text-xs mt-1 text-emerald-300">+880 1518-686883</div>
+                </li>
+                <li>
+                  <a 
+                    href="mailto:khanramjan001@gmail.com" 
+                    className="hover:text-white transition-colors hover:underline"
+                    title="Email: khanramjan001@gmail.com"
+                  >
+                    ✉️ Contact Us
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-12 pt-8">
+          <div className="border-t border-emerald-800 mt-12 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="text-gray-400 text-sm mb-4 md:mb-0">
+              <div className="text-emerald-300 text-sm mb-4 md:mb-0">
                 &copy; 2025 Donation Management System. All rights reserved.
               </div>
-              <div className="flex space-x-6 text-sm text-gray-400">
-                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-white transition-colors">Cookie Policy</a>
+              <div className="flex space-x-6 text-sm text-emerald-300">
+                <Link to="/privacy" className="hover:text-white transition-colors hover:underline">Privacy Policy</Link>
+                <Link to="/terms" className="hover:text-white transition-colors hover:underline">Terms of Service</Link>
+                <Link to="/cookies" className="hover:text-white transition-colors hover:underline">Cookie Policy</Link>
               </div>
             </div>
           </div>
