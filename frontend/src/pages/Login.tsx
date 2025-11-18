@@ -144,24 +144,6 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-
-          {/* Admin Quick Login for Development */}
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-orange-800 mb-2">Admin Access (Development)</h3>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('admin@donationmanagement.com');
-                setPassword('Admin@123!');
-              }}
-              className="w-full bg-orange-600 text-white px-4 py-2 rounded text-sm hover:bg-orange-700 mb-2"
-            >
-              Fill Admin Credentials
-            </button>
-            <p className="text-xs text-orange-700">
-              Click to auto-fill admin login credentials for testing
-            </p>
-          </div>
           
           <div className="text-center">
             <Link 

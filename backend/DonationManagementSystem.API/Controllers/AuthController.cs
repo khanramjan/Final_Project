@@ -175,9 +175,15 @@ namespace DonationManagementSystem.API.Controllers
 				if (!user.IsActive)
 					return Unauthorized(new { message = "Account is disabled" });
 
-				// Skip email verification check for admin users
-				if (!user.IsEmailVerified && user.UserType != "admin")
-					return Unauthorized(new { message = "Please verify your email before logging in. Check your inbox for the verification link." });
+				// Check if volunteer is approved
+				if (user.UserType == "volunteer")
+				{
+					var volunteerProfile = await _context.VolunteerProfiles.FirstOrDefaultAsync(vp => vp.UserId == user.Id);
+					if (volunteerProfile == null || !volunteerProfile.IsApprovedByAdmin)
+					{
+						return Unauthorized(new { message = "Your volunteer account is pending admin approval. Please wait for approval." });
+					}
+				}
 
 				// Generate JWT token
 				var token = _jwtService.GenerateToken(user);
