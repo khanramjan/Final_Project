@@ -118,7 +118,7 @@ namespace DonationManagementSystem.API.Controllers
             try
             {
                 // Get authenticated user ID
-                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
                 {
                     return Unauthorized(new { message = "User not authenticated" });
