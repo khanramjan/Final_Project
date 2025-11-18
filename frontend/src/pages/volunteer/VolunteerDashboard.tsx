@@ -10,6 +10,8 @@ import {
   CalendarDaysIcon,
   MapPinIcon,
   StarIcon,
+  ShieldExclamationIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import volunteerService from '../../services/volunteerService';
 import type { VolunteerDashboard } from '../../types/volunteer.types';
@@ -450,6 +452,20 @@ export default function VolunteerDashboardPage() {
                 >
                   <ClockIcon className="h-5 w-5 text-purple-600" />
                   <span className="font-medium text-purple-900">View History</span>
+                </Link>
+                <Link
+                  to="/volunteer/reports-warnings"
+                  className="flex items-center gap-3 p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                >
+                  <ShieldExclamationIcon className="h-5 w-5 text-red-600" />
+                  <span className="font-medium text-red-900">Reports & Warnings</span>
+                </Link>
+                <Link
+                  to="/volunteer/report-volunteer"
+                  className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors"
+                >
+                  <ExclamationTriangleIcon className="h-5 w-5 text-yellow-600" />
+                  <span className="font-medium text-yellow-900">Report a Volunteer</span>
                 </Link>
                 <Link
                   to="/volunteer/profile"

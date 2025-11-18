@@ -21,6 +21,8 @@ namespace DonationManagementSystem.API.Data
 		public DbSet<VolunteerActivity> VolunteerActivities { get; set; }
 		public DbSet<VolunteerAchievement> VolunteerAchievements { get; set; }
 		public DbSet<VolunteerRankHistory> VolunteerRankHistories { get; set; }
+		public DbSet<VolunteerReport> VolunteerReports { get; set; }
+		public DbSet<VolunteerWarning> VolunteerWarnings { get; set; }
 		
 		// Testimonials
 		public DbSet<Testimonial> Testimonials { get; set; }
@@ -308,6 +310,67 @@ namespace DonationManagementSystem.API.Data
 					  .WithMany()
 					  .HasForeignKey(e => e.ApprovedByUserId)
 					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerReport configurations
+			modelBuilder.Entity<VolunteerReport>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.ReportType).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Description).IsRequired();
+				entity.Property(e => e.Severity).HasMaxLength(50);
+				entity.Property(e => e.Status).HasMaxLength(50);
+
+				entity.HasOne(e => e.ReportedByVolunteer)
+					  .WithMany()
+					  .HasForeignKey(e => e.ReportedByVolunteerId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.ReportedVolunteer)
+					  .WithMany()
+					  .HasForeignKey(e => e.ReportedVolunteerId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.VolunteerAssignment)
+					  .WithMany()
+					  .HasForeignKey(e => e.VolunteerAssignmentId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.Reviewer)
+					  .WithMany()
+					  .HasForeignKey(e => e.ReviewedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// VolunteerWarning configurations
+			modelBuilder.Entity<VolunteerWarning>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.WarningType).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Description).IsRequired();
+				entity.Property(e => e.Severity).HasMaxLength(50);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					  .WithMany()
+					  .HasForeignKey(e => e.VolunteerProfileId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.VolunteerReport)
+					  .WithMany()
+					  .HasForeignKey(e => e.VolunteerReportId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.IssuedByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.IssuedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
 			});
 		}
 	}

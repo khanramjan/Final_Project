@@ -28,6 +28,7 @@ import DonationOversight from './pages/admin/DonationOversight';
 import SystemSettings from './pages/admin/SystemSettings';
 import VolunteerApprovals from './pages/admin/VolunteerApprovals';
 import VolunteerReview from './pages/admin/VolunteerReview';
+import AdminVolunteerReports from './pages/admin/AdminVolunteerReports';
 import ProtectedRoute from './components/ProtectedRoute';
 import ApiTest from './components/ApiTest';
 // Volunteer Pages
@@ -37,6 +38,8 @@ import MyAssignments from './pages/volunteer/MyAssignments';
 import VolunteerHistoryPage from './pages/volunteer/VolunteerHistoryPage';
 import VolunteerAchievementsPage from './pages/volunteer/VolunteerAchievementsPage';
 import VolunteerProfilePage from './pages/volunteer/VolunteerProfilePage';
+import MyReportsAndWarnings from './pages/volunteer/MyReportsAndWarnings';
+import ReportVolunteer from './pages/volunteer/ReportVolunteer';
 // Legal Pages
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -100,6 +103,7 @@ function AppContent() {
           <Route path="donations" element={<DonationOversight />} />
           <Route path="volunteer-approvals" element={<VolunteerApprovals />} />
           <Route path="volunteer-review" element={<VolunteerReview />} />
+          <Route path="volunteer-reports" element={<AdminVolunteerReports />} />
           <Route path="settings" element={<SystemSettings />} />
         </Route>
         <Route
@@ -114,6 +118,8 @@ function AppContent() {
                   <Route path="/history" element={<VolunteerHistoryPage />} />
                   <Route path="/achievements" element={<VolunteerAchievementsPage />} />
                   <Route path="/profile" element={<VolunteerProfilePage />} />
+                  <Route path="/reports-warnings" element={<MyReportsAndWarnings />} />
+                  <Route path="/report-volunteer" element={<ReportVolunteer />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

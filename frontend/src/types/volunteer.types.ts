@@ -250,3 +250,79 @@ export interface VolunteerHistory {
   recentActivities: VolunteerActivity[];
   stats: VolunteerStats;
 }
+
+// ===== VOLUNTEER REPORT TYPES =====
+
+export interface VolunteerReport {
+  id: number;
+  reportedByVolunteerId: number;
+  reportedByVolunteerName?: string;
+  reportedVolunteerId: number;
+  reportedVolunteerName?: string;
+  reportedVolunteerRank?: string;
+  reportType: string;
+  title: string;
+  description: string;
+  proofUrls?: string[];
+  campaignId?: number;
+  campaignTitle?: string;
+  volunteerAssignmentId?: number;
+  assignmentTitle?: string;
+  severity: string;
+  status: string;
+  reviewedBy?: number;
+  reviewedByName?: string;
+  reviewedAt?: string;
+  adminNotes?: string;
+  adminAction?: string;
+  previousRank?: string;
+  newRank?: string;
+  downgradeReason?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface CreateVolunteerReport {
+  reportedVolunteerId: number;
+  reportType: string;
+  title: string;
+  description: string;
+  proofUrls?: string[];
+  campaignId?: number;
+  volunteerAssignmentId?: number;
+  severity: string;
+}
+
+export interface ReviewVolunteerReport {
+  action: string;
+  adminNotes: string;
+  newRank?: string;
+  downgradeReason?: string;
+  warningType?: string;
+  warningDescription?: string;
+}
+
+export interface VolunteerWarning {
+  id: number;
+  volunteerProfileId: number;
+  volunteerName?: string;
+  volunteerReportId?: number;
+  warningType: string;
+  title: string;
+  description: string;
+  severity: string;
+  issuedBy: number;
+  issuedByName?: string;
+  issuedAt: string;
+  isAcknowledged: boolean;
+  acknowledgedAt?: string;
+  expiresAt?: string;
+  isActive: boolean;
+}
+
+export interface DowngradeBadge {
+  volunteerProfileId: number;
+  newRank: string;
+  reason: string;
+  relatedReportId?: number;
+}
