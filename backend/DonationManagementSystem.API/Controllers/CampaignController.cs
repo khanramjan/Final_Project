@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.DTOs;
+using DonationManagementSystem.API.Services;
 using System.Security.Claims;
 
 namespace DonationManagementSystem.API.Controllers
@@ -13,10 +14,14 @@ namespace DonationManagementSystem.API.Controllers
     public class CampaignController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _config;
 
-        public CampaignController(AppDbContext context)
+        public CampaignController(AppDbContext context, IEmailService emailService, IConfiguration config)
         {
             _context = context;
+            _emailService = emailService;
+            _config = config;
         }
 
         private bool IsAdmin()

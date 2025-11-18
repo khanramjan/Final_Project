@@ -1314,6 +1314,7 @@ namespace DonationManagementSystem.API.Controllers
                 volunteer.IsApprovedByAdmin = true;
                 volunteer.AdminApprovalStatus = "approved";
                 volunteer.Status = "active";
+                volunteer.IsVerified = true; // Set IsVerified to true when approved
                 volunteer.ApprovedBy = adminId.Value;
                 volunteer.ApprovedAt = DateTime.UtcNow;
                 volunteer.ApprovalNotes = dto.ApprovalNotes;
