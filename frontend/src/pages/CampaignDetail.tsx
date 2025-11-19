@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, HeartIcon, ShareIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { useAppSelector } from '../store/hooks';
+import CampaignPoster from '../components/Volunteer/CampaignPoster';
 
 interface Campaign {
   id: number;
@@ -23,9 +25,11 @@ interface Campaign {
 const CampaignDetail = () => {
   const { campaignId } = useParams<{ campaignId: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchCampaignDetail = async () => {
@@ -203,6 +207,19 @@ const CampaignDetail = () => {
                   <span>Donate to This Campaign</span>
                 </button>
 
+                {/* Print Poster Button - Volunteers Only */}
+                {isAuthenticated && user?.userType?.toLowerCase() === 'volunteer' && (
+                  <button
+                    onClick={() => setIsPosterModalOpen(true)}
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg font-bold hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md flex items-center justify-center space-x-2"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Print Campaign Poster</span>
+                  </button>
+                )}
+
                 {/* Share Buttons */}
                 <div className="grid grid-cols-2 gap-2">
                   <button className="py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
@@ -217,6 +234,14 @@ const CampaignDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Campaign Poster Modal */}
+      {isPosterModalOpen && campaign && (
+        <CampaignPoster
+          campaign={campaign}
+          onClose={() => setIsPosterModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

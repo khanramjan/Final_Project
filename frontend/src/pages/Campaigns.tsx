@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
 import { logout } from '../store/slices/authSlice';
 import DonationModal from '../components/DonationModal';
+import CampaignPoster from '../components/Volunteer/CampaignPoster';
 import { 
   MagnifyingGlassIcon,
   CalendarDaysIcon,
@@ -26,6 +27,8 @@ const Campaigns = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
+  const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
+  const [posterCampaign, setPosterCampaign] = useState<any>(null);
   
   // Check if we're in the dashboard (authenticated view)
   const isInDashboard = location.pathname.startsWith('/dashboard');
@@ -494,20 +497,33 @@ const Campaigns = () => {
                             <span className="text-sm text-gray-600">By {campaign.createdBy}</span>
                           </div>
                           
-                          {/* Donate Button */}
-                          {campaign.status === 'active' && (
-                            <button
-                              onClick={() => {
-                                setSelectedCampaign(campaign);
-                                setIsDonationModalOpen(true);
-                              }}
-                              className="w-full px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
-                            >
-                              <HeartIcon className="h-5 w-5 mr-2" />
-                              Donate Now
-                            </button>
-                          )}
-                          {campaign.status !== 'active' && (
+                          {/* Action Buttons */}
+                          {campaign.status === 'active' ? (
+                            <div className="space-y-2">
+                              <button
+                                onClick={() => {
+                                  setSelectedCampaign(campaign);
+                                  setIsDonationModalOpen(true);
+                                }}
+                                className="w-full px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
+                              >
+                                <HeartIcon className="h-5 w-5 mr-2" />
+                                Donate Now
+                              </button>
+                              {/* Show poster button only to volunteers */}
+                              {isAuthenticated && user?.userType?.toLowerCase() === 'volunteer' && (
+                                <button
+                                  onClick={() => {
+                                    setPosterCampaign(campaign);
+                                    setIsPosterModalOpen(true);
+                                  }}
+                                  className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center text-sm"
+                                >
+                                  🖨️ Print Campaign Poster
+                                </button>
+                              )}
+                            </div>
+                          ) : (
                             <div className="w-full px-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg font-semibold text-center cursor-not-allowed">
                               Campaign {campaign.status}
                             </div>
@@ -546,6 +562,17 @@ const Campaigns = () => {
         }}
         campaign={selectedCampaign}
       />
+
+      {/* Campaign Poster Modal */}
+      {isPosterModalOpen && posterCampaign && (
+        <CampaignPoster
+          campaign={posterCampaign}
+          onClose={() => {
+            setIsPosterModalOpen(false);
+            setPosterCampaign(null);
+          }}
+        />
+      )}
     </div>
   );
 };
