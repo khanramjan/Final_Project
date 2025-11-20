@@ -49,22 +49,36 @@ namespace DonationManagementSystem.API.Controllers
 
             try
             {
+                Console.WriteLine($"\n🔍 [DONATIONS API] Fetching donations - Page: {page}, PageSize: {pageSize}");
+                
+                // First, check database
+                var totalInDb = await _context.Donations.CountAsync();
+                Console.WriteLine($"📊 Total donations in database: {totalInDb}");
+
                 var query = _context.Donations
                     .Include(d => d.Campaign)
                     .AsQueryable();
 
+                // Apply filters
                 if (!string.IsNullOrEmpty(search))
                 {
                     query = query.Where(d => 
                         (d.DonorName != null && d.DonorName.Contains(search)) ||
                         (d.DonorEmail != null && d.DonorEmail.Contains(search)) ||
-                        d.Campaign.Title.Contains(search) ||
+                        (d.Campaign != null && d.Campaign.Title.Contains(search)) ||
                         (d.PaymentReference != null && d.PaymentReference.Contains(search)));
+                    Console.WriteLine($"🔎 Applied search filter: {search}");
                 }
 
-                if (!string.IsNullOrEmpty(status))
+                // Only apply status filter if it's NOT "all"
+                if (!string.IsNullOrEmpty(status) && status.ToLower() != "all")
                 {
                     query = query.Where(d => d.Status == status);
+                    Console.WriteLine($"🔎 Applied status filter: {status}");
+                }
+                else if (string.IsNullOrEmpty(status))
+                {
+                    Console.WriteLine($"ℹ️  No status filter applied (showing all statuses)");
                 }
 
                 if (!string.IsNullOrEmpty(paymentMethod))
@@ -88,6 +102,8 @@ namespace DonationManagementSystem.API.Controllers
                 }
 
                 var totalCount = await query.CountAsync();
+                Console.WriteLine($"✅ After filters: {totalCount} donations");
+                
                 var donations = await query
                     .OrderByDescending(d => d.CreatedAt)
                     .Skip((page - 1) * pageSize)
@@ -105,6 +121,8 @@ namespace DonationManagementSystem.API.Controllers
                     })
                     .ToListAsync();
 
+                Console.WriteLine($"📤 Returning {donations.Count} donations to frontend\n");
+
                 return Ok(new
                 {
                     donations = donations,
@@ -116,6 +134,7 @@ namespace DonationManagementSystem.API.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"❌ ERROR in GetAllDonations: {ex.Message}\n{ex.StackTrace}");
                 return StatusCode(500, new { message = "Failed to fetch donations", error = ex.Message });
             }
         }
