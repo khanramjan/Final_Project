@@ -38,6 +38,24 @@ namespace DonationManagementSystem.API.Services
         {
             try
             {
+                // Check if using mock credentials (for development)
+                var isMockMode = string.IsNullOrEmpty(_storeId) || _storeId == "testbox" || _storeId == "test";
+                
+                if (isMockMode)
+                {
+                    Console.WriteLine("[Payment] Using MOCK mode - SSLCommerz credentials not configured");
+                    Console.WriteLine($"[Payment] Mock payment for: Amount={request.Amount}, Campaign={request.CampaignId}");
+                    
+                    // Return a mock success URL that points to our success handler
+                    return new PaymentInitResponse
+                    {
+                        Success = true,
+                        Message = "Payment initiated in MOCK mode (Development)",
+                        GatewayPageURL = $"{request.SuccessUrl}?tran_id={request.TransactionId}&status=VALID&amount={request.Amount}&val_id=MOCK{DateTime.UtcNow.Ticks}",
+                        TransactionId = request.TransactionId
+                    };
+                }
+
                 var client = new RestClient();
                 var restRequest = new RestRequest(_sessionApiUrl, Method.Post);
 
@@ -74,14 +92,23 @@ namespace DonationManagementSystem.API.Services
                 restRequest.AddParameter("value_b", request.DonationId.ToString());
                 restRequest.AddParameter("value_c", request.IsAnonymous ? "1" : "0");
 
+                Console.WriteLine($"[SSLCommerz] Initiating payment: StoreId={_storeId}, Amount={request.Amount}, TranId={request.TransactionId}");
+                
                 var response = await client.ExecuteAsync(restRequest);
+
+                Console.WriteLine($"[SSLCommerz] Response Status: {response.StatusCode}");
+                Console.WriteLine($"[SSLCommerz] Response Content: {response.Content}");
 
                 if (!response.IsSuccessful || string.IsNullOrEmpty(response.Content))
                 {
+                    var errorMessage = response.StatusCode == System.Net.HttpStatusCode.GatewayTimeout
+                        ? "SSLCommerz payment gateway is currently slow or unavailable. Please try again in a few moments."
+                        : $"Failed to connect to payment gateway - Status: {response.StatusCode}";
+                    
                     return new PaymentInitResponse
                     {
                         Success = false,
-                        Message = "Failed to connect to payment gateway",
+                        Message = errorMessage,
                         GatewayPageURL = null
                     };
                 }
@@ -103,17 +130,29 @@ namespace DonationManagementSystem.API.Services
                             TransactionId = request.TransactionId
                         };
                     }
+                    else
+                    {
+                        var failedReason = jsonResponse.ContainsKey("failedreason") ? jsonResponse["failedreason"].ToString() : "Unknown error";
+                        Console.WriteLine($"[SSLCommerz] Payment failed: {failedReason}");
+                        return new PaymentInitResponse
+                        {
+                            Success = false,
+                            Message = $"Payment gateway error: {failedReason}",
+                            GatewayPageURL = null
+                        };
+                    }
                 }
 
                 return new PaymentInitResponse
                 {
                     Success = false,
-                    Message = "Payment gateway returned an error",
+                    Message = "Payment gateway returned invalid response",
                     GatewayPageURL = null
                 };
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"[SSLCommerz] Exception: {ex.Message}");
                 return new PaymentInitResponse
                 {
                     Success = false,

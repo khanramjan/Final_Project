@@ -25,6 +25,8 @@ import ModernAnalytics from './pages/admin/ModernAnalytics';
 import UserManagement from './pages/admin/UserManagement';
 import CampaignManagement from './pages/admin/CampaignManagement';
 import DonationOversight from './pages/admin/DonationOversight';
+import FinancialDashboard from './pages/admin/FinancialDashboard';
+import WithdrawalManagement from './pages/Admin/WithdrawalManagement';
 import SystemSettings from './pages/admin/SystemSettings';
 import VolunteerApprovals from './pages/admin/VolunteerApprovals';
 import VolunteerReview from './pages/admin/VolunteerReview';
@@ -40,6 +42,8 @@ import VolunteerAchievementsPage from './pages/volunteer/VolunteerAchievementsPa
 import VolunteerProfilePage from './pages/volunteer/VolunteerProfilePage';
 import MyReportsAndWarnings from './pages/volunteer/MyReportsAndWarnings';
 import ReportVolunteer from './pages/volunteer/ReportVolunteer';
+import VolunteerPhysicalDonationsPage from './pages/volunteer/VolunteerPhysicalDonationsPage';
+import ConfirmPhysicalDonation from './pages/ConfirmPhysicalDonation';
 // Legal Pages
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -70,6 +74,7 @@ function AppContent() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/cookies" element={<CookiePolicy />} />
         <Route path="/documentation" element={<Documentation />} />
+        <Route path="/confirm-donation" element={<ConfirmPhysicalDonation />} />
         <Route
           path="/dashboard/*"
           element={
@@ -101,6 +106,8 @@ function AppContent() {
           <Route path="users" element={<UserManagement />} />
           <Route path="campaigns" element={<CampaignManagement />} />
           <Route path="donations" element={<DonationOversight />} />
+          <Route path="financial" element={<FinancialDashboard />} />
+          <Route path="withdrawals" element={<WithdrawalManagement />} />
           <Route path="volunteer-approvals" element={<VolunteerApprovals />} />
           <Route path="volunteer-review" element={<VolunteerReview />} />
           <Route path="volunteer-reports" element={<AdminVolunteerReports />} />
@@ -115,6 +122,7 @@ function AppContent() {
                   <Route path="/" element={<VolunteerDashboard />} />
                   <Route path="/requests" element={<VolunteerRequests />} />
                   <Route path="/assignments" element={<MyAssignments />} />
+                  <Route path="/physical-donations" element={<VolunteerPhysicalDonationsPage />} />
                   <Route path="/history" element={<VolunteerHistoryPage />} />
                   <Route path="/achievements" element={<VolunteerAchievementsPage />} />
                   <Route path="/profile" element={<VolunteerProfilePage />} />

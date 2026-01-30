@@ -50,6 +50,16 @@ namespace DonationManagementSystem.API.Controllers
         {
             try
             {
+                // Validate model state
+                if (!ModelState.IsValid)
+                {
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new { success = false, message = "Validation failed", errors });
+                }
+
                 // Validate campaign exists
                 var campaign = await _context.Campaigns.FindAsync(request.CampaignId);
                 if (campaign == null)
@@ -254,20 +264,55 @@ namespace DonationManagementSystem.API.Controllers
                     donation.Status = "completed";
                     donation.CompletedAt = DateTime.UtcNow;
 
-                    // Update campaign raised amount
+                    // Update campaign raised amount with overflow handling
                     if (donation.Campaign != null)
                     {
                         var oldAmount = donation.Campaign.RaisedAmount;
-                        donation.Campaign.RaisedAmount += donation.Amount;
+                        var remainingNeeded = donation.Campaign.TargetAmount - donation.Campaign.RaisedAmount;
+                        var amountToCampaign = Math.Min(donation.Amount, Math.Max(0, remainingNeeded));
+                        var amountToReserve = donation.Amount - amountToCampaign;
+                        
+                        donation.Campaign.RaisedAmount += amountToCampaign;
                         Console.WriteLine($"Campaign ID: {donation.Campaign.Id}");
-                        Console.WriteLine($"Campaign raised amount: ৳{oldAmount} → ৳{donation.Campaign.RaisedAmount} (+৳{donation.Amount})");
+                        Console.WriteLine($"Campaign raised amount: ৳{oldAmount} → ৳{donation.Campaign.RaisedAmount} (+৳{amountToCampaign})");
+                        
+                        if (amountToReserve > 0)
+                        {
+                            Console.WriteLine($"⚠️ Overflow detected: ৳{amountToReserve} will go to reserve fund");
+                        }
+                        
+                        // Check if campaign goal is reached and mark as completed
+                        if (donation.Campaign.RaisedAmount >= donation.Campaign.TargetAmount && donation.Campaign.Status == "active")
+                        {
+                            donation.Campaign.Status = "completed";
+                            Console.WriteLine($"✓ Campaign goal reached! Marking campaign as COMPLETED (Goal: ৳{donation.Campaign.TargetAmount})");
+                        }
+                        
+                        await _context.SaveChangesAsync();
+                        
+                        // Add overflow to reserve fund
+                        if (amountToReserve > 0)
+                        {
+                            var reserveEntry = new ReserveFund
+                            {
+                                Amount = amountToReserve,
+                                DonationId = donation.Id,
+                                CampaignId = donation.Campaign.Id,
+                                DonorName = donation.DonorName ?? "Anonymous",
+                                SourceDescription = $"Overflow from '{donation.Campaign.Title}' (Campaign already reached ৳{donation.Campaign.TargetAmount})",
+                                CreatedAt = DateTime.UtcNow,
+                                Notes = $"Original donation: ৳{donation.Amount}, To campaign: ৳{amountToCampaign}, To reserve: ৳{amountToReserve}"
+                            };
+                            
+                            _context.ReserveFunds.Add(reserveEntry);
+                            await _context.SaveChangesAsync();
+                            Console.WriteLine($"✓ Added ৳{amountToReserve} to reserve fund");
+                        }
                     }
                     else
                     {
                         Console.WriteLine("✗ WARNING: donation.Campaign is NULL! Cannot update RaisedAmount");
                     }
-
-                    await _context.SaveChangesAsync();
                     Console.WriteLine("✓ Database updated successfully!");
                     
                     // Verify the update
@@ -382,6 +427,12 @@ namespace DonationManagementSystem.API.Controllers
                     if (donation.Campaign != null)
                     {
                         donation.Campaign.RaisedAmount += donation.Amount;
+                        
+                        // Check if campaign goal is reached
+                        if (donation.Campaign.RaisedAmount >= donation.Campaign.TargetAmount && donation.Campaign.Status == "active")
+                        {
+                            donation.Campaign.Status = "completed";
+                        }
                     }
 
                     await _context.SaveChangesAsync();

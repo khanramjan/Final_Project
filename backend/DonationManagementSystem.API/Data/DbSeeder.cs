@@ -49,10 +49,16 @@ namespace DonationManagementSystem.API.Data
 
         private static async Task SeedSampleData(AppDbContext context)
         {
-            // Only seed if no campaigns exist
+            // Only seed campaigns if none exist
             if (await context.Campaigns.AnyAsync())
             {
                 Console.WriteLine("✅ Sample campaigns already exist, skipping seed");
+                
+                // But check if Reserve Fund needs sample data
+                if (!await context.ReserveFunds.AnyAsync())
+                {
+                    await SeedReserveFundData(context);
+                }
                 return;
             }
 
@@ -155,7 +161,153 @@ namespace DonationManagementSystem.API.Data
             await context.SaveChangesAsync();
 
             Console.WriteLine($"✅ Created {donations.Count} sample donations");
+
+            // Create completed campaign with overflow for Reserve Fund demo
+            var completedCampaign = new Campaign
+            {
+                Title = "Emergency Food Relief - COMPLETED",
+                Description = "Emergency food relief for flood victims. This campaign has been completed and received overflow donations.",
+                TargetAmount = 5000,
+                RaisedAmount = 7500, // Exceeds target by 2500
+                StartDate = DateTime.UtcNow.AddDays(-45),
+                EndDate = DateTime.UtcNow.AddDays(-5),
+                Status = "completed",
+                Category = "emergency",
+                Location = "Flood Affected Areas",
+                IsUrgent = false,
+                IsFeatured = false,
+                CreatedBy = admin.Id,
+                ApprovedBy = admin.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-45),
+                ApprovedAt = DateTime.UtcNow.AddDays(-45)
+            };
+
+            context.Campaigns.Add(completedCampaign);
+            await context.SaveChangesAsync();
+
+            // Create overflow donations for completed campaign
+            var overflowDonations = new List<Donation>
+            {
+                new Donation { CampaignId = completedCampaign.Id, Amount = 2000, DonorName = "David Miller", DonorEmail = "david@example.com", Status = "completed", PaymentMethod = "SSLCommerz", IsAnonymous = false, CreatedAt = DateTime.UtcNow.AddDays(-40), CompletedAt = DateTime.UtcNow.AddDays(-40) },
+                new Donation { CampaignId = completedCampaign.Id, Amount = 1500, DonorName = "Maria Garcia", DonorEmail = "maria@example.com", Status = "completed", PaymentMethod = "SSLCommerz", IsAnonymous = false, CreatedAt = DateTime.UtcNow.AddDays(-35), CompletedAt = DateTime.UtcNow.AddDays(-35) },
+                new Donation { CampaignId = completedCampaign.Id, Amount = 1000, DonorName = "Anonymous Donor", DonorEmail = "generous@example.com", Status = "completed", PaymentMethod = "SSLCommerz", IsAnonymous = true, CreatedAt = DateTime.UtcNow.AddDays(-30), CompletedAt = DateTime.UtcNow.AddDays(-30) },
+                // This donation causes overflow - campaign goal was 5000, but total is 7500
+                new Donation { CampaignId = completedCampaign.Id, Amount = 3000, DonorName = "Sophia Williams", DonorEmail = "sophia@example.com", Status = "completed", PaymentMethod = "SSLCommerz", IsAnonymous = false, CreatedAt = DateTime.UtcNow.AddDays(-25), CompletedAt = DateTime.UtcNow.AddDays(-25) }
+            };
+
+            context.Donations.AddRange(overflowDonations);
+            await context.SaveChangesAsync();
+
+            // Create Reserve Fund entries for overflow
+            var reserveFundEntries = new List<ReserveFund>
+            {
+                new ReserveFund
+                {
+                    Amount = 1000,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "Sophia Williams",
+                    SourceDescription = "Overflow from Emergency Food Relief campaign (donated ৳3000 when ৳2000 was needed)",
+                    CreatedAt = DateTime.UtcNow.AddDays(-25)
+                },
+                new ReserveFund
+                {
+                    Amount = 1500,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "Anonymous Donor",
+                    SourceDescription = "Generous overflow contribution to community reserve fund",
+                    CreatedAt = DateTime.UtcNow.AddDays(-20)
+                }
+            };
+
+            context.ReserveFunds.AddRange(reserveFundEntries);
+            await context.SaveChangesAsync();
+
+            Console.WriteLine($"✅ Created overflow campaign with Reserve Fund entries (Total: ৳{reserveFundEntries.Sum(r => r.Amount)})");
             Console.WriteLine("✅ Database seeded successfully!");
+        }
+
+        private static async Task SeedReserveFundData(AppDbContext context)
+        {
+            Console.WriteLine("🌱 Adding sample Reserve Fund entries...");
+
+            var admin = await context.Users.FirstOrDefaultAsync(u => u.UserType == "admin");
+            if (admin == null)
+            {
+                Console.WriteLine("⚠️  Admin not found, skipping Reserve Fund seed");
+                return;
+            }
+
+            // Get or create a completed campaign for overflow demo
+            var completedCampaign = await context.Campaigns.FirstOrDefaultAsync(c => c.Status == "completed");
+            
+            if (completedCampaign == null)
+            {
+                // Create a demo completed campaign
+                completedCampaign = new Campaign
+                {
+                    Title = "Emergency Food Relief - COMPLETED",
+                    Description = "Emergency food relief for flood victims. This campaign has been completed and received overflow donations.",
+                    TargetAmount = 5000,
+                    RaisedAmount = 7500, // Exceeds target by 2500
+                    StartDate = DateTime.UtcNow.AddDays(-45),
+                    EndDate = DateTime.UtcNow.AddDays(-5),
+                    Status = "completed",
+                    Category = "emergency",
+                    Location = "Flood Affected Areas",
+                    IsUrgent = false,
+                    IsFeatured = false,
+                    CreatedBy = admin.Id,
+                    ApprovedBy = admin.Id,
+                    CreatedAt = DateTime.UtcNow.AddDays(-45),
+                    ApprovedAt = DateTime.UtcNow.AddDays(-45)
+                };
+
+                context.Campaigns.Add(completedCampaign);
+                await context.SaveChangesAsync();
+                Console.WriteLine("✅ Created demo completed campaign for overflow");
+            }
+
+            // Create Reserve Fund entries
+            var reserveFundEntries = new List<ReserveFund>
+            {
+                new ReserveFund
+                {
+                    Amount = 1000,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "Sophia Williams",
+                    SourceDescription = "Overflow from Emergency Food Relief campaign (donated ৳3000 when ৳2000 was needed)",
+                    CreatedAt = DateTime.UtcNow.AddDays(-25)
+                },
+                new ReserveFund
+                {
+                    Amount = 1500,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "Anonymous Donor",
+                    SourceDescription = "Generous overflow contribution to community reserve fund",
+                    CreatedAt = DateTime.UtcNow.AddDays(-20)
+                },
+                new ReserveFund
+                {
+                    Amount = 2500,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "David Miller",
+                    SourceDescription = "Overflow donation - Campaign exceeded goal, extra funds for future emergencies",
+                    CreatedAt = DateTime.UtcNow.AddDays(-15)
+                },
+                new ReserveFund
+                {
+                    Amount = 3000,
+                    CampaignId = completedCampaign.Id,
+                    DonorName = "Maria Garcia",
+                    SourceDescription = "Overflow from Medical Emergency campaign - Helping community reserve",
+                    CreatedAt = DateTime.UtcNow.AddDays(-10)
+                }
+            };
+
+            context.ReserveFunds.AddRange(reserveFundEntries);
+            await context.SaveChangesAsync();
+
+            Console.WriteLine($"✅ Created {reserveFundEntries.Count} Reserve Fund entries (Total: ৳{reserveFundEntries.Sum(r => r.Amount):N0})");
         }
     }
 }

@@ -13,6 +13,7 @@ namespace DonationManagementSystem.API.Data
 		public DbSet<CampaignUpdate> CampaignUpdates { get; set; }
 		public DbSet<SystemSettings> SystemSettings { get; set; }
 		public DbSet<AuditLog> AuditLogs { get; set; }
+		public DbSet<PhysicalDonation> PhysicalDonations { get; set; }
 		
 		// Volunteer System
 		public DbSet<VolunteerProfile> VolunteerProfiles { get; set; }
@@ -26,6 +27,12 @@ namespace DonationManagementSystem.API.Data
 		
 		// Testimonials
 		public DbSet<Testimonial> Testimonials { get; set; }
+
+		// Reserve Fund
+		public DbSet<ReserveFund> ReserveFunds { get; set; }
+
+		// Withdrawals
+		public DbSet<Withdrawal> Withdrawals { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -100,6 +107,32 @@ namespace DonationManagementSystem.API.Data
 					  .WithMany(u => u.Donations)
 					  .HasForeignKey(e => e.UserId)
 					  .OnDelete(DeleteBehavior.SetNull);
+			});
+
+			// Physical Donation (Volunteer Collection) configurations
+			modelBuilder.Entity<PhysicalDonation>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.DonorPhone).HasMaxLength(20);
+				entity.Property(e => e.ReferenceCode).IsRequired().HasMaxLength(50);
+				entity.Property(e => e.Status).IsRequired().HasMaxLength(50);
+				entity.HasIndex(e => e.ReferenceCode).IsUnique();
+
+				entity.HasOne(e => e.Campaign)
+					.WithMany()
+					.HasForeignKey(e => e.CampaignId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.VolunteerProfile)
+					.WithMany()
+					.HasForeignKey(e => e.VolunteerProfileId)
+					.OnDelete(DeleteBehavior.Restrict);
+
+				entity.HasOne(e => e.VolunteerAssignment)
+					.WithMany()
+					.HasForeignKey(e => e.VolunteerAssignmentId)
+					.OnDelete(DeleteBehavior.SetNull);
 			});
 
 			// Campaign Update configurations
@@ -371,6 +404,25 @@ namespace DonationManagementSystem.API.Data
 					  .WithMany()
 					  .HasForeignKey(e => e.IssuedBy)
 					  .OnDelete(DeleteBehavior.Restrict);
+			});
+
+			// ReserveFund configurations
+			modelBuilder.Entity<ReserveFund>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.DonorName).HasMaxLength(200);
+				entity.Property(e => e.SourceDescription).HasMaxLength(500);
+
+				entity.HasOne(e => e.Donation)
+					  .WithMany()
+					  .HasForeignKey(e => e.DonationId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.NoAction);
 			});
 		}
 	}

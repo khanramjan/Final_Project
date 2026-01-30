@@ -412,6 +412,12 @@ namespace DonationManagementSystem.API.Controllers
                 {
                     donation.Campaign.RaisedAmount += donation.Amount;
                     donation.CompletedAt = DateTime.UtcNow;
+                    
+                    // Check if campaign goal is reached
+                    if (donation.Campaign.RaisedAmount >= donation.Campaign.TargetAmount && donation.Campaign.Status == "active")
+                    {
+                        donation.Campaign.Status = "completed";
+                    }
                 }
                 else if (oldStatus == "completed" && dto.Status != "completed")
                 {

@@ -267,6 +267,120 @@ namespace DonationManagementSystem.API.Migrations
                     b.ToTable("Donations");
                 });
 
+            modelBuilder.Entity("DonationManagementSystem.API.Models.PhysicalDonation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CollectedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ConfirmationOtpExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ConfirmationOtpHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DonationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DonorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DonorPhone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("VolunteerAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VolunteerProfileId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("ReferenceCode")
+                        .IsUnique();
+
+                    b.HasIndex("VolunteerAssignmentId");
+
+                    b.HasIndex("VolunteerProfileId");
+
+                    b.ToTable("PhysicalDonations");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.ReserveFund", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DonationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DonorName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SourceDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("DonationId");
+
+                    b.ToTable("ReserveFunds");
+                });
+
             modelBuilder.Entity("DonationManagementSystem.API.Models.SystemSettings", b =>
                 {
                     b.Property<int>("Id")
@@ -1158,6 +1272,63 @@ namespace DonationManagementSystem.API.Migrations
                     b.ToTable("VolunteerWarnings");
                 });
 
+            modelBuilder.Entity("DonationManagementSystem.API.Models.Withdrawal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CampaignId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("ReceiptPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RecipientAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RecipientName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("RecipientPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("WithdrawnAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("WithdrawnBy")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CampaignId");
+
+                    b.HasIndex("WithdrawnBy");
+
+                    b.ToTable("Withdrawals");
+                });
+
             modelBuilder.Entity("DonationManagementSystem.API.Models.AuditLog", b =>
                 {
                     b.HasOne("DonationManagementSystem.API.Models.User", "User")
@@ -1221,6 +1392,49 @@ namespace DonationManagementSystem.API.Migrations
                     b.Navigation("Campaign");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.PhysicalDonation", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerAssignment", "VolunteerAssignment")
+                        .WithMany()
+                        .HasForeignKey("VolunteerAssignmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DonationManagementSystem.API.Models.VolunteerProfile", "VolunteerProfile")
+                        .WithMany()
+                        .HasForeignKey("VolunteerProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("VolunteerAssignment");
+
+                    b.Navigation("VolunteerProfile");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.ReserveFund", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("DonationManagementSystem.API.Models.Donation", "Donation")
+                        .WithMany()
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("Donation");
                 });
 
             modelBuilder.Entity("DonationManagementSystem.API.Models.SystemSettings", b =>
@@ -1453,6 +1667,25 @@ namespace DonationManagementSystem.API.Migrations
                     b.Navigation("VolunteerProfile");
 
                     b.Navigation("VolunteerReport");
+                });
+
+            modelBuilder.Entity("DonationManagementSystem.API.Models.Withdrawal", b =>
+                {
+                    b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
+                        .WithMany()
+                        .HasForeignKey("CampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DonationManagementSystem.API.Models.User", "WithdrawnByUser")
+                        .WithMany()
+                        .HasForeignKey("WithdrawnBy")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Campaign");
+
+                    b.Navigation("WithdrawnByUser");
                 });
 
             modelBuilder.Entity("DonationManagementSystem.API.Models.Campaign", b =>

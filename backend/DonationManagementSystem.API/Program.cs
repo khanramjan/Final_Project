@@ -43,6 +43,9 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 // Register Email Service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Register SMS Service
+builder.Services.AddScoped<ISmsService, SmsService>();
+
 // Register Volunteer Rank Service
 builder.Services.AddScoped<IVolunteerRankService, VolunteerRankService>();
 

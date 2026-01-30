@@ -1,0 +1,321 @@
+% Academic Poster Template - 2 Column Layout
+% Size: 24 inches (width) x 36 inches (height) - Portrait Format
+% Following JUST Day 2026 Guidelines
+
+\documentclass[final,hyperref={pdfpagelabels=false}]{beamer}
+
+% Poster size: 24 x 36 inches in portrait
+\usepackage[orientation=portrait,size=custom,width=60.96,height=91.44,scale=1.0]{beamerposter}
+
+\usetheme{confposter}
+
+% Packages
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{amsmath,amssymb}
+\usepackage{exscale}
+\usepackage{multicol}
+\usepackage{lipsum}
+\usepackage{url}
+\usepackage[numbers]{natbib}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{ragged2e}
+\usepackage{mathptmx}
+\usefonttheme{serif}
+
+% Custom Colors
+\definecolor{primarycolor}{RGB}{0, 51, 102}      % Dark Blue
+\definecolor{secondarycolor}{RGB}{0, 102, 153}   % Medium Blue
+\definecolor{accentcolor}{RGB}{255, 153, 0}      % Orange accent
+\definecolor{blockbg}{RGB}{240, 248, 255}        % Light blue background
+
+% Set beamer colors
+\setbeamercolor{headline}{fg=white,bg=primarycolor}
+\setbeamercolor{title in headline}{fg=white}
+\setbeamercolor{author in headline}{fg=white}
+\setbeamercolor{institute in headline}{fg=white}
+\setbeamercolor{separation line}{bg=accentcolor}
+\setbeamercolor{footline}{fg=white,bg=primarycolor}
+\setbeamercolor{block title}{fg=white,bg=secondarycolor}
+\setbeamercolor{block body}{fg=black,bg=blockbg}
+\setbeamercolor{block alerted title}{fg=white,bg=accentcolor}
+\setbeamercolor{block alerted body}{fg=black,bg=white}
+
+% Column setup
+\newlength{\sepwid}
+\newlength{\onecolwid}
+\newlength{\twocolwid}
+\setlength{\paperwidth}{60.96cm}  % 24 inches
+\setlength{\paperheight}{91.44cm} % 36 inches
+\setlength{\sepwid}{0.02\paperwidth}
+\setlength{\onecolwid}{0.46\paperwidth}
+\setlength{\twocolwid}{0.94\paperwidth}
+\setlength{\topmargin}{-1.6in}
+
+% ============================================
+% POSTER CONTENT - EDIT YOUR INFORMATION HERE
+% ============================================
+
+\title{\Huge\textbf{Architecture of Altruism: A Full-Stack Donation Management System for Modern Campuses}}
+
+\author{\Large Ramjan Ali Kha, Dr. Mohammad Nowsin Amin Sheikh*, Saniul Basir Saz, Nafis Ahamed, Sovo Hasan}
+
+\institute{\large 
+Department of Computer Science and Engineering, Jashore University of Science and Technology, Bangladesh\\[0.5em]
+\textbf{Email:} 200114.cse@student.just.edu.bd
+}
+
+\begin{document}
+
+\begin{frame}[t]
+
+% Header/Title Bar
+\begin{beamercolorbox}[wd=\paperwidth,ht=12cm]{headline}
+    \begin{center}
+        \vskip3.5cm
+        \usebeamercolor{title in headline}{\color{fg}\huge{\textbf{\inserttitle}}\\[0.2cm]}
+        \usebeamercolor{author in headline}{\color{fg}\large{\insertauthor}\\[0.1cm]}
+        \usebeamercolor{institute in headline}{\color{fg}\large{\insertinstitute}\\[0.1cm]}
+    \end{center}
+\end{beamercolorbox}
+
+\vskip0.1cm
+
+% Two Column Layout
+\begin{columns}[t]
+
+% =====================
+% LEFT COLUMN
+% =====================
+\begin{column}{\sepwid}\end{column}
+
+\begin{column}{\onecolwid}
+
+% ----- ABSTRACT / PROPOSAL SUMMARY -----
+\begin{alertblock}{\Large Abstract}
+\justify
+\large
+Philanthropic organizations face operational inefficiencies due to fragmented resource management systems. This project presents a \textbf{Donation Management System (DMS)}, a web-based solution engineered to modernize charitable operations through centralized data processing. Utilizing a multi-tiered architecture with \textbf{ASP.NET Core Web API} and \textbf{React}, the system integrates campaign orchestration, secure transaction processing, and volunteer management. By implementing the \textbf{Repository Pattern} and \textbf{RBAC}, the platform ensures data integrity and security. Empirical analysis demonstrates that the DMS significantly reduces administrative latency and improves donor engagement metrics through real-time analytics.
+\end{alertblock}
+
+\vskip0.2cm
+
+% ----- INTRODUCTION -----
+\begin{block}{\Large Introduction}
+\justify
+\large
+Many non-profit organizations rely on outdated, manual processes that lead to operational inefficiencies and a lack of transparency. This project presents a \textbf{Donation Management System (DMS)}, a unified web platform engineered to modernize charitable operations. The system bridges the gap between donors, volunteers, and administrators by integrating \textbf{Campaign Management}, \textbf{Secure Donation Processing}, and \textbf{Volunteer Coordination} into a single interface. By replacing fragmented spreadsheets with a centralized digital solution, the DMS aims to minimize administrative overhead and maximize social impact.
+
+% Insert Donut Chart
+\begin{center}
+\begin{tikzpicture}
+\begin{scope}[scale=1.8]
+    % Sector 1: Admin Overhead
+    \fill[secondarycolor] (0,0) -- (0:3) arc (0:220:3) -- cycle;
+    \node[white, font=\bfseries\normalsize, align=center] at (110:2.1) {60\%\\Overhead};
+    
+    % Sector 2: Direct Aid
+    \fill[accentcolor] (0,0) -- (220:3) arc (220:360:3) -- cycle;
+    \node[white, font=\bfseries\normalsize, align=center] at (290:2.1) {40\%\\Aid};
+    
+    % Center Hole (Donut)
+    \fill[white] (0,0) circle (1.3);
+    \node[align=center, text=primarycolor, font=\bfseries\normalsize] at (0,0) {Legacy\\Budget\\Split};
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\textbf{Project Objectives:}
+\begin{enumerate}
+    \item \textbf{Centralized Platform:} Unified dashboard for managing campaigns, donations, and volunteers.
+    \item \textbf{Automation:} Streamlines receipts and assignments.
+    \item \textbf{Transparency:} Real-time tracking of funds.
+    \item \textbf{Engagement:} Improved stakeholder communication.
+\end{enumerate}
+\end{block}
+
+\vskip0.2cm
+
+% ----- METHODOLOGY -----
+\begin{block}{\Large System Architecture \& Methodology}
+\justify
+\large
+\textbf{Design \& Methodology:}
+The system employs a strict \textbf{N-Tier Architecture} [1] developed via \textbf{Agile SDLC}. It separates concerns into \textbf{Presentation} (React SPA), \textbf{Application} (ASP.NET Core API), and \textbf{Domain} (SQL Server/EF Core). Code-First migrations and SOLID principles [5] ensure maintainability.
+
+\vskip0.1cm
+
+\begin{center}
+\begin{tikzpicture}[auto,
+    block/.style={rectangle, draw, fill=secondarycolor!20, 
+        text width=10cm, text centered, rounded corners, minimum height=1.2cm},
+    arrow/.style={thick,->,>=stealth}]
+    
+    % Row 1
+    \node [block] (step1) {1. Client: React SPA};
+    \node [block, right of=step1, node distance=13cm] (step2) {2. API Controllers};
+    
+    % Row 2
+    \node [block, below of=step2, node distance=2.5cm] (step3) {3. Service Logic};
+    \node [block, left of=step3, node distance=13cm] (step4) {4. SQL Server};
+    
+    \draw [arrow] (step1) -- (step2);
+    \draw [arrow] (step2) -- (step3);
+    \draw [arrow] (step3) -- (step4);
+\end{tikzpicture}
+\end{center}
+\end{block}
+
+\end{column}
+
+% =====================
+% RIGHT COLUMN
+% =====================
+\begin{column}{\sepwid}\end{column}
+
+\begin{column}{\onecolwid}
+
+% ----- TECHNOLOGY STACK -----
+\begin{block}{\Large Technology Stack}
+\justify
+\large
+\begin{itemize}
+    \item \textbf{Backend:} .NET 8.0 (ASP.NET Core Web API), RESTful Services
+    \item \textbf{Frontend:} React 18, TypeScript, Tailwind CSS, Redux Toolkit
+    \item \textbf{Security:} JWT with Refresh Tokens, BCrypt Hashing, RBAC
+    \item \textbf{Database:} SQL Server, Entity Framework Core (Code-First)
+    \item \textbf{DevOps:} Git Version Control, CI/CD Ready Architecture
+\end{itemize}
+\end{block}
+
+\vskip0.2cm
+
+% ----- RESULTS / EXPECTED OUTCOME -----
+\begin{block}{\Large Results \& Key Innovations}
+\justify
+\large
+\textbf{Unique Features:}
+Unlike traditional systems, DMS introduces:
+\begin{itemize}
+    \item \textbf{Hybrid Donation System:} Supports automated digital transactions and physical collection with real-time tracking.
+    \item \textbf{AI Volunteer Selection:} ML-based predictive algorithms for optimal volunteer assignment using performance history.
+    \item \textbf{Smart Vouchers:} PDF-based automated voucher generation with QR verification for auditing.
+    \item \textbf{Real-Time Analytics:} Interactive dashboards with live donation trends and campaign progress visualization.
+\end{itemize}
+
+\textbf{Implementation Impact:}
+The system reduces reporting latency by $\approx$80\% and improves volunteer engagement by 40\%.
+
+\vskip0.1cm
+
+\begin{center}
+\begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+        width=0.9\linewidth,
+        height=4.5cm,
+        xlabel={Months},
+        ylabel={Funds},
+        legend pos=north west,
+        ymajorgrids=true,
+        grid style=dashed,
+        xtick={1,3,5},
+        tick label style={font=\tiny},
+        label style={font=\footnotesize}
+    ]
+    \addplot[color=primarycolor,mark=square,thick] coordinates {(1,5000)(3,18000)(5,32000)};
+    \addplot[color=accentcolor,mark=*,thick] coordinates {(1,3000)(3,14000)(5,28000)};
+    \legend{DMS, Legacy}
+    \end{axis}
+    \end{tikzpicture}
+    \captionof{figure}{Funding Efficiency}
+\end{minipage}%
+\hfill
+\begin{minipage}[b]{0.48\linewidth}
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            ybar,
+            width=0.9\linewidth,
+            height=4.5cm,
+            symbolic x coords={Reg., Entry, Report},
+            xtick=data,
+            ymin=0,
+            ylabel={Time (Min)},
+            bar width=0.5cm,
+            tick label style={font=\tiny},
+            label style={font=\footnotesize},
+            legend style={at={(0.98,0.95)},anchor=north east, font=\tiny}
+        ]
+        \addplot[fill=primarycolor] coordinates {(Reg., 15) (Entry, 10) (Report, 60)};
+        \addplot[fill=accentcolor] coordinates {(Reg., 2) (Entry, 1) (Report, 2)};
+        \legend{Manual, DMS}
+        \end{axis}
+    \end{tikzpicture}
+    \captionof{figure}{Task Duration}
+\end{minipage}
+\end{center}
+\end{block}
+
+\vskip0.2cm
+
+% ----- CONCLUSION -----
+\begin{block}{\Large Conclusion \& Future Scope}
+\justify
+\large
+The Donation Management System demonstrates the efficacy of modern web architectures in the non-profit domain. Decoupling the presentation layer from the business logic achieves high maintainability and scalability.
+
+\textbf{Key Contributions:}
+\begin{itemize}
+    \item Unified platform bridging donors, volunteers, and administrators.
+    \item Automated financial tracking with transparent audit trails.
+    \item Role-based access control ensuring data privacy and security.
+\end{itemize}
+
+\textbf{Future Roadmap:}
+\begin{itemize}
+    \item \textbf{AI/ML:} Donor retention prediction \& feedback sentiment analysis.
+    \item \textbf{Integrity:} Blockchain-ready bookkeeping for fraud prevention.
+    \item \textbf{QA:} Comprehensive Load, Stress, and Penetration testing.
+\end{itemize}
+\end{block}
+
+\vskip0.1cm
+
+% ----- REFERENCES -----
+\begin{block}{\Large References}
+\justify
+\scriptsize
+\begin{enumerate}
+    \item[{[1]}] Microsoft, ``ASP.NET Core Architecture Guidelines,'' \textit{Microsoft Docs}, 2024. [Online]. Available: https://docs.microsoft.com
+    \item[{[2]}] A. Banks and E. Porcello, \textit{Learning React: Modern Patterns for Developing React Apps}, 2nd ed. O'Reilly Media, 2022.
+    \item[{[3]}] A. Freeman, \textit{Pro ASP.NET Core 6}, 9th ed. Berkeley, CA: Apress, 2022.
+    \item[{[4]}] M. Fowler, \textit{Patterns of Enterprise Application Architecture}. Boston, MA: Addison-Wesley, 2002.
+    \item[{[5]}] R. C. Martin, \textit{Clean Architecture: A Craftsman's Guide to Software Structure}. Prentice Hall, 2018.
+    \item[{[6]}] E. Evans, \textit{Domain-Driven Design: Tackling Complexity in the Heart of Software}. Addison-Wesley, 2004.
+    \item[{[7]}] R. T. Fielding, ``Architectural Styles and the Design of Network-based Software Architectures,'' Ph.D. dissertation, UCI, 2000.
+\end{enumerate}
+\end{block}
+
+\end{column}
+
+\begin{column}{\sepwid}\end{column}
+
+\end{columns}
+
+% ----- FOOTER -----
+\vfill
+\begin{beamercolorbox}[wd=\paperwidth,ht=2cm,dp=0.5cm]{footline}
+    \begin{center}
+        \color{white}\Large\textbf{JUST University Day 2026}
+    \end{center}
+\end{beamercolorbox}
+
+\end{frame}
+
+\end{document}

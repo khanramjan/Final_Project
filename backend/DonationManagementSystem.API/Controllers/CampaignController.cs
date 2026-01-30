@@ -172,7 +172,7 @@ namespace DonationManagementSystem.API.Controllers
                 // Fetch real campaigns from database
                 var query = _context.Campaigns
                     .Include(c => c.Creator)
-                    .Where(c => c.Status == "approved" || c.Status == "active"); // Show both approved and active campaigns to public
+                    .Where(c => c.Status == "approved" || c.Status == "active" || c.Status == "completed"); // Show approved, active, and completed campaigns
 
                 Console.WriteLine("Database query created");
 
@@ -205,9 +205,10 @@ namespace DonationManagementSystem.API.Controllers
                 
                 var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-                // Fetch campaigns with proper mapping
+                // Fetch campaigns with proper mapping - completed campaigns at the end
                 var campaigns = await query
-                    .OrderByDescending(c => c.CreatedAt)
+                    .OrderBy(c => c.Status == "completed" ? 1 : 0) // Completed campaigns last
+                    .ThenByDescending(c => c.CreatedAt) // Then by creation date
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize)
                     .Select(c => new

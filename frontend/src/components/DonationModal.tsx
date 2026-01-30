@@ -35,12 +35,12 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
 
   const paymentMethods = {
     mobile: [
-      { id: 'bkash', name: 'bKash', logo: 'https://download.logo.wine/logo/BKash/BKash-Logo.wine.png', bgColor: 'bg-pink-50', borderColor: 'border-pink-300' },
-      { id: 'nagad', name: 'Nagad', logo: 'https://seeklogo.com/images/N/nagad-logo-7A70CCFB12-seeklogo.com.png', bgColor: 'bg-orange-50', borderColor: 'border-orange-300' },
-      { id: 'rocket', name: 'Rocket', logo: 'https://seeklogo.com/images/D/dutch-bangla-rocket-logo-B4D1CC458D-seeklogo.com.png', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
+      { id: 'bkash', name: 'bKash', logo: '💸', bgColor: 'bg-pink-50', borderColor: 'border-pink-300' },
+      { id: 'nagad', name: 'Nagad', logo: '💰', bgColor: 'bg-orange-50', borderColor: 'border-orange-300' },
+      { id: 'rocket', name: 'Rocket', logo: '🚀', bgColor: 'bg-purple-50', borderColor: 'border-purple-300' },
       { id: 'okwallet', name: 'OK Wallet', logo: '🔵', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
       { id: 'cellfin', name: 'Cellfin', logo: '📱', bgColor: 'bg-teal-50', borderColor: 'border-teal-300' },
-      { id: 'upay', name: 'Upay', logo: '💰', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300' },
+      { id: 'upay', name: 'Upay', logo: '💵', bgColor: 'bg-indigo-50', borderColor: 'border-indigo-300' },
     ],
     cards: [
       { id: 'visa', name: 'Visa', logo: '💳', bgColor: 'bg-blue-50', borderColor: 'border-blue-300' },
@@ -98,25 +98,30 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
     setLoading(true);
 
     try {
+      const requestBody = {
+        campaignId: campaign?.id,
+        amount: amount,
+        paymentMethod: paymentMethod,
+        donorName: isAnonymous ? 'Anonymous' : donorName,
+        donorEmail: donorEmail || null,
+        donorPhone: donorPhone || null,
+        isAnonymous: isAnonymous,
+        userId: user?.id || null,
+      };
+      
+      console.log('💳 Payment request body:', requestBody);
+      
       const response = await fetch('http://localhost:5000/api/payment/initiate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({
-          campaignId: campaign?.id,
-          amount: amount,
-          paymentMethod: paymentMethod,
-          donorName: isAnonymous ? 'Anonymous' : donorName,
-          donorEmail: donorEmail || null,
-          donorPhone: donorPhone || null,
-          isAnonymous: isAnonymous,
-          userId: user?.id || null,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const data = await response.json();
+      console.log('💳 Payment response:', response.status, data);
 
       if (data.success && data.gatewayUrl) {
         window.location.href = data.gatewayUrl;
@@ -350,20 +355,8 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                               }`}
                             >
                               <div className="flex flex-col items-center justify-center space-y-2">
-                                {method.logo.startsWith('http') ? (
-                                  <img 
-                                    src={method.logo} 
-                                    alt={method.name}
-                                    className="h-12 w-12 object-contain"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      target.nextElementSibling?.classList.remove('hidden');
-                                    }}
-                                  />
-                                ) : null}
-                                <div className={`text-4xl ${method.logo.startsWith('http') ? 'hidden' : ''}`}>
-                                  {method.logo.startsWith('http') ? '💳' : method.logo}
+                                <div className="text-4xl">
+                                  {method.logo}
                                 </div>
                                 <div className="text-sm font-bold text-gray-800 text-center">{method.name}</div>
                               </div>
@@ -414,7 +407,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                               {(() => {
                                 const allMethods = [...paymentMethods.mobile, ...paymentMethods.cards, ...paymentMethods.netbanking];
                                 const selected = allMethods.find(m => m.id === paymentMethod);
-                                return selected ? `${selected.logo.startsWith('http') ? '💳' : selected.logo} ${selected.name}` : paymentMethod;
+                                return selected ? `${selected.logo} ${selected.name}` : paymentMethod;
                               })()}
                             </p>
                           </div>

@@ -29,6 +29,7 @@ const Campaigns = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
   const [posterCampaign, setPosterCampaign] = useState<any>(null);
+  const [reserveFund, setReserveFund] = useState<any>(null);
   
   // Check if we're in the dashboard (authenticated view)
   const isInDashboard = location.pathname.startsWith('/dashboard');
@@ -40,7 +41,20 @@ const Campaigns = () => {
 
   useEffect(() => {
     dispatch(fetchCampaigns());
+    fetchReserveFund();
   }, [dispatch]);
+
+  const fetchReserveFund = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/financial/reserve-fund/public');
+      const data = await response.json();
+      if (data.totalAmount > 0) {
+        setReserveFund(data);
+      }
+    } catch (error) {
+      console.error('Error fetching reserve fund:', error);
+    }
+  };
 
   // Filter campaigns based on search and filters
   const filteredCampaigns = campaigns.filter(campaign => {
@@ -420,6 +434,81 @@ const Campaigns = () => {
 
             {/* Campaigns Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {/* Reserve Fund Card - Show for all users */}
+              {reserveFund && reserveFund.totalAmount > 0 && (
+                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-lg shadow-lg border-2 border-purple-300 overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1">
+                  {/* Header Badge */}
+                  <div className="bg-gradient-to-r from-yellow-400 to-orange-400 px-4 py-2 text-center">
+                    <p className="text-sm font-bold text-gray-900 flex items-center justify-center">
+                      <span className="mr-2">✨</span>
+                      COMMUNITY RESERVE FUND
+                      <span className="ml-2">✨</span>
+                    </p>
+                  </div>
+
+                  <div className="p-6">
+                    {/* Icon and Title */}
+                    <div className="flex items-center justify-center mb-4">
+                      <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
+                        <BanknotesIcon className="h-12 w-12 text-white" />
+                      </div>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white mb-3 text-center">
+                      Reserve Fund
+                    </h3>
+                    
+                    <p className="text-purple-100 text-sm mb-6 text-center leading-relaxed">
+                      {reserveFund.description}
+                    </p>
+
+                    {/* Amount Display */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/20">
+                      <p className="text-purple-200 text-sm mb-1 text-center">Total Available</p>
+                      <p className="text-4xl font-bold text-white text-center">
+                        ৳{reserveFund.totalAmount.toLocaleString()}
+                      </p>
+                    </div>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 text-center">
+                        <p className="text-purple-200 text-xs mb-1">Contributions</p>
+                        <p className="text-2xl font-bold text-white">{reserveFund.entryCount}</p>
+                      </div>
+                      <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 text-center">
+                        <p className="text-purple-200 text-xs mb-1">Source</p>
+                        <p className="text-lg font-bold text-white">Overflow</p>
+                      </div>
+                    </div>
+
+                    {/* Recent Entries */}
+                    <div className="space-y-2 mb-4">
+                      <p className="text-white font-semibold text-sm mb-3">Recent Contributions:</p>
+                      {reserveFund.recentEntries.slice(0, 3).map((entry: any, idx: number) => (
+                        <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <p className="text-white font-medium text-sm">{entry.donorName}</p>
+                              <p className="text-purple-200 text-xs truncate">{entry.campaignTitle}</p>
+                            </div>
+                            <p className="text-white font-bold ml-3">৳{entry.amount.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Info Box */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                      <p className="text-purple-100 text-xs leading-relaxed">
+                        💡 <strong>How it works:</strong> When campaigns receive more than their goal, 
+                        the extra amount goes here to help future emergencies and community needs.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {filteredCampaigns.map((campaign) => {
                 const rawProgress = (campaign.currentAmount / campaign.goalAmount) * 100;
                 const progress = Math.min(rawProgress, 100);
