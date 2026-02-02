@@ -15,7 +15,8 @@ import {
   ClockIcon,
   TrophyIcon,
   UserCircleIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
@@ -39,6 +40,7 @@ const volunteerNavigation = [
   { name: 'Dashboard', href: '/volunteer/', icon: HomeIcon },
   { name: 'Requests', href: '/volunteer/requests', icon: InboxIcon },
   { name: 'My Assignments', href: '/volunteer/assignments', icon: ClipboardDocumentCheckIcon },
+  { name: 'Expense Vouchers', href: '/volunteer/vouchers', icon: DocumentTextIcon },
   { name: 'Physical Collection', href: '/volunteer/physical-donations', icon: BanknotesIcon },
   { name: 'History', href: '/volunteer/history', icon: ClockIcon },
   { name: 'Achievements', href: '/volunteer/achievements', icon: TrophyIcon },

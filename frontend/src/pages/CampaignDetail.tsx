@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, HeartIcon, ShareIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, HeartIcon, ShareIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, CurrencyDollarIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useAppSelector } from '../store/hooks';
 import CampaignPoster from '../components/Volunteer/CampaignPoster';
+import voucherService, { VoucherSummaryDto } from '../services/voucherService';
 
 interface Campaign {
   id: number;
@@ -30,6 +31,8 @@ const CampaignDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
+  const [voucherSummary, setVoucherSummary] = useState<VoucherSummaryDto | null>(null);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
 
   useEffect(() => {
     const fetchCampaignDetail = async () => {
@@ -45,6 +48,10 @@ const CampaignDetail = () => {
 
         if (data.success && data.campaign) {
           setCampaign(data.campaign);
+          // Fetch voucher summary if campaign is completed
+          if (data.campaign.status === 'completed') {
+            fetchVoucherSummary(parseInt(campaignId));
+          }
         } else {
           setError('Campaign not found');
         }
@@ -58,6 +65,33 @@ const CampaignDetail = () => {
 
     fetchCampaignDetail();
   }, [campaignId]);
+
+  const fetchVoucherSummary = async (id: number) => {
+    try {
+      setLoadingVouchers(true);
+      const data = await voucherService.getCampaignVouchers(id);
+      setVoucherSummary(data);
+    } catch (err) {
+      console.error('Error fetching voucher summary:', err);
+    } finally {
+      setLoadingVouchers(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    }).format(amount);
+  };
 
   if (loading) {
     return (
@@ -129,6 +163,91 @@ const CampaignDetail = () => {
               <h2 className="text-xl font-bold text-gray-900 mb-4">About This Campaign</h2>
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{campaign.description}</p>
             </div>
+
+            {/* Voucher Expenditure Section - Only for completed campaigns */}
+            {campaign.status === 'completed' && voucherSummary && voucherSummary.totalVouchers > 0 && (
+              <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                    <CurrencyDollarIcon className="h-6 w-6 mr-2 text-green-600" />
+                    Campaign Expenditure Report
+                  </h2>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600">Total Expenditure</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {formatCurrency(voucherSummary.totalExpenditure)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    This campaign has been completed successfully. Below is the detailed breakdown of expenses
+                    incurred during relief distribution by our volunteers.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {voucherSummary.vouchers.map((voucher) => (
+                    <div
+                      key={voucher.id}
+                      className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center mb-2">
+                            <DocumentTextIcon className="h-5 w-5 text-gray-400 mr-2" />
+                            <h3 className="font-semibold text-gray-900">{voucher.description}</h3>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-gray-600">Volunteer:</span>
+                              <span className="ml-2 font-medium text-gray-900">{voucher.volunteerName}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Category:</span>
+                              <span className="ml-2 font-medium text-gray-900">{voucher.category}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Expense Date:</span>
+                              <span className="ml-2 font-medium text-gray-900">
+                                {formatDate(voucher.expenseDate)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Approved:</span>
+                              <span className="ml-2 font-medium text-gray-900">
+                                {formatDate(voucher.approvedAt)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="ml-4 text-right">
+                          <p className="text-lg font-bold text-green-600">
+                            {formatCurrency(voucher.amount)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Vouchers Submitted:</span>
+                    <span className="font-semibold text-gray-900">{voucherSummary.totalVouchers}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {campaign.status === 'completed' && loadingVouchers && (
+              <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <div className="flex justify-center items-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                </div>
+              </div>
+            )}
 
             {/* Campaign Details */}
             <div className="grid grid-cols-2 gap-4 mb-6">

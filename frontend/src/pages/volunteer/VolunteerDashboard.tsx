@@ -12,6 +12,7 @@ import {
   StarIcon,
   ShieldExclamationIcon,
   ExclamationTriangleIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import volunteerService from '../../services/volunteerService';
 import type { VolunteerDashboard } from '../../types/volunteer.types';
@@ -438,6 +439,13 @@ export default function VolunteerDashboardPage() {
                 >
                   <CheckCircleIcon className="h-5 w-5 text-green-600" />
                   <span className="font-medium text-green-900">My Assignments</span>
+                </Link>
+                <Link
+                  to="/volunteer/vouchers"
+                  className="flex items-center gap-3 p-3 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                >
+                  <DocumentTextIcon className="h-5 w-5 text-indigo-600" />
+                  <span className="font-medium text-indigo-900">Submit Expense Voucher</span>
                 </Link>
                 <Link
                   to="/dashboard/campaigns"

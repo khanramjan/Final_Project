@@ -8,7 +8,9 @@ import {
   CogIcon,
   PowerIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  DocumentTextIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline';
 
 interface NavigationItem {
@@ -47,6 +49,16 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
       name: 'Donations',
       href: '/admin/donations',
       icon: BanknotesIcon
+    },
+    {
+      name: 'Vouchers',
+      href: '/admin/vouchers',
+      icon: DocumentTextIcon
+    },
+    {
+      name: 'Withdrawals',
+      href: '/admin/withdrawals',
+      icon: CurrencyDollarIcon
     },
     {
       name: 'Settings',

@@ -183,6 +183,7 @@ namespace DonationManagementSystem.API.DTOs
         public string? VolunteerName { get; set; }
         public int CampaignId { get; set; }
         public string? CampaignTitle { get; set; }
+        public string? CampaignStatus { get; set; }
         public int? VolunteerRequestId { get; set; }
         
         public string Title { get; set; } = string.Empty;

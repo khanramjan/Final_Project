@@ -4,6 +4,7 @@ using DonationManagementSystem.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DonationManagementSystem.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260201174234_AddVoucherSystem")]
+    partial class AddVoucherSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1354,42 +1357,6 @@ namespace DonationManagementSystem.API.Migrations
                     b.ToTable("Vouchers");
                 });
 
-            modelBuilder.Entity("DonationManagementSystem.API.Models.VoucherItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("PurchaseDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VoucherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("VoucherId");
-
-                    b.ToTable("VoucherItems");
-                });
-
             modelBuilder.Entity("DonationManagementSystem.API.Models.Withdrawal", b =>
                 {
                     b.Property<int>("Id")
@@ -1820,17 +1787,6 @@ namespace DonationManagementSystem.API.Migrations
                     b.Navigation("Volunteer");
                 });
 
-            modelBuilder.Entity("DonationManagementSystem.API.Models.VoucherItem", b =>
-                {
-                    b.HasOne("DonationManagementSystem.API.Models.Voucher", "Voucher")
-                        .WithMany("Items")
-                        .HasForeignKey("VoucherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Voucher");
-                });
-
             modelBuilder.Entity("DonationManagementSystem.API.Models.Withdrawal", b =>
                 {
                     b.HasOne("DonationManagementSystem.API.Models.Campaign", "Campaign")
@@ -1887,11 +1843,6 @@ namespace DonationManagementSystem.API.Migrations
             modelBuilder.Entity("DonationManagementSystem.API.Models.VolunteerRequest", b =>
                 {
                     b.Navigation("Assignment");
-                });
-
-            modelBuilder.Entity("DonationManagementSystem.API.Models.Voucher", b =>
-                {
-                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

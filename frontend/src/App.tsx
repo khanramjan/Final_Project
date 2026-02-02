@@ -43,7 +43,11 @@ import VolunteerProfilePage from './pages/volunteer/VolunteerProfilePage';
 import MyReportsAndWarnings from './pages/volunteer/MyReportsAndWarnings';
 import ReportVolunteer from './pages/volunteer/ReportVolunteer';
 import VolunteerPhysicalDonationsPage from './pages/volunteer/VolunteerPhysicalDonationsPage';
+import VolunteerVouchers from './pages/volunteer/VolunteerVouchers';
+import SubmitVoucher from './pages/volunteer/SubmitVoucher';
 import ConfirmPhysicalDonation from './pages/ConfirmPhysicalDonation';
+// Admin Voucher Management
+import VoucherManagement from './pages/admin/VoucherManagement';
 // Legal Pages
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -111,6 +115,7 @@ function AppContent() {
           <Route path="volunteer-approvals" element={<VolunteerApprovals />} />
           <Route path="volunteer-review" element={<VolunteerReview />} />
           <Route path="volunteer-reports" element={<AdminVolunteerReports />} />
+          <Route path="vouchers" element={<VoucherManagement />} />
           <Route path="settings" element={<SystemSettings />} />
         </Route>
         <Route
@@ -128,6 +133,8 @@ function AppContent() {
                   <Route path="/profile" element={<VolunteerProfilePage />} />
                   <Route path="/reports-warnings" element={<MyReportsAndWarnings />} />
                   <Route path="/report-volunteer" element={<ReportVolunteer />} />
+                  <Route path="/vouchers" element={<VolunteerVouchers />} />
+                  <Route path="/vouchers/submit" element={<SubmitVoucher />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

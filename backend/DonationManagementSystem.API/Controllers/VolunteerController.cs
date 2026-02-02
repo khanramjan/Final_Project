@@ -1461,6 +1461,7 @@ namespace DonationManagementSystem.API.Controllers
                     $"{assignment.VolunteerProfile.User.FirstName} {assignment.VolunteerProfile.User.LastName}" : null,
                 CampaignId = assignment.CampaignId,
                 CampaignTitle = assignment.Campaign?.Title,
+                CampaignStatus = assignment.Campaign?.Status,
                 VolunteerRequestId = assignment.VolunteerRequestId,
                 Title = assignment.Title,
                 Description = assignment.Description,

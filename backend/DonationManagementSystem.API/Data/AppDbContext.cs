@@ -34,6 +34,10 @@ namespace DonationManagementSystem.API.Data
 		// Withdrawals
 		public DbSet<Withdrawal> Withdrawals { get; set; }
 
+		// Vouchers
+		public DbSet<Voucher> Vouchers { get; set; }
+		public DbSet<VoucherItem> VoucherItems { get; set; }
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);
@@ -423,6 +427,57 @@ namespace DonationManagementSystem.API.Data
 					  .WithMany()
 					  .HasForeignKey(e => e.CampaignId)
 					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
+			// Voucher configurations
+			modelBuilder.Entity<Voucher>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.Description).IsRequired().HasMaxLength(500);
+				entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
+				entity.Property(e => e.Status).HasMaxLength(50);
+				entity.Property(e => e.ReceiptFileName).HasMaxLength(255);
+
+				// Campaign relationship
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				// Volunteer relationship
+				entity.HasOne(e => e.Volunteer)
+					  .WithMany()
+					  .HasForeignKey(e => e.VolunteerId)
+					  .OnDelete(DeleteBehavior.Restrict);
+
+				// Reviewer relationship
+				entity.HasOne(e => e.Reviewer)
+					  .WithMany()
+					  .HasForeignKey(e => e.ReviewedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				// Requester relationship
+				entity.HasOne(e => e.Requester)
+					  .WithMany()
+					  .HasForeignKey(e => e.RequestedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				// Items relationship
+				entity.HasMany(e => e.Items)
+					  .WithOne(i => i.Voucher)
+					  .HasForeignKey(i => i.VoucherId)
+					  .OnDelete(DeleteBehavior.Cascade);
+			});
+
+			// VoucherItem configurations
+			modelBuilder.Entity<VoucherItem>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.ItemName).IsRequired().HasMaxLength(200);
+				entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.Quantity).IsRequired();
+				entity.Property(e => e.Notes).HasMaxLength(500);
 			});
 		}
 	}

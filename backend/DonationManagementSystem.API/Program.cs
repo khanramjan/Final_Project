@@ -69,6 +69,9 @@ var app = builder.Build();
 // Use CORS
 app.UseCors("AllowFrontend");
 
+// Serve static files from wwwroot folder (default)
+app.UseStaticFiles();
+
 // Serve static files from Uploads folder
 app.UseStaticFiles(new StaticFileOptions
 {
