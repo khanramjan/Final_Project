@@ -66,6 +66,26 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Apply any pending migrations (adds new columns automatically on startup)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        db.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
+                          WHERE TABLE_NAME='Users' AND COLUMN_NAME='PasswordResetToken')
+            BEGIN
+                ALTER TABLE Users ADD PasswordResetToken NVARCHAR(MAX) NULL;
+                ALTER TABLE Users ADD PasswordResetTokenExpiry DATETIME2 NULL;
+            END");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Column migration warning: {ex.Message}");
+    }
+}
+
 // Use CORS
 app.UseCors("AllowFrontend");
 

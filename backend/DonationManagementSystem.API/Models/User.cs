@@ -25,6 +25,10 @@ namespace DonationManagementSystem.API.Models
 		public string? EmailVerificationToken { get; set; }
 		public DateTime? EmailVerificationTokenExpiry { get; set; }
 
+		// Password reset fields
+		public string? PasswordResetToken { get; set; }
+		public DateTime? PasswordResetTokenExpiry { get; set; }
+
 		// Navigation properties
 		public List<Donation> Donations { get; set; } = new();
 		public List<Campaign> CampaignsCreated { get; set; } = new();

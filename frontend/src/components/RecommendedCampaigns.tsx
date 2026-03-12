@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Campaign } from '../services/campaignService';
 import { HeartIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { useAppSelector } from '../store/hooks';
+import { Campaign } from '../store/slices/campaignSlice';
 
 const RecommendedCampaigns = () => {
   const navigate = useNavigate();
+  const { campaigns: allCampaigns, loading: campaignsLoading } = useAppSelector((state) => state.campaigns);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCampaigns = async () => {
+    const computeRecommended = async () => {
       try {
         const token = localStorage.getItem('token');
-        
-        // First, get user's donated campaign IDs to exclude them
         let donatedCampaignIds: number[] = [];
+
         if (token) {
           try {
             const donationsResponse = await fetch('http://localhost:5000/api/donation/my-donations', {
@@ -24,68 +25,38 @@ const RecommendedCampaigns = () => {
               const donationsData = await donationsResponse.json();
               donatedCampaignIds = [...new Set(
                 donationsData.donations?.map((d: any) => d.campaignId) || []
-              )];
-              console.log('� User already donated to campaign IDs:', donatedCampaignIds);
+              )] as number[];
             }
-          } catch (err) {
-            console.log('Could not fetch user donations:', err);
+          } catch {
+            // silently ignore
           }
         }
-        
-        // Fetch all campaigns
-        const response = await fetch('http://localhost:5000/api/campaign/public?pageSize=20');
-        const data = await response.json();
-        
-        if (data.campaigns && Array.isArray(data.campaigns) && data.campaigns.length > 0) {
-          console.log('First campaign raw data:', data.campaigns[0]);
-          
-          // Filter out campaigns user has already donated to
-          const newCampaigns = data.campaigns.filter((c: any) => 
-            !donatedCampaignIds.includes(c.id)
-          );
-          
-          console.log(`✅ Found ${newCampaigns.length} new campaigns (excluded ${donatedCampaignIds.length} already donated)`);
-          
-          // Sort by urgency (ending soon) and need (low completion rate)
-          const sorted = newCampaigns
-            .map((campaign: any) => {
-              const daysLeft = Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-              const completion = (campaign.raisedAmount || 0) / (campaign.targetAmount || 1) * 100;
-              const urgencyScore = daysLeft <= 30 ? (30 - daysLeft) : 0; // More urgent = higher score
-              const needScore = 100 - completion; // More needed = higher score
-              return {
-                ...campaign,
-                score: urgencyScore * 2 + needScore // Prioritize urgency
-              };
-            })
-            .sort((a: any, b: any) => b.score - a.score)
-            .slice(0, 3)
-            .map((campaign: any) => ({
-              id: campaign.id,
-              title: campaign.title || 'Untitled Campaign',
-              description: campaign.description || '',
-              imagePath: campaign.imagePath,
-              raisedAmount: campaign.raisedAmount || 0,
-              targetAmount: campaign.targetAmount || 0,
-              endDate: campaign.endDate,
-              status: campaign.status,
-              category: campaign.category
-            }));
-          
-          console.log('✅ Recommended campaigns:', sorted);
-          setCampaigns(sorted);
-        } else {
-          console.log('⚠️ No campaigns in response');
-        }
-      } catch (error) {
-        console.error('❌ Failed to fetch campaigns:', error);
+
+        const newCampaigns = allCampaigns.filter((c) => !donatedCampaignIds.includes(c.id));
+
+        const sorted = newCampaigns
+          .map((campaign) => {
+            const daysLeft = Math.ceil((new Date(campaign.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+            const completion = (campaign.currentAmount || 0) / (campaign.goalAmount || 1) * 100;
+            const urgencyScore = daysLeft <= 30 ? (30 - daysLeft) : 0;
+            const needScore = 100 - completion;
+            return { ...campaign, score: urgencyScore * 2 + needScore };
+          })
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 3);
+
+        setCampaigns(sorted);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCampaigns();
-  }, []);
+    if (!campaignsLoading && allCampaigns.length > 0) {
+      computeRecommended();
+    } else if (!campaignsLoading) {
+      setLoading(false);
+    }
+  }, [allCampaigns, campaignsLoading]);
 
   const getDaysLeft = (endDate: string) => {
     const end = new Date(endDate);
@@ -114,8 +85,8 @@ const RecommendedCampaigns = () => {
       ) : campaigns.length > 0 ? (
         <div className="space-y-4">
           {campaigns.map((campaign) => {
-            const raisedAmount = campaign.raisedAmount || 0;
-            const targetAmount = campaign.targetAmount || 1;
+            const raisedAmount = campaign.currentAmount || 0;
+            const targetAmount = campaign.goalAmount || 1;
             const progress = Math.min((raisedAmount / targetAmount) * 100, 100);
             const daysLeft = campaign.endDate ? getDaysLeft(campaign.endDate) : 0;
             
@@ -126,9 +97,9 @@ const RecommendedCampaigns = () => {
                     <h4 className="font-medium text-gray-900 mb-1">{campaign.title}</h4>
                     <p className="text-sm text-gray-600 line-clamp-2">{campaign.description}</p>
                   </div>
-                  {campaign.imagePath && (
+                  {campaign.imageUrl && (
                     <img 
-                      src={campaign.imagePath} 
+                      src={campaign.imageUrl} 
                       alt={campaign.title}
                       className="w-16 h-16 object-cover rounded-lg ml-3"
                     />

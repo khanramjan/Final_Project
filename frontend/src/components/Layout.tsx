@@ -88,20 +88,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     const checkForNewRequests = async () => {
       try {
-        console.log('🔔 Checking for new volunteer requests...');
         const response = await volunteerService.getNewRequestsCount();
-        console.log('📊 Response:', response);
-        
         if (response.hasNew && response.requests.length > 0) {
-          console.log('✅ New requests found!', response.requests);
           setNewRequests(response.requests);
           setShowNotificationPopup(true);
-        } else {
-          console.log('ℹ️ No new requests');
         }
-      } catch (error) {
+      } catch {
         // Silently fail - don't show errors for background polling
-        console.error('❌ Polling error:', error);
       }
     };
 

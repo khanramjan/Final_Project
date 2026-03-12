@@ -256,6 +256,70 @@ namespace DonationManagementSystem.API.Controllers
 			return Ok(new { message = "Logout successful" });
 		}
 
+		[HttpPost("forgot-password")]
+		public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+		{
+			try
+			{
+				var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+				// Always return success to prevent email enumeration attacks
+				if (user == null || !user.IsActive)
+					return Ok(new { message = "If that email exists, a reset link has been sent." });
+
+				var resetToken = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N");
+				user.PasswordResetToken = BCrypt.Net.BCrypt.HashPassword(resetToken);
+				user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+				await _context.SaveChangesAsync();
+
+				var frontendUrl = _config["AppSettings:FrontendUrl"] ?? "http://localhost:5173";
+				var resetUrl = $"{frontendUrl}/reset-password?token={resetToken}";
+
+				try
+				{
+					await _emailService.SendPasswordResetEmailAsync(user.Email!, user.FirstName!, resetToken, resetUrl);
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Failed to send password reset email: {ex.Message}");
+				}
+
+				return Ok(new { message = "If that email exists, a reset link has been sent." });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Request failed", error = ex.Message });
+			}
+		}
+
+		[HttpPost("reset-password")]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+		{
+			try
+			{
+				// Find users with a non-expired reset token
+				var users = await _context.Users
+					.Where(u => u.PasswordResetToken != null && u.PasswordResetTokenExpiry > DateTime.UtcNow)
+					.ToListAsync();
+
+				var user = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(dto.Token, u.PasswordResetToken));
+
+				if (user == null)
+					return BadRequest(new { message = "Invalid or expired reset link. Please request a new one." });
+
+				user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+				user.PasswordResetToken = null;
+				user.PasswordResetTokenExpiry = null;
+				await _context.SaveChangesAsync();
+
+				return Ok(new { message = "Password reset successful. You can now log in with your new password." });
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(500, new { message = "Reset failed", error = ex.Message });
+			}
+		}
+
 		// Update user profile (authenticated user only)
 		[HttpPut("profile")]
 		[Microsoft.AspNetCore.Authorization.Authorize]

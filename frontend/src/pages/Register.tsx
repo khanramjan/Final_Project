@@ -149,8 +149,8 @@ const Register = () => {
       navigate('/dashboard');
       
     } catch (error) {
-      console.error('Registration failed:', error);
-      setErrors({ general: typeof error === 'string' ? error : 'Registration failed. Please try again.' });
+      const message = (error as { message?: string })?.message;
+      setErrors({ general: message || 'Registration failed. Please try again.' });
     }
   };
 
