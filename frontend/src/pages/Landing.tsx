@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
 import { logout } from '../store/slices/authSlice';
 import testimonialService, { Testimonial } from '../services/testimonialService';
+import ReserveFundSection from '../components/ReserveFundSection';
 
 const Landing = () => {
   const dispatch = useAppDispatch();
@@ -497,6 +498,9 @@ const Landing = () => {
           )}
         </div>
       </section>
+
+      {/* Reserve Fund Section */}
+      <ReserveFundSection />
 
       {/* Features Section */}
       <section id="features" className="py-24 bg-gradient-to-br from-white via-emerald-50/30 to-green-50/30">

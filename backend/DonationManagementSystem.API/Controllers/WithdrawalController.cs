@@ -67,6 +67,51 @@ namespace DonationManagementSystem.API.Controllers
         }
 
         /// <summary>
+        /// Public: Get all reserve fund entries with pagination
+        /// GET: api/financial/reserve-fund/all?page=1&pageSize=20
+        /// </summary>
+        [HttpGet("reserve-fund/all")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPublicReserveFundPaginated([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            try
+            {
+                var totalAmount = await _context.ReserveFunds.SumAsync(r => r.Amount);
+                var totalEntries = await _context.ReserveFunds.CountAsync();
+
+                var entries = await _context.ReserveFunds
+                    .Include(r => r.Campaign)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip((page - 1) * pageSize)
+                    .Take(pageSize)
+                    .Select(r => new
+                    {
+                        id = r.Id,
+                        amount = r.Amount,
+                        campaignTitle = r.Campaign != null ? r.Campaign.Title : "N/A",
+                        donorName = r.DonorName ?? "Anonymous",
+                        sourceDescription = r.SourceDescription,
+                        createdAt = r.CreatedAt
+                    })
+                    .ToListAsync();
+
+                return Ok(new
+                {
+                    totalAmount = totalAmount,
+                    totalEntries = totalEntries,
+                    page = page,
+                    pageSize = pageSize,
+                    totalPages = (int)Math.Ceiling((double)totalEntries / pageSize),
+                    entries = entries
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Admin: Get complete financial dashboard
         /// GET: api/financial/dashboard
         /// Shows all money in the system and which campaign it belongs to

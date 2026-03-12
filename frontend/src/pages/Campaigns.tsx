@@ -457,10 +457,6 @@ const Campaigns = () => {
                     <h3 className="text-2xl font-bold text-white mb-3 text-center">
                       Reserve Fund
                     </h3>
-                    
-                    <p className="text-purple-100 text-sm mb-6 text-center leading-relaxed">
-                      {reserveFund.description}
-                    </p>
 
                     {/* Amount Display */}
                     <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/20">
@@ -482,29 +478,27 @@ const Campaigns = () => {
                       </div>
                     </div>
 
-                    {/* Recent Entries */}
+                    {/* Recent Entries — max 2 */}
                     <div className="space-y-2 mb-4">
-                      <p className="text-white font-semibold text-sm mb-3">Recent Contributions:</p>
-                      {reserveFund.recentEntries.slice(0, 3).map((entry: any, idx: number) => (
-                        <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                      {reserveFund.recentEntries.slice(0, 2).map((entry: any, idx: number) => (
+                        <div key={idx} className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                           <div className="flex justify-between items-center">
-                            <div className="flex-1">
-                              <p className="text-white font-medium text-sm">{entry.donorName}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white font-medium text-xs truncate">{entry.donorName}</p>
                               <p className="text-purple-200 text-xs truncate">{entry.campaignTitle}</p>
                             </div>
-                            <p className="text-white font-bold ml-3">৳{entry.amount.toLocaleString()}</p>
+                            <p className="text-white font-bold text-sm ml-2 flex-shrink-0">৳{entry.amount.toLocaleString()}</p>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    {/* Info Box */}
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                      <p className="text-purple-100 text-xs leading-relaxed">
-                        💡 <strong>How it works:</strong> When campaigns receive more than their goal, 
-                        the extra amount goes here to help future emergencies and community needs.
-                      </p>
-                    </div>
+                    <Link
+                      to="/reserve-fund"
+                      className="block w-full text-center py-2.5 text-sm font-semibold text-white bg-white/20 hover:bg-white/30 border border-white/30 rounded-lg transition-all"
+                    >
+                      View All {reserveFund.entryCount} Contributions →
+                    </Link>
                   </div>
                 </div>
               )}

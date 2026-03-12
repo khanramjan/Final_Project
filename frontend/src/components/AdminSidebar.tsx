@@ -10,7 +10,8 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   DocumentTextIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 interface NavigationItem {
@@ -59,6 +60,11 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
       name: 'Withdrawals',
       href: '/admin/withdrawals',
       icon: CurrencyDollarIcon
+    },
+    {
+      name: 'ML Insights',
+      href: '/admin/ml-insights',
+      icon: SparklesIcon
     },
     {
       name: 'Settings',

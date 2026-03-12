@@ -74,6 +74,14 @@
               "target": "Package",
               "version": "[9.0.8, )"
             },
+            "Microsoft.ML": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Microsoft.ML.TimeSeries": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
             "RestSharp": {
               "target": "Package",
               "version": "[110.2.0, )"

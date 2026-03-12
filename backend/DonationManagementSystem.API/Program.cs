@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Services;
+using DonationManagementSystem.API.Services.ML;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,9 @@ builder.Services.AddScoped<IVolunteerRankService, VolunteerRankService>();
 // Register Payment Gateway Service
 builder.Services.AddScoped<IPaymentGatewayService, SSLCommerzPaymentService>();
 
+// Register ML Prediction Service (Singleton — models are trained once and cached)
+builder.Services.AddSingleton<IMLPredictionService, MLPredictionService>();
+
 // Add CORS
 builder.Services.AddCors(options =>
 {
@@ -83,6 +87,16 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         Console.WriteLine($"Column migration warning: {ex.Message}");
+    }
+
+    // Seed database with default admin and sample data
+    try
+    {
+        await DbSeeder.SeedAsync(db);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Seeding warning: {ex.Message}");
     }
 }
 

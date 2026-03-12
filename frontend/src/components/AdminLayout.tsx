@@ -15,7 +15,8 @@ import {
   ShieldExclamationIcon,
   ChartBarIcon,
   ArrowDownTrayIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import NotificationSystem from './NotificationSystem';
 
@@ -36,6 +37,7 @@ const AdminLayout = () => {
     { name: 'Volunteer Approvals', href: '/admin/volunteer-approvals', icon: CheckBadgeIcon, current: location.pathname === '/admin/volunteer-approvals' },
     { name: 'Work Review', href: '/admin/volunteer-review', icon: ClipboardDocumentCheckIcon, current: location.pathname === '/admin/volunteer-review' },
     { name: 'Volunteer Reports', href: '/admin/volunteer-reports', icon: ShieldExclamationIcon, current: location.pathname === '/admin/volunteer-reports' },
+    { name: 'ML Insights', href: '/admin/ml-insights', icon: SparklesIcon, current: location.pathname === '/admin/ml-insights' },
     { name: 'Settings', href: '/admin/settings', icon: CogIcon, current: location.pathname === '/admin/settings' },
   ];
 
