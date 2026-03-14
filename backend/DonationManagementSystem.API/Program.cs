@@ -89,6 +89,35 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"Column migration warning: {ex.Message}");
     }
 
+    try
+    {
+        db.Database.ExecuteSqlRaw(@"
+            IF OBJECT_ID('Testimonials', 'U') IS NOT NULL
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentLabel')
+                    ALTER TABLE Testimonials ADD SentimentLabel NVARCHAR(20) NOT NULL CONSTRAINT DF_Testimonials_SentimentLabel DEFAULT 'neutral';
+
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentScore')
+                    ALTER TABLE Testimonials ADD SentimentScore REAL NOT NULL CONSTRAINT DF_Testimonials_SentimentScore DEFAULT(0.5);
+
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentConfidence')
+                    ALTER TABLE Testimonials ADD SentimentConfidence REAL NOT NULL CONSTRAINT DF_Testimonials_SentimentConfidence DEFAULT(0.5);
+
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='RiskLabel')
+                    ALTER TABLE Testimonials ADD RiskLabel NVARCHAR(20) NOT NULL CONSTRAINT DF_Testimonials_RiskLabel DEFAULT 'normal';
+
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='IsScamRisk')
+                    ALTER TABLE Testimonials ADD IsScamRisk BIT NOT NULL CONSTRAINT DF_Testimonials_IsScamRisk DEFAULT(0);
+
+                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='AnalyzedAt')
+                    ALTER TABLE Testimonials ADD AnalyzedAt DATETIME2 NULL;
+            END");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Testimonial sentiment migration warning: {ex.Message}");
+    }
+
     // Seed database with default admin and sample data
     try
     {

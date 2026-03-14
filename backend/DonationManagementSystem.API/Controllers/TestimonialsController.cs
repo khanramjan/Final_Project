@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.DTOs;
+using DonationManagementSystem.API.Services.ML;
 
 namespace DonationManagementSystem.API.Controllers
 {
@@ -12,10 +13,38 @@ namespace DonationManagementSystem.API.Controllers
     public class TestimonialsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMLPredictionService _mlPredictionService;
 
-        public TestimonialsController(AppDbContext context)
+        private static readonly string[] ScamSignals =
+        {
+            "scam", "fraud", "fake", "stolen", "theft", "phishing",
+            "suspicious", "cheat", "con", "money disappeared", "never received", "misused funds"
+        };
+
+        public TestimonialsController(AppDbContext context, IMLPredictionService mlPredictionService)
         {
             _context = context;
+            _mlPredictionService = mlPredictionService;
+        }
+
+        private static string MapSentimentLabel(bool isPositive, float probability, int rating)
+        {
+            if (!isPositive || rating <= 2 || probability < 0.4f) return "negative";
+            if (probability >= 0.7f && rating >= 4) return "positive";
+            return "neutral";
+        }
+
+        private static bool DetectScamRisk(string comment)
+        {
+            var normalized = comment.ToLowerInvariant();
+            return ScamSignals.Any(signal => normalized.Contains(signal, StringComparison.Ordinal));
+        }
+
+        private static string MapRiskLabel(bool isScamRisk, string sentimentLabel)
+        {
+            if (isScamRisk) return "scam-risk";
+            if (sentimentLabel == "negative") return "complaint";
+            return "normal";
         }
 
         // GET: api/testimonials/public - Get approved testimonials for landing page
@@ -39,6 +68,13 @@ namespace DonationManagementSystem.API.Controllers
                         Rating = t.Rating,
                         Comment = t.Comment,
                         BadgeType = t.BadgeType,
+                        SentimentLabel = t.SentimentLabel,
+                        SentimentScore = t.SentimentScore,
+                        SentimentConfidence = t.SentimentConfidence,
+                        RiskLabel = t.RiskLabel,
+                        IsScamRisk = t.IsScamRisk,
+                        AnalyzedAt = t.AnalyzedAt,
+                        IsApproved = t.IsApproved,
                         IsFeatured = t.IsFeatured,
                         CreatedAt = t.CreatedAt
                     })
@@ -91,6 +127,13 @@ namespace DonationManagementSystem.API.Controllers
                         Rating = t.Rating,
                         Comment = t.Comment,
                         BadgeType = t.BadgeType,
+                        SentimentLabel = t.SentimentLabel,
+                        SentimentScore = t.SentimentScore,
+                        SentimentConfidence = t.SentimentConfidence,
+                        RiskLabel = t.RiskLabel,
+                        IsScamRisk = t.IsScamRisk,
+                        AnalyzedAt = t.AnalyzedAt,
+                        IsApproved = t.IsApproved,
                         IsFeatured = t.IsFeatured,
                         CreatedAt = t.CreatedAt
                     })
@@ -160,6 +203,12 @@ namespace DonationManagementSystem.API.Controllers
                     return BadRequest(new { message = "Comment must be less than 500 characters" });
                 }
 
+                var analyzedComment = dto.Comment.Trim();
+                var sentimentPrediction = await _mlPredictionService.AnalyzeSentimentAsync(analyzedComment);
+                var sentimentLabel = MapSentimentLabel(sentimentPrediction.IsPositive, sentimentPrediction.Probability, dto.Rating);
+                var isScamRisk = DetectScamRisk(analyzedComment);
+                var riskLabel = MapRiskLabel(isScamRisk, sentimentLabel);
+
                 var testimonial = new Testimonial
                 {
                     Name = $"{user.FirstName} {user.LastName}".Trim(),
@@ -167,8 +216,14 @@ namespace DonationManagementSystem.API.Controllers
                     Organization = dto.Organization?.Trim() ?? string.Empty,
                     Email = user.Email,
                     Rating = dto.Rating,
-                    Comment = dto.Comment.Trim(),
+                    Comment = analyzedComment,
                     BadgeType = dto.BadgeType?.Trim(),
+                    SentimentLabel = sentimentLabel,
+                    SentimentScore = sentimentPrediction.Probability,
+                    SentimentConfidence = sentimentPrediction.Probability,
+                    RiskLabel = riskLabel,
+                    IsScamRisk = isScamRisk,
+                    AnalyzedAt = DateTime.UtcNow,
                     UserId = userId,
                     IsApproved = true, // Auto-approved - no admin approval needed
                     IsFeatured = false,
@@ -183,7 +238,14 @@ namespace DonationManagementSystem.API.Controllers
                 return Ok(new
                 {
                     message = "Thank you for your review! It has been published successfully.",
-                    testimonialId = testimonial.Id
+                    testimonialId = testimonial.Id,
+                    sentiment = new
+                    {
+                        testimonial.SentimentLabel,
+                        testimonial.SentimentScore,
+                        testimonial.RiskLabel,
+                        testimonial.IsScamRisk
+                    }
                 });
             }
             catch (Exception ex)
@@ -298,7 +360,18 @@ namespace DonationManagementSystem.API.Controllers
                     featured = await _context.Testimonials.CountAsync(t => t.IsFeatured),
                     averageRating = await _context.Testimonials
                         .Where(t => t.IsApproved)
-                        .AverageAsync(t => (double?)t.Rating) ?? 0
+                        .AverageAsync(t => (double?)t.Rating) ?? 0,
+                    sentiment = new TestimonialSentimentStatsDto
+                    {
+                        Total = await _context.Testimonials.CountAsync(t => t.IsApproved),
+                        Positive = await _context.Testimonials.CountAsync(t => t.IsApproved && t.SentimentLabel == "positive"),
+                        Neutral = await _context.Testimonials.CountAsync(t => t.IsApproved && t.SentimentLabel == "neutral"),
+                        Negative = await _context.Testimonials.CountAsync(t => t.IsApproved && t.SentimentLabel == "negative"),
+                        ScamRisk = await _context.Testimonials.CountAsync(t => t.IsApproved && t.IsScamRisk),
+                        AverageSentimentScore = await _context.Testimonials
+                            .Where(t => t.IsApproved)
+                            .AverageAsync(t => (double?)t.SentimentScore) ?? 0
+                    }
                 };
 
                 return Ok(stats);

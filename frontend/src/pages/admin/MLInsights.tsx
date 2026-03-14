@@ -31,6 +31,7 @@ import mlService, {
   CampaignSuccessPredictionResponse,
   AnomalyDetectionResponse,
 } from '../../services/mlService';
+import testimonialService from '../../services/testimonialService';
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -73,6 +74,7 @@ const MLInsights = () => {
   const [sentimentText, setSentimentText] = useState('');
   const [sentiment, setSentiment] = useState<SentimentResponse | null>(null);
   const [sentimentLoading, setSentimentLoading] = useState(false);
+  const [sentimentStats, setSentimentStats] = useState<any>(null); // To store sentiment overview stats
 
   // Churn
   const [churnUserId, setChurnUserId] = useState('');
@@ -105,9 +107,19 @@ const MLInsights = () => {
     }
   }, [forecastPeriods]);
 
+  const loadSentimentStats = useCallback(async () => {
+    try {
+      const response: any = await testimonialService.getTestimonialStats();
+      setSentimentStats(response.sentiment);
+    } catch (e) {
+      console.error('Failed to load sentiment stats:', e);
+    }
+  }, []);
+
   useEffect(() => {
     loadForecast();
-  }, [loadForecast]);
+    loadSentimentStats();
+  }, [loadForecast, loadSentimentStats]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -325,6 +337,40 @@ const MLInsights = () => {
           icon={SparklesIcon}
           accent="bg-blue-50 text-blue-700"
         >
+          {sentimentStats && (
+            <div className="mb-6 bg-gray-50 p-4 rounded-xl">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Overall Sentiment Overview (from Testimonials)</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-3 rounded-lg text-center shadow-sm">
+                  <div className="text-2xl font-bold text-gray-800">{sentimentStats.total}</div>
+                  <div className="text-xs text-gray-500 uppercase">Total</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg text-center shadow-sm">
+                  <div className="text-2xl font-bold text-emerald-600">{sentimentStats.positive}</div>
+                  <div className="text-xs text-emerald-600 uppercase">Positive</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg text-center shadow-sm">
+                  <div className="text-2xl font-bold text-gray-600">{sentimentStats.neutral}</div>
+                  <div className="text-xs text-gray-500 uppercase">Neutral</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg text-center shadow-sm">
+                  <div className="text-2xl font-bold text-red-600">{sentimentStats.negative}</div>
+                  <div className="text-xs text-red-600 uppercase">Negative</div>
+                </div>
+              </div>
+              <div className="mt-3 flex gap-4 text-xs text-gray-600">
+                <div className="flex items-center gap-1 bg-white px-2 py-1 rounded shadow-sm">
+                  <span className="font-semibold">Avg. Score:</span> 
+                  {(sentimentStats.averageSentimentScore * 100).toFixed(1)}%
+                </div>
+                <div className="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded shadow-sm">
+                  <span className="font-semibold">Scam Risk Flags:</span> 
+                  {sentimentStats.scamRisk}
+                </div>
+              </div>
+            </div>
+          )}
+
           <p className="text-xs text-gray-400 mb-3">
             TF-IDF + SDCA Logistic Regression · trained on testimonials & donation messages
           </p>

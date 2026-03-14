@@ -16,7 +16,11 @@ import {
   ClockIcon,
   FireIcon,
   SparklesIcon,
-  PowerIcon
+  PowerIcon,
+  FaceSmileIcon,
+  FaceFrownIcon,
+  MinusCircleIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { fetchCampaigns } from '../store/slices/campaignSlice';
@@ -151,7 +155,7 @@ const Landing = () => {
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/campaigns" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
-              <a href="#testimonials" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Impact Stories</a>
+              <a href="/reviews" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Impact Stories</a>
               <a href="#features" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Features</a>
             </div>
             <div className="flex items-center space-x-4">
@@ -578,16 +582,39 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+          <div className="grid lg:grid-cols-3 gap-8 mb-10">
             {testimonials.length > 0 ? (
               testimonials.map((testimonial) => (
-                <div key={testimonial.id} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow">
+                <div key={testimonial.id} className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 hover:shadow-lg transition-shadow flex flex-col">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <StarIcon key={i} className="h-5 w-5 text-yellow-400 fill-current" />
                     ))}
+                    {/* Sentiment badge */}
+                    {testimonial.sentimentLabel && (
+                      <span
+                        className={`ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-semibold ${
+                          testimonial.sentimentLabel === 'positive'
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                            : testimonial.sentimentLabel === 'negative'
+                            ? 'bg-rose-50 border-rose-200 text-rose-700'
+                            : 'bg-amber-50 border-amber-200 text-amber-700'
+                        }`}
+                        title={`AI Confidence: ${Math.round((testimonial.sentimentConfidence || 0) * 100)}%`}
+                      >
+                        {testimonial.sentimentLabel === 'positive' ? (
+                          <FaceSmileIcon className="h-3.5 w-3.5" />
+                        ) : testimonial.sentimentLabel === 'negative' ? (
+                          <FaceFrownIcon className="h-3.5 w-3.5" />
+                        ) : (
+                          <MinusCircleIcon className="h-3.5 w-3.5" />
+                        )}
+                        {testimonial.sentimentLabel.charAt(0).toUpperCase() + testimonial.sentimentLabel.slice(1)}
+                        <span className="opacity-70">{Math.round((testimonial.sentimentConfidence || 0) * 100)}%</span>
+                      </span>
+                    )}
                   </div>
-                  <blockquote className="text-gray-700 mb-6 italic leading-relaxed">
+                  <blockquote className="text-gray-700 mb-6 italic leading-relaxed flex-1">
                     "{testimonial.comment}"
                   </blockquote>
                   <div className="flex items-center">
@@ -625,6 +652,24 @@ const Landing = () => {
                 <p className="text-gray-500 text-lg">Loading testimonials...</p>
               </div>
             )}
+          </div>
+          {/* CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/reviews"
+              className="inline-flex items-center gap-2 px-7 py-3 bg-white border-2 border-emerald-300 text-emerald-700 rounded-xl font-bold hover:border-emerald-400 hover:bg-emerald-50 transition-all shadow-sm"
+            >
+              <ChatBubbleLeftRightIcon className="h-5 w-5" />
+              View All Community Reviews
+              <ArrowRightIcon className="h-4 w-4" />
+            </Link>
+            <Link
+              to="/reviews"
+              className="inline-flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white rounded-xl font-bold hover:from-emerald-600 hover:to-green-700 transition-all shadow-md"
+            >
+              <SparklesIcon className="h-5 w-5" />
+              Write a Review
+            </Link>
           </div>
         </div>
       </section>

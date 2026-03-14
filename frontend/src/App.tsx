@@ -51,12 +51,14 @@ import ConfirmPhysicalDonation from './pages/ConfirmPhysicalDonation';
 // Admin Voucher Management
 import VoucherManagement from './pages/admin/VoucherManagement';
 import MLInsights from './pages/admin/MLInsights';
+import AdminTestimonials from './pages/admin/AdminTestimonials';
 // Legal Pages
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import CookiePolicy from './pages/CookiePolicy';
 import Documentation from './pages/Documentation';
 import ReserveFundPage from './pages/ReserveFundPage';
+import Reviews from './pages/Reviews';
 
 function AppContent() {
   useEffect(() => {
@@ -86,6 +88,7 @@ function AppContent() {
         <Route path="/documentation" element={<Documentation />} />
         <Route path="/reserve-fund" element={<ReserveFundPage />} />
         <Route path="/confirm-donation" element={<ConfirmPhysicalDonation />} />
+        <Route path="/reviews" element={<Reviews />} />
         <Route
           path="/dashboard/*"
           element={
@@ -124,6 +127,7 @@ function AppContent() {
           <Route path="volunteer-reports" element={<AdminVolunteerReports />} />
           <Route path="vouchers" element={<VoucherManagement />} />
           <Route path="ml-insights" element={<MLInsights />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="settings" element={<SystemSettings />} />
         </Route>
         <Route

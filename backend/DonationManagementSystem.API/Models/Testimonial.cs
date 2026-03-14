@@ -14,6 +14,14 @@ namespace DonationManagementSystem.API.Models
         // Review content
         public int Rating { get; set; } // 1-5 stars
         public string Comment { get; set; } = string.Empty;
+
+        // ML/heuristic analysis
+        public string SentimentLabel { get; set; } = "neutral"; // positive | neutral | negative
+        public float SentimentScore { get; set; } = 0.5f; // 0.0-1.0
+        public float SentimentConfidence { get; set; } = 0.5f; // 0.0-1.0
+        public string RiskLabel { get; set; } = "normal"; // normal | complaint | scam-risk
+        public bool IsScamRisk { get; set; } = false;
+        public DateTime? AnalyzedAt { get; set; }
         
         // Badges
         public string? BadgeType { get; set; } // "Beta tester", "Early adopter", "Beta participant"

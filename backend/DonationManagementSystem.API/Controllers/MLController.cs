@@ -65,10 +65,17 @@ namespace DonationManagementSystem.API.Controllers
             try
             {
                 var prediction = await _ml.AnalyzeSentimentAsync(request.Text);
+                
+                // For SDCA Logistic Regression, Probability is usually ~0.5 for neutral/unknown texts
+                string sentimentResult = "Neutral";
+                if (prediction.Probability > 0.65f) sentimentResult = "Positive";
+                else if (prediction.Probability < 0.35f) sentimentResult = "Negative";
+                // If it's a very short text and probability is middling, keep it Neutral
+
                 return Ok(new SentimentResponse
                 {
                     Text = request.Text,
-                    Sentiment = prediction.IsPositive ? "Positive" : "Negative",
+                    Sentiment = sentimentResult,
                     Confidence = prediction.Probability,
                     Score = prediction.Score
                 });

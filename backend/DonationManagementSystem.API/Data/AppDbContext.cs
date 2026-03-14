@@ -335,6 +335,10 @@ namespace DonationManagementSystem.API.Data
 				entity.Property(e => e.AvatarUrl).HasMaxLength(500);
 				entity.Property(e => e.Comment).IsRequired().HasMaxLength(1000);
 				entity.Property(e => e.BadgeType).HasMaxLength(50);
+				entity.Property(e => e.SentimentLabel).IsRequired().HasMaxLength(20);
+				entity.Property(e => e.SentimentScore);
+				entity.Property(e => e.SentimentConfidence);
+				entity.Property(e => e.RiskLabel).IsRequired().HasMaxLength(20);
 
 				// Configure relationship with User (who submitted it, if logged in)
 				entity.HasOne(e => e.User)

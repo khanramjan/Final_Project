@@ -9,7 +9,14 @@ export interface Testimonial {
   rating: number;
   comment: string;
   badgeType?: string;
+  sentimentLabel?: 'positive' | 'neutral' | 'negative';
+  sentimentScore?: number;
+  sentimentConfidence?: number;
+  riskLabel?: 'normal' | 'complaint' | 'scam-risk';
+  isScamRisk?: boolean;
+  analyzedAt?: string;
   isFeatured: boolean;
+  isApproved?: boolean;
   createdAt: string;
 }
 
