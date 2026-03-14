@@ -1,0 +1,303 @@
+PWD c:\Users\Admin\OneDrive\Desktop\Final_Project\Report
+INPUT C:\Users\Admin\AppData\Local\MiKTeX\miktex\data\le\pdftex\pdflatex.fmt
+INPUT c:\Users\Admin\OneDrive\Desktop\Final_Project\Report\thesis.tex
+OUTPUT thesis.log
+INPUT .\references.bib
+INPUT references.bib
+OUTPUT references.bib
+INPUT .\thesis-library.cls
+INPUT thesis-library.cls
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\report.cls
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\size12.clo
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\public\cm\cmr12.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\fontenc.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ecrm1200.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\mathptmx.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\mathptmx.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\titlesec\titlesec.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\keyval.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphics.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics\trig.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-cfg\graphics.cfg
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\graphics-def\pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\base\glossaries.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\base\glossaries.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\base\ifthen.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\xkeyval\xkeyval.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkeyval.tex
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\xkeyval\xkvutils.tex
+INPUT C:\Program Files\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\mfirstuc\mfirstuc.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\etoolbox\etoolbox.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\xfor\xfor.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\xfor\xfor.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsgen.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-base.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-base.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsmath.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amstext.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsbsy.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\amsmath\amsopn.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\tracklang\tracklang.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\tracklang\tracklang.sty
+INPUT C:\Program Files\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Program Files\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Program Files\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Program Files\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Program Files\MiKTeX\tex\generic\tracklang\tracklang.tex
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-l3fp.def
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Program Files\MiKTeX\tex\latex\datatool\datatool-utf8.ldf
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-hypernav.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-list.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-long.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\tools\longtable.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-super.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\supertabular\supertabular.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\glossaries\styles\glossary-tree.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fmtcount.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fmtcount.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fcprefix.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fcprefix.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fcnumparser.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fcnumparser.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpage.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpage.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpage2e.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpage2e.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpagemodern.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lastpage\lastpagemodern.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\fancyhdr\fancyhdr.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\setspace\setspace.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\setspace\setspace.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabtex.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabtex.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aconfig.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabaux.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabaux.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\t1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\t1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\t1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri8t.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\acmd.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\acmd.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afonts.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afonts.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afonts2.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afonts2.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\ascan.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\ascan.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aparse.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aparse.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\awrite.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\awrite.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\xarbsymb.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\xarbsymb.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabskel.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabskel.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\xarbskel.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\xarbskel.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aboxes.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aboxes.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabtoks.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabtoks.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabchrs.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\arabchrs.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aligs.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aligs.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aoutput.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\aoutput.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\abidir.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\abidir.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\atrans.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\atrans.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alatex.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alatex.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afoot.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\afoot.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\abjad.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\abjad.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\apatch.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\apatch.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alists.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alists.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\asect.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\asect.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\atabg.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\atabg.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alocal.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\utf8.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\utf8.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\utfcode.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\utfcode.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\geometry\geometry.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\geometry\geometry.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\iftex\ifvtex.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\generic\iftex\iftex.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Program Files\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Program Files\MiKTeX\tex\latex\geometry\geometry.cfg
+OUTPUT thesis.glo
+OUTPUT thesis.acn
+INPUT C:\Program Files\MiKTeX\tex\latex\lipsum\lipsum.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\lipsum\lipsum.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\l3keys2e\l3keys2e.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3packages\l3keys2e\l3keys2e.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3kernel\expl3.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
+INPUT C:\Program Files\MiKTeX\tex\latex\lipsum\lipsum.ltd.tex
+INPUT C:\Program Files\MiKTeX\tex\latex\lipsum\lipsum.ltd.tex
+INPUT C:\Program Files\MiKTeX\tex\latex\float\float.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\float\float.sty
+INPUT .\thesis.aux
+INPUT .\thesis.aux
+INPUT thesis.aux
+OUTPUT thesis.aux
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-pkg\epstopdf-base.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fc-english.def
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fc-english.def
+INPUT C:\Program Files\MiKTeX\tex\latex\fmtcount\fc-english.def
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\apatch.sty
+INPUT C:\Program Files\MiKTeX\tex\latex\arabtex\alocal.sty
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\jknappen\ec\ectt1200.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8t.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ztmcm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omlztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omlztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omlztmcm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omsztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omsztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omsztmcm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omxztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omxztmcm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\omxztmcm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ot1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+OUTPUT thesis.pdf
+OUTPUT thesis.ist
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8r.tfm
+INPUT C:\Users\Admin\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\base\8r.enc
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7m.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7y.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\zptmcm7v.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmri7t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8r.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8t.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmb8t.vf
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmb8r.tfm
+OUTPUT thesis.toc
+OUTPUT thesis.lof
+OUTPUT thesis.lot
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Program Files\MiKTeX\tex\latex\psnfss\ts1ptm.fd
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\times\ptmr8c.tfm
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\times\ptmr8c.vf
+INPUT .\thesis.bbl
+INPUT .\thesis.bbl
+INPUT thesis.bbl
+INPUT thesis.aux
+INPUT C:\Users\Admin\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1200.pk
+INPUT C:\Users\Admin\AppData\Local\MiKTeX\fonts\pk\ljfour\jknappen\ec\dpi600\ectt1200.pk
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmb8a.pfb
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmb8a.pfb
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb
+INPUT C:\Users\Admin\AppData\Local\Programs\MiKTeX\fonts\type1\urw\times\utmr8a.pfb

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.DTOs;
+using DonationManagementSystem.API.Services.ML;
 
 namespace DonationManagementSystem.API.Controllers
 {
@@ -12,10 +13,12 @@ namespace DonationManagementSystem.API.Controllers
     public class TestimonialsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IMLPredictionService _mlPredictionService;
 
-        public TestimonialsController(AppDbContext context)
+        public TestimonialsController(AppDbContext context, IMLPredictionService mlPredictionService)
         {
             _context = context;
+            _mlPredictionService = mlPredictionService;
         }
 
         // GET: api/testimonials/public - Get approved testimonials for landing page
@@ -160,6 +163,19 @@ namespace DonationManagementSystem.API.Controllers
                     return BadRequest(new { message = "Comment must be less than 500 characters" });
                 }
 
+                var trimmedComment = dto.Comment.Trim();
+                var prediction = await _mlPredictionService.AnalyzeSentimentAsync(trimmedComment);
+                var sentimentLabel = prediction.Probability switch
+                {
+                    >= 0.65f => "positive",
+                    <= 0.35f => "negative",
+                    _ => "neutral"
+                };
+
+                // Keep positive and neutral testimonials auto-published, but send likely-negative
+                // submissions for admin review to reduce abuse and maintain content quality.
+                var shouldAutoApprove = sentimentLabel != "negative";
+
                 var testimonial = new Testimonial
                 {
                     Name = $"{user.FirstName} {user.LastName}".Trim(),
@@ -167,14 +183,14 @@ namespace DonationManagementSystem.API.Controllers
                     Organization = dto.Organization?.Trim() ?? string.Empty,
                     Email = user.Email,
                     Rating = dto.Rating,
-                    Comment = dto.Comment.Trim(),
+                    Comment = trimmedComment,
                     BadgeType = dto.BadgeType?.Trim(),
                     UserId = userId,
-                    IsApproved = true, // Auto-approved - no admin approval needed
+                    IsApproved = shouldAutoApprove,
                     IsFeatured = false,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow,
-                    ApprovedAt = DateTime.UtcNow
+                    ApprovedAt = shouldAutoApprove ? DateTime.UtcNow : null
                 };
 
                 _context.Testimonials.Add(testimonial);
@@ -182,8 +198,13 @@ namespace DonationManagementSystem.API.Controllers
 
                 return Ok(new
                 {
-                    message = "Thank you for your review! It has been published successfully.",
-                    testimonialId = testimonial.Id
+                    message = shouldAutoApprove
+                        ? "Thank you for your review! It has been published successfully."
+                        : "Thank you for your review! It has been received and is pending admin review.",
+                    testimonialId = testimonial.Id,
+                    sentiment = sentimentLabel,
+                    confidence = prediction.Probability,
+                    autoApproved = shouldAutoApprove
                 });
             }
             catch (Exception ex)

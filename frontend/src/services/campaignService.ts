@@ -77,6 +77,58 @@ export interface Donation {
   status?: string;
 }
 
+export interface CampaignComment {
+  id: number;
+  campaignId: number;
+  userId: number;
+  userName: string;
+  userType: string;
+  comment: string;
+  feelingTag?: string;
+  sentimentLabel: string;
+  sentimentScore: number;
+  confidence: number;
+  createdAt: string;
+}
+
+export interface CampaignCommentSentimentSummary {
+  totalComments: number;
+  positiveCount: number;
+  neutralCount: number;
+  negativeCount: number;
+  positivePercent: number;
+  neutralPercent: number;
+  negativePercent: number;
+  sentimentIndex: number;
+  dominantFeeling: string;
+  topKeywords: string[];
+  recommendation: string;
+}
+
+export interface CampaignCommentsResponse {
+  comments: CampaignComment[];
+  summary: CampaignCommentSentimentSummary;
+}
+
+export interface AdminCampaignSentimentItem {
+  campaignId: number;
+  campaignTitle: string;
+  campaignStatus: string;
+  recentComments: number;
+  positivePercent: number;
+  negativePercent: number;
+  sentimentIndex: number;
+  trendDirection: 'up' | 'down' | 'mixed';
+  lastCommentAt?: string;
+}
+
+export interface AdminCampaignSentimentOverview {
+  windowDays: number;
+  totalCampaignsWithComments: number;
+  averageSentimentIndex: number;
+  items: AdminCampaignSentimentItem[];
+}
+
 class CampaignService {
   // Create new campaign
   async createCampaign(formData: FormData): Promise<{
@@ -204,6 +256,21 @@ class CampaignService {
     donationStats: Array<{ Date: string; Amount: number; Count: number }>;
   }> {
     return api.get(`/campaign/${id}/details`);
+  }
+
+  async getCampaignComments(id: number): Promise<CampaignCommentsResponse> {
+    return api.get(`/campaign/${id}/comments`);
+  }
+
+  async addCampaignComment(
+    id: number,
+    payload: { comment: string; feelingTag?: string }
+  ): Promise<CampaignComment> {
+    return api.post(`/campaign/${id}/comments`, payload);
+  }
+
+  async getAdminSentimentOverview(days = 14, limit = 6): Promise<AdminCampaignSentimentOverview> {
+    return api.get(`/campaign/admin/sentiment-overview?days=${days}&limit=${limit}`);
   }
 }
 

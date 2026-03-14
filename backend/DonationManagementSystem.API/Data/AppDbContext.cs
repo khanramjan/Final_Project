@@ -11,6 +11,7 @@ namespace DonationManagementSystem.API.Data
 		public DbSet<Campaign> Campaigns { get; set; }
 		public DbSet<Donation> Donations { get; set; }
 		public DbSet<CampaignUpdate> CampaignUpdates { get; set; }
+		public DbSet<CampaignComment> CampaignComments { get; set; }
 		public DbSet<SystemSettings> SystemSettings { get; set; }
 		public DbSet<AuditLog> AuditLogs { get; set; }
 		public DbSet<PhysicalDonation> PhysicalDonations { get; set; }
@@ -155,6 +156,25 @@ namespace DonationManagementSystem.API.Data
 				entity.HasOne(e => e.Creator)
 					  .WithMany()
 					  .HasForeignKey(e => e.CreatedBy)
+					  .OnDelete(DeleteBehavior.Restrict);
+			});
+
+			// Campaign Comment configurations
+			modelBuilder.Entity<CampaignComment>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Comment).IsRequired().HasMaxLength(1000);
+				entity.Property(e => e.FeelingTag).HasMaxLength(50);
+				entity.Property(e => e.SentimentLabel).IsRequired().HasMaxLength(20);
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany(c => c.Comments)
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.Cascade);
+
+				entity.HasOne(e => e.User)
+					  .WithMany()
+					  .HasForeignKey(e => e.UserId)
 					  .OnDelete(DeleteBehavior.Restrict);
 			});
 

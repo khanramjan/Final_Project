@@ -152,4 +152,67 @@ namespace DonationManagementSystem.API.DTOs
         public DateTime CreatedAt { get; set; }
         public string CreatorName { get; set; } = string.Empty;
     }
+
+    public class CreateCampaignCommentDto
+    {
+        public string Comment { get; set; } = string.Empty;
+        public string? FeelingTag { get; set; }
+    }
+
+    public class CampaignCommentDto
+    {
+        public int Id { get; set; }
+        public int CampaignId { get; set; }
+        public int UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string UserType { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
+        public string? FeelingTag { get; set; }
+        public string SentimentLabel { get; set; } = string.Empty;
+        public float SentimentScore { get; set; }
+        public float Confidence { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class CampaignCommentSentimentSummaryDto
+    {
+        public int TotalComments { get; set; }
+        public int PositiveCount { get; set; }
+        public int NeutralCount { get; set; }
+        public int NegativeCount { get; set; }
+        public double PositivePercent { get; set; }
+        public double NeutralPercent { get; set; }
+        public double NegativePercent { get; set; }
+        public double SentimentIndex { get; set; }
+        public string DominantFeeling { get; set; } = "none";
+        public List<string> TopKeywords { get; set; } = new();
+        public string Recommendation { get; set; } = string.Empty;
+    }
+
+    public class CampaignCommentsResponseDto
+    {
+        public List<CampaignCommentDto> Comments { get; set; } = new();
+        public CampaignCommentSentimentSummaryDto Summary { get; set; } = new();
+    }
+
+    public class AdminCampaignSentimentItemDto
+    {
+        public int CampaignId { get; set; }
+        public string CampaignTitle { get; set; } = string.Empty;
+        public string CampaignStatus { get; set; } = string.Empty;
+        public int RecentComments { get; set; }
+        public double PositivePercent { get; set; }
+        public double NegativePercent { get; set; }
+        public double SentimentIndex { get; set; }
+        public string TrendDirection { get; set; } = "mixed";
+        public DateTime? LastCommentAt { get; set; }
+    }
+
+    public class AdminCampaignSentimentOverviewDto
+    {
+        public int WindowDays { get; set; }
+        public int TotalCampaignsWithComments { get; set; }
+        public double AverageSentimentIndex { get; set; }
+        public List<AdminCampaignSentimentItemDto> Items { get; set; } = new();
+    }
 }

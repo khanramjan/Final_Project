@@ -178,9 +178,10 @@ namespace DonationManagementSystem.API.Services.ML
                 new() { Text = "Horrible experience from start to finish, would not recommend", IsPositive = false },
             };
 
-            // Augment with real approved testimonials
+            // Augment with real testimonials using user ratings as weak labels.
+            // Include pending items too so moderation decisions do not bias model training.
             var testimonials = await db.Testimonials
-                .Where(t => t.IsApproved && !string.IsNullOrEmpty(t.Comment))
+                .Where(t => !string.IsNullOrEmpty(t.Comment))
                 .Select(t => new { t.Comment, t.Rating })
                 .ToListAsync();
 
@@ -196,6 +197,19 @@ namespace DonationManagementSystem.API.Services.ML
 
             foreach (var msg in messages)
                 data.Add(new SentimentData { Text = msg, IsPositive = true });
+
+            // Use campaign comments that already have sentiment feedback labels.
+            var campaignComments = await db.CampaignComments
+                .Where(c => !string.IsNullOrEmpty(c.Comment))
+                .Select(c => new { c.Comment, c.SentimentLabel, c.SentimentScore })
+                .Take(500)
+                .ToListAsync();
+
+            foreach (var c in campaignComments)
+            {
+                var isPositive = c.SentimentLabel == "positive" || (c.SentimentLabel == "neutral" && c.SentimentScore >= 0.5f);
+                data.Add(new SentimentData { Text = c.Comment!, IsPositive = isPositive });
+            }
 
             return data;
         }

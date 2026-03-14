@@ -38,6 +38,7 @@ namespace DonationManagementSystem.API.Models
         public User? Approver { get; set; }
         public List<Donation> Donations { get; set; } = new();
         public List<CampaignUpdate> Updates { get; set; } = new();
+        public List<CampaignComment> Comments { get; set; } = new();
     }
 
     public class Donation
@@ -78,6 +79,22 @@ namespace DonationManagementSystem.API.Models
         // Navigation properties
         public Campaign Campaign { get; set; } = null!;
         public User Creator { get; set; } = null!;
+    }
+
+    public class CampaignComment
+    {
+        public int Id { get; set; }
+        public int CampaignId { get; set; }
+        public int UserId { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public string? FeelingTag { get; set; }
+        public string SentimentLabel { get; set; } = "neutral"; // positive, neutral, negative
+        public float SentimentScore { get; set; }
+        public float Confidence { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public Campaign Campaign { get; set; } = null!;
+        public User User { get; set; } = null!;
     }
 
     public class SystemSettings

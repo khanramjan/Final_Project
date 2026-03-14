@@ -4,8 +4,10 @@ import { ArrowLeftIcon, HeartIcon, ShareIcon, MapPinIcon, CalendarDaysIcon, Chec
 import { useAppSelector } from '../store/hooks';
 import CampaignPoster from '../components/Volunteer/CampaignPoster';
 import voucherService, { VoucherSummaryDto } from '../services/voucherService';
+import campaignService, { CampaignComment, CampaignCommentsResponse } from '../services/campaignService';
 
 interface Campaign {
+  [key: string]: unknown;
   id: number;
   title: string;
   description: string;
@@ -33,6 +35,16 @@ const CampaignDetail = () => {
   const [isPosterModalOpen, setIsPosterModalOpen] = useState(false);
   const [voucherSummary, setVoucherSummary] = useState<VoucherSummaryDto | null>(null);
   const [loadingVouchers, setLoadingVouchers] = useState(false);
+  const [commentsData, setCommentsData] = useState<CampaignCommentsResponse | null>(null);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [feelingTag, setFeelingTag] = useState('grateful');
+  const [commentError, setCommentError] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+  const [showOnlyNegative, setShowOnlyNegative] = useState(false);
+  const [negativeFirst, setNegativeFirst] = useState(true);
+
+  const canComment = isAuthenticated && ['donor', 'volunteer'].includes(user?.userType?.toLowerCase() || '');
 
   useEffect(() => {
     const fetchCampaignDetail = async () => {
@@ -66,6 +78,23 @@ const CampaignDetail = () => {
     fetchCampaignDetail();
   }, [campaignId]);
 
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!campaignId) return;
+      try {
+        setCommentsLoading(true);
+        const data = await campaignService.getCampaignComments(parseInt(campaignId));
+        setCommentsData(data);
+      } catch (err) {
+        console.error('Error fetching campaign comments:', err);
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [campaignId]);
+
   const fetchVoucherSummary = async (id: number) => {
     try {
       setLoadingVouchers(true);
@@ -92,6 +121,69 @@ const CampaignDetail = () => {
       currency: 'USD',
     }).format(amount);
   };
+
+  const refreshComments = async () => {
+    if (!campaignId) return;
+    const data = await campaignService.getCampaignComments(parseInt(campaignId));
+    setCommentsData(data);
+  };
+
+  const handleSubmitComment = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setCommentError('');
+
+    if (!campaignId) {
+      setCommentError('Campaign ID is missing.');
+      return;
+    }
+
+    if (!commentText.trim()) {
+      setCommentError('Please write your feelings before posting.');
+      return;
+    }
+
+    if (commentText.trim().length < 10) {
+      setCommentError('Comment should be at least 10 characters.');
+      return;
+    }
+
+    try {
+      setCommentSubmitting(true);
+      await campaignService.addCampaignComment(parseInt(campaignId), {
+        comment: commentText.trim(),
+        feelingTag,
+      });
+      setCommentText('');
+      await refreshComments();
+    } catch (err) {
+      console.error('Error posting comment:', err);
+      setCommentError(err instanceof Error ? err.message : 'Failed to post comment');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  const sentimentBadgeClass = (label: string) => {
+    const normalized = label.toLowerCase();
+    if (normalized === 'positive') return 'bg-emerald-100 text-emerald-700';
+    if (normalized === 'negative') return 'bg-red-100 text-red-700';
+    return 'bg-amber-100 text-amber-700';
+  };
+
+  const displayedComments = (() => {
+    const list = [...(commentsData?.comments || [])];
+    if (negativeFirst) {
+      const rank = (label: string) => {
+        if (label === 'negative') return 0;
+        if (label === 'neutral') return 1;
+        return 2;
+      };
+      list.sort((a, b) => rank(a.sentimentLabel) - rank(b.sentimentLabel));
+    }
+    return showOnlyNegative
+      ? list.filter((comment) => comment.sentimentLabel === 'negative')
+      : list;
+  })();
 
   if (loading) {
     return (
@@ -269,6 +361,129 @@ const CampaignDetail = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Community Feelings and Sentiment */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900">Community Feelings</h2>
+                {commentsData?.summary && (
+                  <span className="text-sm font-semibold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">
+                    Sentiment Index: {commentsData.summary.sentimentIndex.toFixed(1)}
+                  </span>
+                )}
+              </div>
+
+              {canComment ? (
+                <form onSubmit={handleSubmitComment} className="space-y-3 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <select
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                      value={feelingTag}
+                      onChange={(e) => setFeelingTag(e.target.value)}
+                    >
+                      <option value="grateful">Grateful</option>
+                      <option value="hopeful">Hopeful</option>
+                      <option value="inspired">Inspired</option>
+                      <option value="concerned">Concerned</option>
+                      <option value="frustrated">Frustrated</option>
+                      <option value="sad">Sad</option>
+                    </select>
+                    <textarea
+                      className="sm:col-span-3 border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[88px]"
+                      placeholder="Share how this campaign makes you feel and why..."
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      maxLength={1000}
+                    />
+                  </div>
+                  {commentError && <p className="text-sm text-red-600">{commentError}</p>}
+                  <button
+                    type="submit"
+                    disabled={commentSubmitting}
+                    className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 disabled:opacity-60"
+                  >
+                    {commentSubmitting ? 'Posting...' : 'Post Feeling'}
+                  </button>
+                </form>
+              ) : (
+                <p className="text-sm text-gray-600 mb-6">
+                  Login as a donor or volunteer to share your campaign feelings.
+                </p>
+              )}
+
+              {commentsLoading ? (
+                <p className="text-sm text-gray-600">Loading comments...</p>
+              ) : (
+                <>
+                  {commentsData?.summary && commentsData.summary.totalComments > 0 && (
+                    <div className="mb-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">Positive / Neutral / Negative</p>
+                        <p className="font-semibold text-gray-900">
+                          {commentsData.summary.positivePercent}% / {commentsData.summary.neutralPercent}% / {commentsData.summary.negativePercent}%
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">Dominant feeling: {commentsData.summary.dominantFeeling}</p>
+                      </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-600 mb-1">Top community themes</p>
+                        <p className="font-semibold text-gray-900">
+                          {commentsData.summary.topKeywords.length > 0 ? commentsData.summary.topKeywords.join(', ') : 'No recurring themes yet'}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-2">{commentsData.summary.recommendation}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mb-4 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowOnlyNegative((prev) => !prev)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+                        showOnlyNegative
+                          ? 'bg-red-100 text-red-700 border-red-200'
+                          : 'bg-white text-gray-700 border-gray-200'
+                      }`}
+                    >
+                      {showOnlyNegative ? 'Showing only negative' : 'Filter: negative only'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNegativeFirst((prev) => !prev)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+                        negativeFirst
+                          ? 'bg-indigo-100 text-indigo-700 border-indigo-200'
+                          : 'bg-white text-gray-700 border-gray-200'
+                      }`}
+                    >
+                      {negativeFirst ? 'Sort: negative first' : 'Sort: newest first'}
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {displayedComments.slice(0, 8).map((comment: CampaignComment) => (
+                      <div key={comment.id} className="border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <p className="text-sm font-semibold text-gray-900">
+                            {comment.userName} <span className="text-gray-500 font-normal">({comment.userType})</span>
+                          </p>
+                          <span className={`text-xs font-semibold px-2 py-1 rounded-full ${sentimentBadgeClass(comment.sentimentLabel)}`}>
+                            {comment.sentimentLabel}
+                          </span>
+                        </div>
+                        {comment.feelingTag && (
+                          <p className="text-xs text-indigo-700 mb-1">Feeling: {comment.feelingTag}</p>
+                        )}
+                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.comment}</p>
+                        <p className="text-xs text-gray-500 mt-2">{formatDate(comment.createdAt)}</p>
+                      </div>
+                    ))}
+                    {displayedComments.length === 0 && (
+                      <p className="text-sm text-gray-600">No comments yet. Be the first to share your feelings.</p>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

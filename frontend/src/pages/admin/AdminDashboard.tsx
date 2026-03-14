@@ -11,7 +11,7 @@ import {
   CogIcon
 } from '@heroicons/react/24/outline';
 import analyticsService, { AnalyticsOverview, CampaignMetric } from '../../services/analyticsService';
-import campaignService from '../../services/campaignService';
+import campaignService, { AdminCampaignSentimentOverview } from '../../services/campaignService';
 import donationService from '../../services/donationService';
 import NotificationSystem from '../../components/NotificationSystem';
 
@@ -33,22 +33,25 @@ const AdminDashboard = () => {
   const [error, setError] = useState<string | null>(null);
   const [campaignMetrics, setCampaignMetrics] = useState<CampaignMetric[]>([]);
   const [uniqueDonorsToday, setUniqueDonorsToday] = useState(0);
+  const [sentimentOverview, setSentimentOverview] = useState<AdminCampaignSentimentOverview | null>(null);
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
       setError(null); // Clear any previous errors
       
-      const [analyticsData, campaignsData, donationsData, metricsData] = await Promise.all([
+      const [analyticsData, campaignsData, donationsData, metricsData, sentimentData] = await Promise.all([
         analyticsService.getDashboardAnalytics(),
         campaignService.getAllCampaigns({ status: 'pending', pageSize: 10 }),
         donationService.getAllDonations({ pageSize: 5 }),
-        analyticsService.getCampaignMetrics()
+        analyticsService.getCampaignMetrics(),
+        campaignService.getAdminSentimentOverview(14, 6)
       ]);
       
       setAnalytics(analyticsData);
       setPendingCampaigns(campaignsData.totalCount || campaignsData.campaigns?.length || 0);
       setCampaignMetrics(metricsData);
+      setSentimentOverview(sentimentData);
       
       // Map DonationOverview to RecentDonation
       const mappedDonations: RecentDonation[] = (donationsData.donations || []).map(donation => ({
@@ -79,6 +82,7 @@ const AdminDashboard = () => {
       setAnalytics(null);
       setPendingCampaigns(0);
       setRecentDonations([]);
+      setSentimentOverview(null);
     } finally {
       setLoading(false);
     }
@@ -396,6 +400,72 @@ const AdminDashboard = () => {
           >
             View All {campaignMetrics.length} Campaigns →
           </button>
+        )}
+      </div>
+
+      {/* Campaign Sentiment Pulse */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-gray-900 flex items-center">
+            <HeartIcon className="h-5 w-5 mr-3 text-rose-600" />
+            Campaign Sentiment Pulse
+          </h3>
+          <span className="text-xs text-gray-500">
+            Last {sentimentOverview?.windowDays || 14} days
+          </span>
+        </div>
+
+        {sentimentOverview && sentimentOverview.items.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="p-4 bg-rose-50 rounded-lg border border-rose-100">
+                <p className="text-sm text-rose-700">Campaigns with feedback</p>
+                <p className="text-2xl font-bold text-rose-900">{sentimentOverview.totalCampaignsWithComments}</p>
+              </div>
+              <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-100">
+                <p className="text-sm text-indigo-700">Average sentiment index</p>
+                <p className="text-2xl font-bold text-indigo-900">{sentimentOverview.averageSentimentIndex.toFixed(1)}</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {sentimentOverview.items.map((item) => (
+                <div key={item.campaignId} className="p-4 border border-gray-200 rounded-lg">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">{item.campaignTitle}</p>
+                      <p className="text-xs text-gray-500 mt-1">{item.recentComments} comments • {item.campaignStatus}</p>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                      item.sentimentIndex >= 20
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : item.sentimentIndex <= -20
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {item.sentimentIndex.toFixed(1)}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-gray-500">Positive:</span>
+                      <span className="ml-1 font-medium text-emerald-700">{item.positivePercent.toFixed(0)}%</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Negative:</span>
+                      <span className="ml-1 font-medium text-red-700">{item.negativePercent.toFixed(0)}%</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <HeartIcon className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">No recent campaign sentiment data yet</p>
+          </div>
         )}
       </div>
 

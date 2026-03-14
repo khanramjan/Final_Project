@@ -361,8 +361,12 @@ const Dashboard = () => {
                 };
 
                 try {
-                  await testimonialService.submitTestimonial(data);
-                  alert('Thank you for your review! It has been published successfully and is now visible on the landing page.');
+                  const result = await testimonialService.submitTestimonial(data);
+                  const successMessage = result.autoApproved === false
+                    ? 'Thank you for your review! It was received and is now pending admin review before appearing publicly.'
+                    : (result.message || 'Thank you for your review! It has been published successfully and is now visible on the landing page.');
+
+                  alert(successMessage);
                   setShowReviewModal(false);
                   setCanReview(false);
                   setDaysUntilNextReview(7);

@@ -83,6 +83,26 @@ using (var scope = app.Services.CreateScope())
                 ALTER TABLE Users ADD PasswordResetToken NVARCHAR(MAX) NULL;
                 ALTER TABLE Users ADD PasswordResetTokenExpiry DATETIME2 NULL;
             END");
+
+        db.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CampaignComments]') AND type in (N'U'))
+            BEGIN
+                CREATE TABLE [dbo].[CampaignComments](
+                    [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+                    [CampaignId] INT NOT NULL,
+                    [UserId] INT NOT NULL,
+                    [Comment] NVARCHAR(1000) NOT NULL,
+                    [FeelingTag] NVARCHAR(50) NULL,
+                    [SentimentLabel] NVARCHAR(20) NOT NULL,
+                    [SentimentScore] REAL NOT NULL,
+                    [Confidence] REAL NOT NULL,
+                    [CreatedAt] DATETIME2 NOT NULL,
+                    CONSTRAINT [FK_CampaignComments_Campaigns_CampaignId] FOREIGN KEY([CampaignId]) REFERENCES [dbo].[Campaigns]([Id]) ON DELETE CASCADE,
+                    CONSTRAINT [FK_CampaignComments_Users_UserId] FOREIGN KEY([UserId]) REFERENCES [dbo].[Users]([Id])
+                );
+
+                CREATE INDEX [IX_CampaignComments_CampaignId_CreatedAt] ON [dbo].[CampaignComments]([CampaignId], [CreatedAt] DESC);
+            END");
     }
     catch (Exception ex)
     {

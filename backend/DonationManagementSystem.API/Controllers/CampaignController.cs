@@ -5,7 +5,9 @@ using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.DTOs;
 using DonationManagementSystem.API.Services;
+using DonationManagementSystem.API.Services.ML;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace DonationManagementSystem.API.Controllers
 {
@@ -16,12 +18,25 @@ namespace DonationManagementSystem.API.Controllers
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _config;
+        private readonly IMLPredictionService _mlPredictionService;
 
-        public CampaignController(AppDbContext context, IEmailService emailService, IConfiguration config)
+        private static readonly HashSet<string> StopWords = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "the", "and", "for", "that", "this", "with", "from", "have", "has", "was", "were", "been", "about", "your", "their",
+            "very", "really", "just", "into", "when", "what", "where", "will", "would", "could", "should", "can", "cannot", "cant",
+            "campaign", "donation", "donor", "volunteer", "they", "them", "our", "you", "are", "not", "but", "too", "all", "more"
+        };
+
+        public CampaignController(
+            AppDbContext context,
+            IEmailService emailService,
+            IConfiguration config,
+            IMLPredictionService mlPredictionService)
         {
             _context = context;
             _emailService = emailService;
             _config = config;
+            _mlPredictionService = mlPredictionService;
         }
 
         private bool IsAdmin()
@@ -36,6 +51,14 @@ namespace DonationManagementSystem.API.Controllers
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             Console.WriteLine($"Getting user ID: NameIdentifier claim = {userIdClaim}");
             return int.Parse(userIdClaim ?? "0");
+        }
+
+        private string GetCurrentUserType() => User.FindFirst("UserType")?.Value?.ToLowerInvariant() ?? string.Empty;
+
+        private bool IsDonorOrVolunteer()
+        {
+            var userType = GetCurrentUserType();
+            return userType is "donor" or "volunteer";
         }
 
         // POST: api/campaign/admin/create
@@ -610,6 +633,84 @@ namespace DonationManagementSystem.API.Controllers
             }
         }
 
+        // GET: api/campaign/admin/sentiment-overview
+        [HttpGet("admin/sentiment-overview")]
+        [Authorize]
+        public async Task<IActionResult> GetAdminCampaignSentimentOverview([FromQuery] int days = 14, [FromQuery] int limit = 6)
+        {
+            if (!IsAdmin())
+                return Unauthorized(new { message = "Admin access required" });
+
+            var windowDays = Math.Clamp(days, 1, 90);
+            var itemLimit = Math.Clamp(limit, 1, 20);
+            var windowStart = DateTime.UtcNow.AddDays(-windowDays);
+
+            try
+            {
+                var campaigns = await _context.Campaigns
+                    .Select(c => new
+                    {
+                        c.Id,
+                        c.Title,
+                        c.Status,
+                        RecentComments = c.Comments
+                            .Where(cm => cm.CreatedAt >= windowStart)
+                            .Select(cm => new { cm.SentimentLabel, cm.CreatedAt })
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                var items = campaigns
+                    .Where(c => c.RecentComments.Count > 0)
+                    .Select(c =>
+                    {
+                        var total = c.RecentComments.Count;
+                        var positive = c.RecentComments.Count(x => x.SentimentLabel == "positive");
+                        var negative = c.RecentComments.Count(x => x.SentimentLabel == "negative");
+                        var neutral = c.RecentComments.Count(x => x.SentimentLabel == "neutral");
+                        var sentimentIndex = total == 0 ? 0 : Math.Round((((double)positive - negative) / total) * 100, 2);
+
+                        var trendDirection = sentimentIndex switch
+                        {
+                            >= 20 => "up",
+                            <= -20 => "down",
+                            _ => "mixed"
+                        };
+
+                        return new AdminCampaignSentimentItemDto
+                        {
+                            CampaignId = c.Id,
+                            CampaignTitle = c.Title,
+                            CampaignStatus = c.Status,
+                            RecentComments = total,
+                            PositivePercent = Math.Round((double)positive / total * 100, 2),
+                            NegativePercent = Math.Round((double)negative / total * 100, 2),
+                            SentimentIndex = sentimentIndex,
+                            TrendDirection = trendDirection,
+                            LastCommentAt = c.RecentComments.Max(x => x.CreatedAt)
+                        };
+                    })
+                    .OrderByDescending(x => x.RecentComments)
+                    .ThenByDescending(x => x.LastCommentAt)
+                    .Take(itemLimit)
+                    .ToList();
+
+                var overview = new AdminCampaignSentimentOverviewDto
+                {
+                    WindowDays = windowDays,
+                    TotalCampaignsWithComments = campaigns.Count(c => c.RecentComments.Count > 0),
+                    AverageSentimentIndex = items.Count == 0 ? 0 : Math.Round(items.Average(x => x.SentimentIndex), 2),
+                    Items = items
+                };
+
+                return Ok(overview);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch sentiment overview", error = ex.Message });
+            }
+        }
+
         // POST: api/campaign/admin/feature/{id}
         [HttpPost("admin/feature/{id}")]
         public async Task<IActionResult> ToggleFeaturedStatus(int id)
@@ -758,6 +859,175 @@ namespace DonationManagementSystem.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Failed to fetch campaign details", error = ex.Message });
+            }
+        }
+
+        // POST: api/campaign/{id}/comments
+        [HttpPost("{id}/comments")]
+        [Authorize]
+        public async Task<IActionResult> AddCampaignComment(int id, [FromBody] CreateCampaignCommentDto dto)
+        {
+            if (!IsDonorOrVolunteer())
+                return Unauthorized(new { message = "Only donors and volunteers can comment on campaigns." });
+
+            if (string.IsNullOrWhiteSpace(dto.Comment))
+                return BadRequest(new { message = "Comment cannot be empty." });
+
+            var trimmedComment = dto.Comment.Trim();
+            if (trimmedComment.Length < 10)
+                return BadRequest(new { message = "Comment should be at least 10 characters for meaningful analysis." });
+
+            if (trimmedComment.Length > 1000)
+                return BadRequest(new { message = "Comment must be 1000 characters or less." });
+
+            try
+            {
+                var campaign = await _context.Campaigns.FindAsync(id);
+                if (campaign == null)
+                    return NotFound(new { message = "Campaign not found" });
+
+                var prediction = await _mlPredictionService.AnalyzeSentimentAsync(trimmedComment);
+                var sentimentLabel = prediction.Probability switch
+                {
+                    >= 0.65f => "positive",
+                    <= 0.35f => "negative",
+                    _ => "neutral"
+                };
+
+                var feelingTag = string.IsNullOrWhiteSpace(dto.FeelingTag)
+                    ? null
+                    : dto.FeelingTag.Trim().ToLowerInvariant();
+
+                var campaignComment = new CampaignComment
+                {
+                    CampaignId = id,
+                    UserId = GetCurrentUserId(),
+                    Comment = trimmedComment,
+                    FeelingTag = feelingTag,
+                    SentimentLabel = sentimentLabel,
+                    SentimentScore = prediction.Probability,
+                    Confidence = prediction.Probability,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.CampaignComments.Add(campaignComment);
+                await _context.SaveChangesAsync();
+
+                var commenter = await _context.Users
+                    .Where(u => u.Id == campaignComment.UserId)
+                    .Select(u => new { u.FirstName, u.LastName, u.UserType })
+                    .FirstOrDefaultAsync();
+
+                return Ok(new CampaignCommentDto
+                {
+                    Id = campaignComment.Id,
+                    CampaignId = campaignComment.CampaignId,
+                    UserId = campaignComment.UserId,
+                    UserName = commenter == null ? "Unknown" : $"{commenter.FirstName} {commenter.LastName}".Trim(),
+                    UserType = commenter?.UserType ?? "unknown",
+                    Comment = campaignComment.Comment,
+                    FeelingTag = campaignComment.FeelingTag,
+                    SentimentLabel = campaignComment.SentimentLabel,
+                    SentimentScore = campaignComment.SentimentScore,
+                    Confidence = campaignComment.Confidence,
+                    CreatedAt = campaignComment.CreatedAt
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to add campaign comment", error = ex.Message });
+            }
+        }
+
+        // GET: api/campaign/{id}/comments
+        [HttpGet("{id}/comments")]
+        public async Task<IActionResult> GetCampaignComments(int id)
+        {
+            try
+            {
+                var campaignExists = await _context.Campaigns.AnyAsync(c => c.Id == id);
+                if (!campaignExists)
+                    return NotFound(new { message = "Campaign not found" });
+
+                var comments = await _context.CampaignComments
+                    .Include(c => c.User)
+                    .Where(c => c.CampaignId == id)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(200)
+                    .Select(c => new CampaignCommentDto
+                    {
+                        Id = c.Id,
+                        CampaignId = c.CampaignId,
+                        UserId = c.UserId,
+                        UserName = $"{c.User.FirstName} {c.User.LastName}".Trim(),
+                        UserType = c.User.UserType ?? "unknown",
+                        Comment = c.Comment,
+                        FeelingTag = c.FeelingTag,
+                        SentimentLabel = c.SentimentLabel,
+                        SentimentScore = c.SentimentScore,
+                        Confidence = c.Confidence,
+                        CreatedAt = c.CreatedAt
+                    })
+                    .ToListAsync();
+
+                var positiveCount = comments.Count(c => c.SentimentLabel == "positive");
+                var neutralCount = comments.Count(c => c.SentimentLabel == "neutral");
+                var negativeCount = comments.Count(c => c.SentimentLabel == "negative");
+                var total = comments.Count;
+
+                var positivePercent = total == 0 ? 0 : Math.Round((double)positiveCount / total * 100, 2);
+                var neutralPercent = total == 0 ? 0 : Math.Round((double)neutralCount / total * 100, 2);
+                var negativePercent = total == 0 ? 0 : Math.Round((double)negativeCount / total * 100, 2);
+                var sentimentIndex = total == 0
+                    ? 0
+                    : Math.Round((((double)positiveCount - negativeCount) / total) * 100, 2);
+
+                var dominantFeeling = comments
+                    .Where(c => !string.IsNullOrWhiteSpace(c.FeelingTag))
+                    .GroupBy(c => c.FeelingTag!)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .FirstOrDefault() ?? "none";
+
+                var topKeywords = comments
+                    .SelectMany(c => Regex.Split(c.Comment.ToLowerInvariant(), @"[^a-z0-9]+"))
+                    .Where(w => !string.IsNullOrWhiteSpace(w) && w.Length >= 4 && !StopWords.Contains(w))
+                    .GroupBy(w => w)
+                    .OrderByDescending(g => g.Count())
+                    .Take(6)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                string recommendation = sentimentIndex switch
+                {
+                    >= 35 => "Community response is strongly positive. Keep sharing impact updates to sustain momentum.",
+                    >= 5 => "Sentiment is moderately positive. Highlight volunteer stories and campaign milestones to strengthen engagement.",
+                    > -15 => "Sentiment is mixed. Review top concerns and respond publicly to improve trust.",
+                    _ => "Sentiment is trending negative. Investigate recurring issues immediately and communicate corrective actions."
+                };
+
+                return Ok(new CampaignCommentsResponseDto
+                {
+                    Comments = comments,
+                    Summary = new CampaignCommentSentimentSummaryDto
+                    {
+                        TotalComments = total,
+                        PositiveCount = positiveCount,
+                        NeutralCount = neutralCount,
+                        NegativeCount = negativeCount,
+                        PositivePercent = positivePercent,
+                        NeutralPercent = neutralPercent,
+                        NegativePercent = negativePercent,
+                        SentimentIndex = sentimentIndex,
+                        DominantFeeling = dominantFeeling,
+                        TopKeywords = topKeywords,
+                        Recommendation = recommendation
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Failed to fetch campaign comments", error = ex.Message });
             }
         }
 

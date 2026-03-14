@@ -21,6 +21,14 @@ export interface CreateTestimonialDto {
   badgeType?: string;
 }
 
+export interface SubmitTestimonialResponse {
+  message: string;
+  testimonialId: number;
+  sentiment?: 'positive' | 'neutral' | 'negative';
+  confidence?: number;
+  autoApproved?: boolean;
+}
+
 class TestimonialService {
   // Get public testimonials for landing page
   async getPublicTestimonials(limit: number = 10): Promise<Testimonial[]> {
@@ -28,7 +36,7 @@ class TestimonialService {
   }
 
   // Submit a new testimonial
-  async submitTestimonial(data: CreateTestimonialDto): Promise<{ message: string; testimonialId: number }> {
+  async submitTestimonial(data: CreateTestimonialDto): Promise<SubmitTestimonialResponse> {
     return api.post('/testimonials', data);
   }
 
