@@ -59,9 +59,20 @@ namespace DonationManagementSystem.API.DTOs
     public class DonationAnomaly
     {
         public int DonationId { get; set; }
+        public string DonorName { get; set; } = string.Empty;
+        public string DonorEmail { get; set; } = string.Empty;
+        public string? DonorPhone { get; set; }
         public decimal Amount { get; set; }
         public float AnomalyScore { get; set; }
         public bool IsAnomaly { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    // ─── Campaign List for Dropdowns ──────────────────────────────────────────
+    public class CampaignOption
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public int DonationCount { get; set; }
     }
 }

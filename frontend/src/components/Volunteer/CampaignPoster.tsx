@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+// @ts-ignore
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 import { CalendarDaysIcon, MapPinIcon, HeartIcon, ClockIcon } from '@heroicons/react/24/outline';

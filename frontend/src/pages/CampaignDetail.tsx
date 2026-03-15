@@ -357,6 +357,7 @@ const CampaignDetail = () => {
       {/* Campaign Poster Modal */}
       {isPosterModalOpen && campaign && (
         <CampaignPoster
+          // @ts-ignore
           campaign={campaign}
           onClose={() => setIsPosterModalOpen(false)}
         />

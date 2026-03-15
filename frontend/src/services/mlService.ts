@@ -38,6 +38,9 @@ export interface CampaignSuccessPredictionResponse {
 
 export interface DonationAnomaly {
   donationId: number;
+  donorName: string;
+  donorEmail: string;
+  donorPhone?: string;
   amount: number;
   anomalyScore: number;
   isAnomaly: boolean;
@@ -48,6 +51,40 @@ export interface AnomalyDetectionResponse {
   totalDonationsAnalyzed: number;
   anomaliesFound: number;
   anomalies: DonationAnomaly[];
+}
+
+export interface CampaignOption {
+  id: number;
+  title: string;
+  donationCount: number;
+}
+
+// ─── Volunteer Recommendation Types ───────────────────────────────────────────
+
+export interface VolunteerScoreBreakdown {
+  skillsMatch: number;
+  interestsMatch: number;
+  availabilityMatch: number;
+  experienceScore: number;
+  locationScore: number;
+  ratingScore: number;
+}
+
+export interface VolunteerRecommendation {
+  volunteerId: number;
+  volunteerName: string;
+  rank: string;
+  suitabilityScore: number;
+  isRecommended: boolean;
+  reason: string;
+  scoreBreakdown: VolunteerScoreBreakdown;
+}
+
+export interface VolunteerRecommendationResponse {
+  campaignId: number;
+  totalRecommendations: number;
+  minimumScoreFilter: number;
+  recommendations: VolunteerRecommendation[];
 }
 
 // ─── Service ──────────────────────────────────────────────────────────────────
@@ -71,6 +108,36 @@ const mlService = {
 
   detectAnomalies(campaignId: number): Promise<AnomalyDetectionResponse> {
     return api.get<AnomalyDetectionResponse>(`/ml/anomaly/donations/${campaignId}`);
+  },
+
+  getCampaignsForDropdown(): Promise<CampaignOption[]> {
+    return api.get<CampaignOption[]>('/ml/campaigns/options');
+  },
+
+  // ─── Volunteer Recommendations ───────────────────────────────────────────────
+
+  getVolunteerRecommendations(
+    campaignId: number,
+    topN = 10,
+    minimumScore = 0.5
+  ): Promise<VolunteerRecommendationResponse> {
+    return api.get<VolunteerRecommendationResponse>(
+      `/ml/recommend/volunteers/${campaignId}?topN=${topN}&minimumScore=${minimumScore}`
+    );
+  },
+
+  async recommendVolunteers(req: {
+    campaignId: number;
+    volunteerIds?: number[];
+    topN?: number;
+    minimumScore?: number;
+  }): Promise<VolunteerRecommendationResponse> {
+    return api.post<VolunteerRecommendationResponse>('/ml/recommend/volunteers', {
+      campaignId: req.campaignId,
+      volunteerIds: req.volunteerIds || null,
+      topN: req.topN || 10,
+      minimumScore: req.minimumScore || 0.5,
+    });
   },
 };
 

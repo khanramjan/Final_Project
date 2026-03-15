@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   ClockIcon,
   CalendarDaysIcon,
-  MapPinIcon,
+  // MapPinIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
   FunnelIcon,
@@ -29,7 +29,7 @@ export default function MyAssignments() {
   const [checkOutNotes, setCheckOutNotes] = useState('');
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [progressNotes, setProgressNotes] = useState('');
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     fetchAssignments();

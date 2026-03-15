@@ -76,3 +76,15 @@ C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\obj\Debug
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\obj\Debug\net8.0\DonationManagementSystem.API.pdb
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\obj\Debug\net8.0\DonationManagementSystem.API.genruntimeconfig.cache
 C:\Users\DELL\Desktop\Final Project\Donation_Management_System\backend\obj\Debug\net8.0\ref\DonationManagementSystem.API.dll
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.csproj.AssemblyReference.cache
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.AssemblyInfoInputs.cache
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.AssemblyInfo.cs
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.csproj.CoreCompileInputs.cache
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.sourcelink.json
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.dll
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\refint\DonationManagementSystem.API.dll
+C:\Users\Admin\OneDrive\Desktop\Final_Project\backend\obj\Debug\net8.0\DonationManagementSystem.API.pdb

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   DocumentTextIcon,
-  CurrencyDollarIcon,
+  // CurrencyDollarIcon,
   CalendarDaysIcon,
   TagIcon,
   DocumentArrowUpIcon,
@@ -74,18 +74,18 @@ export default function SubmitVoucher() {
       const assignments = await volunteerService.getMyAssignments();
       // Filter for completed campaigns only
       const completedCampaigns = assignments
-        .filter((a) => a.campaignStatus === 'completed')
+        .filter((a) => a.status === 'completed')
         .map((a) => ({
           id: a.campaignId,
           title: a.campaignTitle,
-          status: a.campaignStatus,
+          status: a.status,
         }));
       
       const uniqueCampaigns = Array.from(
         new Map(completedCampaigns.map((c) => [c.id, c])).values()
       );
       
-      setCampaigns(uniqueCampaigns);
+      setCampaigns(uniqueCampaigns as Campaign[]);
 
       if (uniqueCampaigns.length === 0) {
         setError('No completed campaigns available. You can only submit vouchers for completed campaigns.');

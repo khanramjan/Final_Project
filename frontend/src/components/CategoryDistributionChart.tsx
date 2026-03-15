@@ -32,12 +32,13 @@ const CategoryDistributionChart: React.FC<CategoryDistributionChartProps> = ({ d
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
+            // @ts-ignore
             data={data}
             cx="50%"
             cy="50%"
             labelLine={false}
             label={(entry) => {
-              const percent = (((entry.value || 0) / total) * 100).toFixed(0);
+              const percent = (((Number(entry.value) || 0) / total) * 100).toFixed(0);
               return `${percent}%`;
             }}
             outerRadius={100}

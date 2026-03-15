@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BanknotesIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, HeartIcon } from '@heroicons/react/24/outline';
 
 interface ReserveFundEntry {
   amount: number;

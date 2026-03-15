@@ -30,6 +30,7 @@ import mlService, {
   ChurnPredictionResponse,
   CampaignSuccessPredictionResponse,
   AnomalyDetectionResponse,
+  CampaignOption,
 } from '../../services/mlService';
 import testimonialService from '../../services/testimonialService';
 
@@ -91,6 +92,10 @@ const MLInsights = () => {
   const [anomalies, setAnomalies] = useState<AnomalyDetectionResponse | null>(null);
   const [anomalyLoading, setAnomalyLoading] = useState(false);
 
+  // Campaigns dropdown
+  const [campaigns, setCampaigns] = useState<CampaignOption[]>([]);
+  const [campaignsLoading, setCampaignsLoading] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
 
   // Load forecast on mount
@@ -116,10 +121,23 @@ const MLInsights = () => {
     }
   }, []);
 
+  const loadCampaigns = useCallback(async () => {
+    setCampaignsLoading(true);
+    try {
+      const data = await mlService.getCampaignsForDropdown();
+      setCampaigns(data);
+    } catch (e) {
+      console.error('Failed to load campaigns:', e);
+    } finally {
+      setCampaignsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadForecast();
     loadSentimentStats();
-  }, [loadForecast, loadSentimentStats]);
+    loadCampaigns();
+  }, [loadForecast, loadSentimentStats, loadCampaigns]);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -476,14 +494,21 @@ const MLInsights = () => {
             SDCA · features: target, duration, urgency, featured, category, current raised ratio
           </p>
           <div className="flex gap-2">
-            <input
-              type="number"
-              min={1}
+            <select
               className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-300 outline-none"
-              placeholder="Campaign ID"
               value={campaignId}
               onChange={(e) => setCampaignId(e.target.value)}
-            />
+              disabled={campaignsLoading || campaigns.length === 0}
+            >
+              <option value="">
+                {campaignsLoading ? 'Loading campaigns...' : campaigns.length === 0 ? 'No campaigns available' : 'Select a campaign'}
+              </option>
+              {campaigns.map((campaign) => (
+                <option key={campaign.id} value={String(campaign.id)}>
+                  {campaign.title} ({campaign.donationCount} donations)
+                </option>
+              ))}
+            </select>
             <button
               onClick={handleCampaignSuccess}
               disabled={campaignLoading || !campaignId}
@@ -529,14 +554,21 @@ const MLInsights = () => {
             IID Spike Detection (95% confidence) · requires ≥10 completed donations
           </p>
           <div className="flex gap-2">
-            <input
-              type="number"
-              min={1}
+            <select
               className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-red-300 outline-none"
-              placeholder="Campaign ID"
               value={anomalyCampaignId}
               onChange={(e) => setAnomalyCampaignId(e.target.value)}
-            />
+              disabled={campaignsLoading || campaigns.length === 0}
+            >
+              <option value="">
+                {campaignsLoading ? 'Loading campaigns...' : campaigns.length === 0 ? 'No campaigns available' : 'Select a campaign'}
+              </option>
+              {campaigns.map((campaign) => (
+                <option key={campaign.id} value={String(campaign.id)}>
+                  {campaign.title} ({campaign.donationCount} donations)
+                </option>
+              ))}
+            </select>
             <button
               onClick={handleAnomalyDetection}
               disabled={anomalyLoading || !anomalyCampaignId}
@@ -567,7 +599,8 @@ const MLInsights = () => {
                   <table className="min-w-full text-xs">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-3 py-2 text-left text-gray-500 font-medium">ID</th>
+                        <th className="px-3 py-2 text-left text-gray-500 font-medium">Donor</th>
+                        <th className="px-3 py-2 text-left text-gray-500 font-medium">Email</th>
                         <th className="px-3 py-2 text-right text-gray-500 font-medium">Amount</th>
                         <th className="px-3 py-2 text-right text-gray-500 font-medium">Score</th>
                         <th className="px-3 py-2 text-left text-gray-500 font-medium">Date</th>
@@ -575,8 +608,14 @@ const MLInsights = () => {
                     </thead>
                     <tbody className="divide-y divide-gray-50">
                       {anomalies.anomalies.map((a) => (
-                        <tr key={a.donationId} className="bg-red-50">
-                          <td className="px-3 py-2 text-red-700 font-medium">#{a.donationId}</td>
+                        <tr key={a.donationId} className="bg-red-50 hover:bg-red-100 transition-colors">
+                          <td className="px-3 py-2 text-red-700 font-medium">
+                            <div className="flex flex-col">
+                              <span>{a.donorName}</span>
+                              {a.donorPhone && <span className="text-gray-400 text-xs">{a.donorPhone}</span>}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2 text-gray-600 truncate">{a.donorEmail}</td>
                           <td className="px-3 py-2 text-right font-semibold text-gray-800">
                             ৳{a.amount.toLocaleString()}
                           </td>

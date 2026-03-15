@@ -30,7 +30,7 @@ const AdvancedAnalytics = () => {
   const [userInsights, setUserInsights] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
-  const [selectedMetric, setSelectedMetric] = useState('donations');
+  // const [selectedMetric, setSelectedMetric] = useState('donations');
 
   useEffect(() => {
     fetchAnalyticsData();

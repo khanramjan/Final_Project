@@ -31,7 +31,7 @@ interface NotificationSystemProps {
 const NotificationSystem = ({ className = '' }: NotificationSystemProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showPanel, setShowPanel] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   // Mock notifications - replace with actual API call
   useEffect(() => {
@@ -139,21 +139,21 @@ const NotificationSystem = ({ className = '' }: NotificationSystemProps) => {
     }
   };
 
-  const getNotificationBgColor = (type: string, isRead: boolean) => {
-    const opacity = isRead ? '50' : '100';
-    switch (type) {
-      case 'success':
-        return `bg-green-${opacity} border-green-200`;
-      case 'warning':
-        return `bg-yellow-${opacity} border-yellow-200`;
-      case 'error':
-        return `bg-red-${opacity} border-red-200`;
-      case 'info':
-        return `bg-blue-${opacity} border-blue-200`;
-      default:
-        return `bg-gray-${opacity} border-gray-200`;
-    }
-  };
+  // const getNotificationBgColor = (type: string, isRead: boolean) => {
+  //   const opacity = isRead ? '50' : '100';
+  //   switch (type) {
+  //     case 'success':
+  //       return `bg-green-${opacity} border-green-200`;
+  //     case 'warning':
+  //       return `bg-yellow-${opacity} border-yellow-200`;
+  //     case 'error':
+  //       return `bg-red-${opacity} border-red-200`;
+  //     case 'info':
+  //       return `bg-blue-${opacity} border-blue-200`;
+  //     default:
+  //       return `bg-gray-${opacity} border-gray-200`;
+  //   }
+  // };
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);

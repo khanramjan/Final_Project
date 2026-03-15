@@ -28,7 +28,7 @@ import UserManagement from './pages/admin/UserManagement';
 import CampaignManagement from './pages/admin/CampaignManagement';
 import DonationOversight from './pages/admin/DonationOversight';
 import FinancialDashboard from './pages/admin/FinancialDashboard';
-import WithdrawalManagement from './pages/Admin/WithdrawalManagement';
+import WithdrawalManagement from './pages/admin/WithdrawalManagement';
 import SystemSettings from './pages/admin/SystemSettings';
 import VolunteerApprovals from './pages/admin/VolunteerApprovals';
 import VolunteerReview from './pages/admin/VolunteerReview';

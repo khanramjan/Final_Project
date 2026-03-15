@@ -1,7 +1,9 @@
 using Microsoft.ML;
 using Microsoft.ML.Transforms.TimeSeries;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using DonationManagementSystem.API.Data;
+using DonationManagementSystem.API.Models;
 
 namespace DonationManagementSystem.API.Services.ML
 {
@@ -12,6 +14,7 @@ namespace DonationManagementSystem.API.Services.ML
         Task<ChurnPrediction> PredictDonorChurnAsync(int userId);
         Task<CampaignSuccessPrediction> PredictCampaignSuccessAsync(int campaignId);
         Task<List<(int DonationId, decimal Amount, AnomalyPrediction Pred, DateTime CreatedAt)>> DetectDonationAnomaliesAsync(int campaignId);
+        Task<List<VolunteerRecommendationResult>> RecommendVolunteersForCampaignAsync(VolunteerRecommendationRequest request);
     }
 
     public class MLPredictionService : IMLPredictionService
@@ -24,10 +27,12 @@ namespace DonationManagementSystem.API.Services.ML
         private ITransformer? _sentimentModel;
         private ITransformer? _churnModel;
         private ITransformer? _campaignSuccessModel;
+        private ITransformer? _volunteerRecommendationModel;
 
         private readonly SemaphoreSlim _sentimentLock = new(1, 1);
         private readonly SemaphoreSlim _churnLock = new(1, 1);
         private readonly SemaphoreSlim _campaignLock = new(1, 1);
+        private readonly SemaphoreSlim _volunteerLock = new(1, 1);
 
         // Map campaign categories to numeric codes
         private static readonly Dictionary<string, float> CategoryMap = new(StringComparer.OrdinalIgnoreCase)
@@ -565,6 +570,419 @@ namespace DonationManagementSystem.API.Services.ML
             return donations
                 .Zip(predictions, (d, p) => (d.Id, d.Amount, p, d.CreatedAt))
                 .ToList();
+        }
+
+        // ─── 5. VOLUNTEER RECOMMENDATION ────────────────────────────────────────
+
+        public async Task<List<VolunteerRecommendationResult>> RecommendVolunteersForCampaignAsync(VolunteerRecommendationRequest request)
+        {
+            await EnsureVolunteerRecommendationModelAsync();
+
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            var campaign = await db.Campaigns.FindAsync(request.CampaignId)
+                ?? throw new KeyNotFoundException($"Campaign {request.CampaignId} not found.");
+
+            // Get eligible volunteers (active, verified, approved)
+            // For recommendations, we're more lenient: include pending/unverified volunteers as candidates
+            var eligibleVolunteers = await db.VolunteerProfiles
+                .Include(vp => vp.User)
+                .Where(vp =>
+                    vp.User != null && // Must have a user account
+                    (vp.Status == null || vp.Status == "active" || vp.Status == "verified" || vp.Status == "pending")) // Accept various statuses
+                .ToListAsync();
+            
+            // Fallback: if no one matches above, include ALL volunteers with a user account
+            if (eligibleVolunteers.Count == 0)
+            {
+                eligibleVolunteers = await db.VolunteerProfiles
+                    .Include(vp => vp.User)
+                    .Where(vp => vp.User != null)
+                    .ToListAsync();
+            }
+
+            // Filter by specific IDs if provided
+            if (request.VolunteerIds?.Count > 0)
+                eligibleVolunteers = eligibleVolunteers.Where(v => request.VolunteerIds.Contains(v.Id)).ToList();
+
+            var results = new List<VolunteerRecommendationResult>();
+
+            _logger.LogInformation("Generating volunteer recommendations for campaign {CampaignId} from {Count} eligible volunteers",
+                request.CampaignId, eligibleVolunteers.Count);
+
+            var engine = _mlContext.Model.CreatePredictionEngine<VolunteerRecommendationInput, VolunteerRecommendationPrediction>(_volunteerRecommendationModel!);
+
+            foreach (var volunteer in eligibleVolunteers)
+            {
+                var features = await BuildVolunteerFeaturesAsync(db, campaign, volunteer);
+                var prediction = engine.Predict(features);
+
+                float mlScore = prediction.Score;
+                // Handle NaN or invalid scores - provide fallback scoring based on features
+                float suitabilityScore = float.IsNaN(mlScore) || float.IsInfinity(mlScore) 
+                    ? CalculateFallbackScore(features) * 100
+                    : mlScore * 100; // Convert to 0-100 scale
+
+                // Use actual calculated score without artificial minimum floor
+                float finalScore = Math.Clamp(suitabilityScore, 0, 100);
+
+                results.Add(new VolunteerRecommendationResult
+                {
+                    VolunteerId = volunteer.Id,
+                    VolunteerName = $"{volunteer.User?.FirstName} {volunteer.User?.LastName}".Trim() ?? "Unknown",
+                    Rank = volunteer.Rank,
+                    SuitabilityScore = finalScore,
+                    IsRecommended = prediction.IsGoodMatch && suitabilityScore >= 50,
+                    Reason = GenerateRecommendationReason(features, prediction),
+                    SkillsMatch = features.SkillsMatchScore,
+                    InterestsMatch = features.InterestsMatchScore,
+                    AvailabilityMatch = features.AvailabilityScore,
+                    ExperienceScore = features.ExperienceLevel,
+                    LocationScore = features.LocationProximity,
+                    RatingScore = features.VolunteerRating
+                });
+            }
+
+            // Sort by suitability score descending and return top N
+            var topRecommendations = results
+                .OrderByDescending(r => r.SuitabilityScore)
+                .Take(request.TopN)
+                .ToList();
+
+            _logger.LogInformation("Generated {Count} recommendations for campaign {CampaignId}", topRecommendations.Count, request.CampaignId);
+            return topRecommendations;
+        }
+
+        private async Task<VolunteerRecommendationInput> BuildVolunteerFeaturesAsync(AppDbContext db, Campaign campaign, VolunteerProfile volunteer)
+        {
+            // Parse JSON fields
+            var volunteerSkills = JsonSerializer.Deserialize<List<string>>(volunteer.Skills ?? "[]") ?? [];
+            var volunteerInterests = JsonSerializer.Deserialize<List<string>>(volunteer.Interests ?? "[]") ?? [];
+            
+            // NOTE: Campaign doesn't currently have RequiredSkills property
+            // For now, we'll assume no required skills matching
+            var requiredSkills = new List<string>();
+
+            // 1. SKILLS MATCH: What percentage of required skills does the volunteer have?
+            float skillsMatchScore = requiredSkills.Count == 0 ? 0.8f : // Default to high if no requirements
+                (float)volunteerSkills.Count(s => requiredSkills.Any(r => r.Equals(s, StringComparison.OrdinalIgnoreCase))) / requiredSkills.Count;
+
+            // 2. INTERESTS MATCH: Does volunteer interest align with campaign category?
+            float interestsMatchScore = volunteerInterests.Any(i => i.Equals(campaign.Category, StringComparison.OrdinalIgnoreCase)) ? 1f : 0.3f;
+
+            // 3. AVAILABILITY MATCH: What % of campaign duration is the volunteer available?
+            float availabilityScore = await CalculateAvailabilityScoreAsync(volunteer, campaign);
+
+            // 4. EXPERIENCE LEVEL: Convert to numeric (0=beginner, 1=intermediate, 2=advanced, 3=expert)
+            float experienceLevel = volunteer.ExperienceLevel?.ToLower() switch
+            {
+                "beginner" => 0.33f,
+                "intermediate" => 0.66f,
+                "advanced" => 0.88f,
+                "expert" => 1.0f,
+                _ => 0.25f
+            };
+
+            // 5. TOTAL HOURS NORMALIZED: Max out at 1000 hours for scoring
+            float totalHoursNormalized = Math.Min(volunteer.TotalHoursVolunteered / 1000f, 1f);
+
+            // 6. RATING SCORE: 0-5 scale
+            float ratingScore = volunteer.TotalRatings > 0 ? (float)volunteer.Rating : 2.5f; // Default to 2.5 if no ratings
+
+            // 7. COMPLETION RATE: % of assignments completed
+            var assignments = await db.VolunteerAssignments
+                .Where(va => va.VolunteerProfileId == volunteer.Id)
+                .ToListAsync();
+
+            float completionRate = assignments.Count == 0 ? 0.5f : // Default neutral if no history
+                (float)assignments.Count(a => a.Status == "completed") / assignments.Count;
+
+            // 8. QUALITY RATING: Average rating from completed assignments
+            var completedAssignments = assignments.Where(a => a.Status == "completed").ToList();
+            float qualityRating = completedAssignments.Count == 0 ? 2.5f :
+                (float)completedAssignments.Average(a => a.Rating ?? 2.5m);
+
+            // 9. ACCEPTANCE RATE: % of requests volunteer accepted
+            var requests = await db.VolunteerRequests
+                .Where(vr => vr.VolunteerProfileId == volunteer.Id)
+                .ToListAsync();
+
+            float acceptanceRate = requests.Count == 0 ? 0.7f : // Assume 70% if no history
+                (float)requests.Count(r => r.Status == "accepted") / requests.Count;
+
+            // 10. LOCATION PROXIMITY: Distance-based score (closer = higher)
+            // NOTE: Campaign model doesn't have Latitude/Longitude, so this uses volunteer location only
+            float locationProximity = 0.5f; // Neutral score without location data
+
+            // 11. AVAILABLE HOURS PER WEEK: Normalized (max 100 hours/week for practical purposes)
+            float availableHoursNormalized = Math.Min(volunteer.HoursPerWeek / 100f, 1f);
+
+            // 12. CAMPAIGN COMPLEXITY: Estimate based on target, duration, volunteers needed
+            float campaignComplexity = CalculateCampaignComplexity(campaign);
+
+            // 13. CATEGORY EXPERIENCE: How many past campaigns in this category?
+            var pastCampaigns = await db.VolunteerAssignments
+                .Where(va => va.VolunteerProfileId == volunteer.Id && va.Status == "completed")
+                .Include(va => va.Campaign)
+                .ToListAsync();
+
+            float categoryExperience = pastCampaigns.Count == 0 ? 0.3f :
+                (float)pastCampaigns.Count(va => va.Campaign.Category.Equals(campaign.Category, StringComparison.OrdinalIgnoreCase)) /
+                pastCampaigns.Count;
+
+            return new VolunteerRecommendationInput
+            {
+                VolunteerId = volunteer.Id,
+                CampaignId = campaign.Id,
+                SkillsMatchScore = Math.Clamp(skillsMatchScore, 0, 1),
+                InterestsMatchScore = Math.Clamp(interestsMatchScore, 0, 1),
+                AvailabilityScore = Math.Clamp(availabilityScore, 0, 1),
+                ExperienceLevel = Math.Clamp(experienceLevel, 0, 1),
+                TotalHoursNormalized = Math.Clamp(totalHoursNormalized, 0, 1),
+                VolunteerRating = Math.Clamp(ratingScore, 0, 5),
+                CompletionRate = Math.Clamp(completionRate, 0, 1),
+                QualityRating = Math.Clamp(qualityRating, 0, 5),
+                AcceptanceRate = Math.Clamp(acceptanceRate, 0, 1),
+                LocationProximity = Math.Clamp(locationProximity, 0, 1),
+                AvailableHoursPerWeek = Math.Clamp(availableHoursNormalized, 0, 1),
+                CampaignComplexity = Math.Clamp(campaignComplexity, 0, 1),
+                CategoryExperience = Math.Clamp(categoryExperience, 0, 1)
+            };
+        }
+
+        private async Task<float> CalculateAvailabilityScoreAsync(VolunteerProfile volunteer, Campaign campaign)
+        {
+            try
+            {
+                var availableDays = JsonSerializer.Deserialize<List<string>>(volunteer.AvailableDays ?? "[]") ?? [];
+                if (availableDays.Count == 0)
+                    return 0.5f; // Neutral if no availability specified
+
+                var requiredDays = GetCampaignDaysOfWeek(campaign);
+                int matchingDays = availableDays.Count(d => requiredDays.Contains(d, StringComparer.OrdinalIgnoreCase));
+
+                return (float)matchingDays / Math.Max(requiredDays.Count, 1);
+            }
+            catch
+            {
+                return 0.5f; // Neutral on error
+            }
+        }
+
+        private List<string> GetCampaignDaysOfWeek(Campaign campaign)
+        {
+            var allDays = new[] { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
+            int durationDays = (campaign.EndDate - campaign.StartDate).Days;
+
+            // If campaign is short (1-7 days), assume specific day needed
+            if (durationDays <= 7)
+            {
+                string dayName = campaign.StartDate.DayOfWeek.ToString();
+                return new List<string> { dayName };
+            }
+
+            // For longer campaigns, assume weekdays + some weekends
+            return new List<string> { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday" };
+        }
+
+        private float CalculateCampaignComplexity(Campaign campaign)
+        {
+            float complexity = 0.5f; // Base complexity
+
+            // Larger target = more complex
+            if (campaign.TargetAmount > 100000)
+                complexity += 0.2f;
+            else if (campaign.TargetAmount > 50000)
+                complexity += 0.1f;
+
+            // Longer duration = more complex (requires commitment)
+            int durationDays = (campaign.EndDate - campaign.StartDate).Days;
+            if (durationDays > 60)
+                complexity += 0.1f;
+
+            // Urgent = more complex
+            if (campaign.IsUrgent)
+                complexity += 0.15f;
+
+            return Math.Clamp(complexity, 0, 1);
+        }
+
+        private float CalculateFallbackScore(VolunteerRecommendationInput features)
+        {
+            // Weighted fallback scoring when ML model returns invalid scores
+            float score = 0.3f; // Base score for any volunteer
+            
+            if (features.SkillsMatchScore > 0.5f) score += 0.15f;
+            if (features.InterestsMatchScore > 0.5f) score += 0.15f;
+            if (features.AvailabilityScore > 0.5f) score += 0.1f;
+            if (features.ExperienceLevel > 0.3f) score += 0.1f;
+            if (features.VolunteerRating > 3.0f) score += 0.1f;
+            if (features.AcceptanceRate > 0.5f) score += 0.05f;
+            
+            return Math.Min(score, 0.95f); // Cap at 0.95
+        }
+
+        private string GenerateRecommendationReason(VolunteerRecommendationInput features, VolunteerRecommendationPrediction prediction)
+        {
+            var strengths = new List<string>();
+
+            if (features.SkillsMatchScore >= 0.8f)
+                strengths.Add("strong skills match");
+            if (features.InterestsMatchScore >= 0.9f)
+                strengths.Add("aligned interests");
+            if (features.AvailabilityScore >= 0.8f)
+                strengths.Add("good availability");
+            if (features.VolunteerRating >= 4.0f)
+                strengths.Add("excellent rating");
+            if (features.CompletionRate >= 0.9f)
+                strengths.Add("high completion rate");
+            if (features.LocationProximity >= 0.8f)
+                strengths.Add("nearby location");
+
+            if (strengths.Count > 0)
+                return $"Recommended: {string.Join(", ", strengths)}";
+
+            return prediction.IsGoodMatch ? "Meets minimum criteria" : "Below recommended threshold";
+        }
+
+        private async Task EnsureVolunteerRecommendationModelAsync()
+        {
+            if (_volunteerRecommendationModel is not null) return;
+            await _volunteerLock.WaitAsync();
+            try
+            {
+                if (_volunteerRecommendationModel is not null) return;
+                _volunteerRecommendationModel = await TrainVolunteerRecommendationModelAsync();
+            }
+            finally { _volunteerLock.Release(); }
+        }
+
+        private async Task<ITransformer> TrainVolunteerRecommendationModelAsync()
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var trainingData = await BuildVolunteerRecommendationTrainingDataAsync(db);
+
+            _logger.LogInformation("Training volunteer recommendation model with {Count} samples", trainingData.Count);
+
+            if (trainingData.Count == 0)
+            {
+                // Return a default model if no training data
+                _logger.LogWarning("No volunteer assignment history found. Using default recommendation model.");
+                return BuildDefaultVolunteerModel();
+            }
+
+            var dataView = _mlContext.Data.LoadFromEnumerable(trainingData);
+            var featureColumns = new[]
+            {
+                nameof(VolunteerRecommendationInput.SkillsMatchScore),
+                nameof(VolunteerRecommendationInput.InterestsMatchScore),
+                nameof(VolunteerRecommendationInput.AvailabilityScore),
+                nameof(VolunteerRecommendationInput.ExperienceLevel),
+                nameof(VolunteerRecommendationInput.TotalHoursNormalized),
+                nameof(VolunteerRecommendationInput.VolunteerRating),
+                nameof(VolunteerRecommendationInput.CompletionRate),
+                nameof(VolunteerRecommendationInput.QualityRating),
+                nameof(VolunteerRecommendationInput.AcceptanceRate),
+                nameof(VolunteerRecommendationInput.LocationProximity),
+                nameof(VolunteerRecommendationInput.AvailableHoursPerWeek),
+                nameof(VolunteerRecommendationInput.CampaignComplexity),
+                nameof(VolunteerRecommendationInput.CategoryExperience)
+            };
+
+            var pipeline = _mlContext.Transforms
+                .Concatenate("Features", featureColumns)
+                .Append(_mlContext.Transforms.NormalizeMinMax("Features"))
+                .Append(_mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(
+                    labelColumnName: "Label",
+                    featureColumnName: "Features"));
+
+            return pipeline.Fit(dataView);
+        }
+
+        private ITransformer BuildDefaultVolunteerModel()
+        {
+            // Create a minimal default model that accepts good features regardless
+            var defaultData = new List<VolunteerRecommendationInput>
+            {
+                new() 
+                { 
+                    VolunteerId = 1, CampaignId = 1,
+                    SkillsMatchScore = 0.8f, InterestsMatchScore = 0.8f,
+                    AvailabilityScore = 0.8f, ExperienceLevel = 0.8f,
+                    TotalHoursNormalized = 0.7f, VolunteerRating = 4.5f,
+                    CompletionRate = 0.9f, QualityRating = 4.0f,
+                    AcceptanceRate = 0.8f, LocationProximity = 0.8f,
+                    AvailableHoursPerWeek = 0.7f, CampaignComplexity = 0.5f,
+                    CategoryExperience = 0.7f, SuccessfulMatch = true
+                },
+                new() 
+                { 
+                    VolunteerId = 2, CampaignId = 2,
+                    SkillsMatchScore = 0.3f, InterestsMatchScore = 0.2f,
+                    AvailabilityScore = 0.2f, ExperienceLevel = 0.2f,
+                    TotalHoursNormalized = 0.1f, VolunteerRating = 1.5f,
+                    CompletionRate = 0.2f, QualityRating = 1.5f,
+                    AcceptanceRate = 0.3f, LocationProximity = 0.1f,
+                    AvailableHoursPerWeek = 0.1f, CampaignComplexity = 0.5f,
+                    CategoryExperience = 0.1f, SuccessfulMatch = false
+                }
+            };
+
+            var dataView = _mlContext.Data.LoadFromEnumerable(defaultData);
+            var featureColumns = new[]
+            {
+                nameof(VolunteerRecommendationInput.SkillsMatchScore),
+                nameof(VolunteerRecommendationInput.InterestsMatchScore),
+                nameof(VolunteerRecommendationInput.AvailabilityScore),
+                nameof(VolunteerRecommendationInput.ExperienceLevel),
+                nameof(VolunteerRecommendationInput.TotalHoursNormalized),
+                nameof(VolunteerRecommendationInput.VolunteerRating),
+                nameof(VolunteerRecommendationInput.CompletionRate),
+                nameof(VolunteerRecommendationInput.QualityRating),
+                nameof(VolunteerRecommendationInput.AcceptanceRate),
+                nameof(VolunteerRecommendationInput.LocationProximity),
+                nameof(VolunteerRecommendationInput.AvailableHoursPerWeek),
+                nameof(VolunteerRecommendationInput.CampaignComplexity),
+                nameof(VolunteerRecommendationInput.CategoryExperience)
+            };
+
+            var pipeline = _mlContext.Transforms
+                .Concatenate("Features", featureColumns)
+                .Append(_mlContext.Transforms.NormalizeMinMax("Features"))
+                .Append(_mlContext.BinaryClassification.Trainers.SdcaLogisticRegression(
+                    labelColumnName: "Label",
+                    featureColumnName: "Features"));
+
+            return pipeline.Fit(dataView);
+        }
+
+        private async Task<List<VolunteerRecommendationInput>> BuildVolunteerRecommendationTrainingDataAsync(AppDbContext db)
+        {
+            var trainingData = new List<VolunteerRecommendationInput>();
+
+            // Get completed volunteer assignments with ratings
+            var completedAssignments = await db.VolunteerAssignments
+                .Include(va => va.VolunteerProfile)
+                .Include(va => va.Campaign)
+                .Where(va => va.Status == "completed" && va.Rating.HasValue)
+                .ToListAsync();
+
+            foreach (var assignment in completedAssignments)
+            {
+                if (assignment.VolunteerProfile == null || assignment.Campaign == null)
+                    continue;
+
+                var features = await BuildVolunteerFeaturesAsync(db, assignment.Campaign, assignment.VolunteerProfile);
+                
+                // Label: successful match if rating >= 4.0
+                features.SuccessfulMatch = assignment.Rating >= 4.0m && assignment.Status == "completed";
+                
+                trainingData.Add(features);
+            }
+
+            return trainingData;
         }
     }
 }

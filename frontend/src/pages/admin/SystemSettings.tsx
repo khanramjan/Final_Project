@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
   CogIcon,
-  BellIcon,
   CurrencyDollarIcon,
   EnvelopeIcon,
   ShieldCheckIcon,
   GlobeAltIcon,
   DocumentTextIcon,
   KeyIcon,
-  CheckCircleIcon,
-  XCircleIcon
 } from '@heroicons/react/24/outline';
 
 interface SystemSetting {

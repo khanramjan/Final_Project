@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BanknotesIcon, PlusIcon, CalendarIcon, UserIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 interface Campaign {
   id: number;

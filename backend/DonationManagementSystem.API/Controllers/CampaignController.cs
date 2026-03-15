@@ -5,6 +5,7 @@ using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Models;
 using DonationManagementSystem.API.DTOs;
 using DonationManagementSystem.API.Services;
+using DonationManagementSystem.API.Services.ML;
 using System.Security.Claims;
 
 namespace DonationManagementSystem.API.Controllers
@@ -15,12 +16,14 @@ namespace DonationManagementSystem.API.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IEmailService _emailService;
+        private readonly IMLPredictionService _mlService;
         private readonly IConfiguration _config;
 
-        public CampaignController(AppDbContext context, IEmailService emailService, IConfiguration config)
+        public CampaignController(AppDbContext context, IEmailService emailService, IMLPredictionService mlService, IConfiguration config)
         {
             _context = context;
             _emailService = emailService;
+            _mlService = mlService;
             _config = config;
         }
 
@@ -551,6 +554,17 @@ namespace DonationManagementSystem.API.Controllers
                 if (campaign.Donations.Any())
                     return BadRequest(new { message = "Cannot delete campaign with existing donations" });
 
+                // Delete associated volunteer requests first
+                var volunteerRequests = await _context.Set<VolunteerRequest>()
+                    .Where(vr => vr.CampaignId == id)
+                    .ToListAsync();
+
+                if (volunteerRequests.Any())
+                {
+                    _context.Set<VolunteerRequest>().RemoveRange(volunteerRequests);
+                    await _context.SaveChangesAsync();
+                }
+
                 _context.Campaigns.Remove(campaign);
                 await _context.SaveChangesAsync();
 
@@ -767,7 +781,7 @@ namespace DonationManagementSystem.API.Controllers
             try
             {
                 Console.WriteLine($"\n========================================");
-                Console.WriteLine($"=== SENDING VOLUNTEER REQUESTS ===");
+                Console.WriteLine($"=== SENDING VOLUNTEER REQUESTS (ML-ENHANCED) ===");
                 Console.WriteLine($"Campaign ID: {campaign.Id}");
                 Console.WriteLine($"Campaign Title: {campaign.Title}");
                 Console.WriteLine($"========================================\n");
@@ -789,6 +803,34 @@ namespace DonationManagementSystem.API.Controllers
                 }
                 Console.WriteLine();
 
+                // 🆕 GET ML RECOMMENDATIONS
+                Console.WriteLine("📊 Fetching ML recommendations...");
+                var mlRecommendations = new Dictionary<int, float>(); // VolunteerId -> SuitabilityScore
+                
+                try
+                {
+                    var recommendations = await _mlService.RecommendVolunteersForCampaignAsync(
+                        new VolunteerRecommendationRequest
+                        {
+                            CampaignId = campaign.Id,
+                            TopN = 100,
+                            MinimumScore = 0.4f // Get even lower-scored candidates as fallback
+                        }
+                    );
+
+                    foreach (var rec in recommendations)
+                    {
+                        mlRecommendations[rec.VolunteerId] = rec.SuitabilityScore;
+                    }
+
+                    Console.WriteLine($"✅ Retrieved {mlRecommendations.Count} ML recommendations");
+                }
+                catch (Exception mlEx)
+                {
+                    Console.WriteLine($"⚠️  ML recommendation failed: {mlEx.Message}. Falling back to rank-based selection.");
+                    // If ML fails, we'll fall back to simple rank-based selection
+                }
+
                 int totalRequestsSent = 0;
 
                 // First, check how many volunteer profiles exist
@@ -809,55 +851,47 @@ namespace DonationManagementSystem.API.Controllers
                     Console.WriteLine($"\n--- Processing {rank.ToUpper()} volunteers ---");
                     Console.WriteLine($"Looking for {count} volunteers with rank '{rank}'...");
 
-                    // Debug: Check all profiles with this rank
-                    var allRankProfiles = await _context.VolunteerProfiles
-                        .Where(vp => vp.Rank.ToLower() == rank)
-                        .ToListAsync();
-                    Console.WriteLine($"  Total profiles with rank '{rank}': {allRankProfiles.Count}");
-                    
-                    if (allRankProfiles.Any())
-                    {
-                        foreach (var p in allRankProfiles)
-                        {
-                            Console.WriteLine($"    - Profile ID {p.Id}: Status={p.Status}, IsVerified={p.IsVerified}, AcceptEmail={p.AcceptEmailNotifications}");
-                        }
-                    }
-
-                    // Find active and verified volunteers with the specified rank
-                    // Status should be "active", IsVerified should be true, and IsApprovedByAdmin should be true
-                    var volunteers = await _context.VolunteerProfiles
+                    // Find eligible volunteers with the specified rank
+                    var eligibleVolunteers = await _context.VolunteerProfiles
                         .Include(vp => vp.User)
                         .Where(vp => 
-                            (vp.Status == "active" || vp.Status == "verified") && // Accept both active and verified status
-                            vp.IsVerified == true && // Must be verified
-                            vp.IsApprovedByAdmin == true && // 🆕 Must be approved by admin
-                            vp.AdminApprovalStatus == "approved" && // 🆕 Approval status must be "approved"
+                            (vp.Status == "active" || vp.Status == "verified") &&
+                            vp.IsVerified == true &&
+                            vp.IsApprovedByAdmin == true &&
+                            vp.AdminApprovalStatus == "approved" &&
                             vp.Rank.ToLower() == rank &&
-                            vp.AcceptEmailNotifications) // Only send to those who accept notifications
-                        .OrderByDescending(vp => vp.TotalHoursVolunteered) // Prioritize by experience
-                        .Take(count)
+                            vp.AcceptEmailNotifications)
                         .ToListAsync();
 
-                    Console.WriteLine($"✅ Found {volunteers.Count} qualified volunteers with rank '{rank}'");
+                    Console.WriteLine($"✅ Found {eligibleVolunteers.Count} eligible volunteers with rank '{rank}'");
+
+                    // 🆕 SORT BY ML SCORE (if available), else by experience
+                    var sortedVolunteers = eligibleVolunteers
+                        .OrderByDescending(vp => mlRecommendations.ContainsKey(vp.Id) ? mlRecommendations[vp.Id] : 0)
+                        .ThenByDescending(vp => vp.TotalHoursVolunteered)
+                        .Take(count)
+                        .ToList();
 
                     // Create volunteer requests
-                    if (volunteers.Count == 0)
+                    if (sortedVolunteers.Count == 0)
                     {
                         Console.WriteLine($"⚠️  No qualified volunteers found for rank '{rank}'");
-                        Console.WriteLine($"   Possible reasons:");
-                        Console.WriteLine($"   - No volunteers with this rank exist");
-                        Console.WriteLine($"   - Volunteers not verified (status != 'verified')");
-                        Console.WriteLine($"   - Volunteers have disabled email notifications");
                     }
                     else
                     {
-                        foreach (var volunteer in volunteers)
+                        foreach (var volunteer in sortedVolunteers)
                         {
+                            float mlScore = mlRecommendations.ContainsKey(volunteer.Id) 
+                                ? mlRecommendations[volunteer.Id] 
+                                : 0;
+
                             Console.WriteLine($"\n  Creating request for volunteer:");
                             Console.WriteLine($"    Email: {volunteer.User.Email}");
                             Console.WriteLine($"    Name: {volunteer.User.FirstName} {volunteer.User.LastName}");
                             Console.WriteLine($"    Rank: {rank}");
-                            Console.WriteLine($"    Status: {volunteer.Status}");
+                            if (mlScore > 0)
+                                Console.WriteLine($"    ML Suitability Score: {mlScore:F1}%");
+                            Console.WriteLine($"    Experience: {volunteer.TotalHoursVolunteered} hours");
                             
                             var request = new VolunteerRequest
                             {
@@ -865,15 +899,15 @@ namespace DonationManagementSystem.API.Controllers
                                 VolunteerProfileId = volunteer.Id,
                                 Title = $"Volunteer Request for {campaign.Title}",
                                 Description = $"We need your help! The campaign '{campaign.Title}' is looking for {rank} rank volunteers with your expertise.",
-                                TaskType = campaign.Category.ToLower(), // Use campaign category as task type
+                                TaskType = campaign.Category.ToLower(),
                                 Status = "pending",
                                 Priority = campaign.IsUrgent ? "high" : "medium",
                                 RequestedBy = campaign.CreatedBy,
                                 StartDate = campaign.StartDate,
                                 EndDate = campaign.EndDate,
-                                EstimatedHours = 10, // Default estimated hours
+                                EstimatedHours = 10,
                                 CreatedAt = DateTime.UtcNow,
-                                ExpiresAt = DateTime.UtcNow.AddDays(7) // Request expires in 7 days
+                                ExpiresAt = DateTime.UtcNow.AddDays(7)
                             };
 
                             _context.VolunteerRequests.Add(request);

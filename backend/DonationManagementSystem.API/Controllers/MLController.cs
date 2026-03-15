@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using DonationManagementSystem.API.DTOs;
 using DonationManagementSystem.API.Services.ML;
+using DonationManagementSystem.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace DonationManagementSystem.API.Controllers
 {
@@ -10,11 +12,13 @@ namespace DonationManagementSystem.API.Controllers
     {
         private readonly IMLPredictionService _ml;
         private readonly ILogger<MLController> _logger;
+        private readonly AppDbContext _db;
 
-        public MLController(IMLPredictionService ml, ILogger<MLController> logger)
+        public MLController(IMLPredictionService ml, ILogger<MLController> logger, AppDbContext db)
         {
             _ml = ml;
             _logger = logger;
+            _db = db;
         }
 
         /// <summary>
@@ -49,6 +53,34 @@ namespace DonationManagementSystem.API.Controllers
             {
                 _logger.LogError(ex, "Error running donation forecast");
                 return StatusCode(500, new { message = "Forecast failed.", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get list of campaigns with donation counts for dropdown/selection.
+        /// </summary>
+        [HttpGet("campaigns/options")]
+        public async Task<IActionResult> GetCampaignsForDropdown()
+        {
+            try
+            {
+                var campaigns = await _db.Campaigns
+                    .Where(c => c.Status == "active" || c.Status == "completed")
+                    .Select(c => new CampaignOption
+                    {
+                        Id = c.Id,
+                        Title = c.Title,
+                        DonationCount = c.Donations.Count(d => d.Status == "completed")
+                    })
+                    .OrderByDescending(c => c.DonationCount)
+                    .ToListAsync();
+
+                return Ok(campaigns);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching campaigns for dropdown");
+                return StatusCode(500, new { message = "Failed to fetch campaigns.", error = ex.Message });
             }
         }
 
@@ -177,16 +209,34 @@ namespace DonationManagementSystem.API.Controllers
                         Anomalies = []
                     });
 
+                // Get donation details with donor info
+                var donationIds = results.Select(r => r.DonationId).ToList();
+                var donationDetails = await _db.Donations
+                    .Where(d => donationIds.Contains(d.Id))
+                    .Include(d => d.User)
+                    .ToDictionaryAsync(d => d.Id);
+
                 // Prediction vector: [0] alert flag, [1] raw score, [2] p-value
                 var anomalies = results
                     .Where(r => r.Pred.Prediction.Length > 0 && r.Pred.Prediction[0] == 1.0)
-                    .Select(r => new DonationAnomaly
+                    .Select(r =>
                     {
-                        DonationId = r.DonationId,
-                        Amount = r.Amount,
-                        AnomalyScore = r.Pred.Prediction.Length > 1 ? (float)r.Pred.Prediction[1] : 0f,
-                        IsAnomaly = true,
-                        CreatedAt = r.CreatedAt
+                        donationDetails.TryGetValue(r.DonationId, out var donation);
+                        var donorName = donation?.DonorName ?? donation?.User?.FirstName ?? "Unknown";
+                        var donorEmail = donation?.DonorEmail ?? donation?.User?.Email ?? "N/A";
+                        var donorPhone = donation?.User?.Phone;
+
+                        return new DonationAnomaly
+                        {
+                            DonationId = r.DonationId,
+                            DonorName = donorName,
+                            DonorEmail = donorEmail,
+                            DonorPhone = donorPhone,
+                            Amount = r.Amount,
+                            AnomalyScore = r.Pred.Prediction.Length > 1 ? (float)r.Pred.Prediction[1] : 0f,
+                            IsAnomaly = true,
+                            CreatedAt = r.CreatedAt
+                        };
                     })
                     .ToList();
 
@@ -201,6 +251,128 @@ namespace DonationManagementSystem.API.Controllers
             {
                 _logger.LogError(ex, "Error detecting anomalies for campaign {CampaignId}", campaignId);
                 return StatusCode(500, new { message = "Anomaly detection failed.", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get recommended volunteers for a campaign based on ML model suitability scoring.
+        /// </summary>
+        [HttpPost("recommend/volunteers")]
+        public async Task<IActionResult> RecommendVolunteersForCampaign([FromBody] VolunteerRecommendationRequest request)
+        {
+            // Validate request
+            if (request == null)
+                return BadRequest(new { message = "Request body is required." });
+
+            if (request.CampaignId <= 0)
+                return BadRequest(new { message = "Valid CampaignId is required." });
+
+            if (request.TopN < 1 || request.TopN > 50)
+                return BadRequest(new { message = "TopN must be between 1 and 50." });
+
+            if (request.MinimumScore < 0 || request.MinimumScore > 1)
+                return BadRequest(new { message = "MinimumScore must be between 0 and 1." });
+
+            try
+            {
+                var recommendations = await _ml.RecommendVolunteersForCampaignAsync(request);
+
+                return Ok(new
+                {
+                    campaignId = request.CampaignId,
+                    totalRecommendations = recommendations.Count,
+                    minimumScoreFilter = request.MinimumScore,
+                    recommendations = recommendations
+                        .Select(r => new
+                        {
+                            volunteerId = r.VolunteerId,
+                            volunteerName = r.VolunteerName,
+                            rank = r.Rank,
+                            suitabilityScore = Math.Round(r.SuitabilityScore, 2),
+                            isRecommended = r.IsRecommended,
+                            reason = r.Reason,
+                            scoreBreakdown = new
+                            {
+                                skillsMatch = Math.Round(r.SkillsMatch * 100, 1),
+                                interestsMatch = Math.Round(r.InterestsMatch * 100, 1),
+                                availabilityMatch = Math.Round(r.AvailabilityMatch * 100, 1),
+                                experienceScore = Math.Round(r.ExperienceScore * 100, 1),
+                                locationScore = Math.Round(r.LocationScore * 100, 1),
+                                ratingScore = Math.Round(r.RatingScore, 2)
+                            }
+                        })
+                        .ToList()
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Campaign {CampaignId} not found", request.CampaignId);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating volunteer recommendations for campaign {CampaignId}", request.CampaignId);
+                return StatusCode(500, new { message = "Volunteer recommendation failed.", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get recommended volunteers for a specific campaign by ID.
+        /// </summary>
+        [HttpGet("recommend/volunteers/{campaignId:int}")]
+        public async Task<IActionResult> GetRecommendedVolunteersForCampaign(int campaignId, [FromQuery] int topN = 10, [FromQuery] float minimumScore = 0.5f)
+        {
+            if (campaignId <= 0)
+                return BadRequest(new { message = "Valid CampaignId is required." });
+
+            try
+            {
+                var request = new VolunteerRecommendationRequest
+                {
+                    CampaignId = campaignId,
+                    TopN = topN,
+                    MinimumScore = minimumScore
+                };
+
+                var recommendations = await _ml.RecommendVolunteersForCampaignAsync(request);
+
+                return Ok(new
+                {
+                    campaignId = campaignId,
+                    totalRecommendations = recommendations.Count,
+                    topN = topN,
+                    minimumScoreFilter = minimumScore,
+                    recommendations = recommendations
+                        .Select(r => new
+                        {
+                            volunteerId = r.VolunteerId,
+                            volunteerName = r.VolunteerName,
+                            rank = r.Rank,
+                            suitabilityScore = Math.Round(r.SuitabilityScore, 1),
+                            isRecommended = r.IsRecommended,
+                            reason = r.Reason,
+                            scoreBreakdown = new
+                            {
+                                skillsMatch = Math.Round(r.SkillsMatch * 100, 1),
+                                interestsMatch = Math.Round(r.InterestsMatch * 100, 1),
+                                availabilityMatch = Math.Round(r.AvailabilityMatch * 100, 1),
+                                experienceScore = Math.Round(r.ExperienceScore * 100, 1),
+                                locationScore = Math.Round(r.LocationScore * 100, 1),
+                                ratingScore = Math.Round(r.RatingScore, 2)
+                            }
+                        })
+                        .ToList()
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Campaign {CampaignId} not found", campaignId);
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching volunteer recommendations for campaign {CampaignId}", campaignId);
+                return StatusCode(500, new { message = "Failed to retrieve recommendations.", error = ex.Message });
             }
         }
     }

@@ -37,6 +37,9 @@ namespace DonationManagementSystem.API.Data
                     Console.WriteLine("⚠️ Please change this password after first login!");
                 }
 
+                // Create missing VolunteerProfile records for volunteer users who don't have profiles yet
+                await CreateMissingVolunteerProfiles(context);
+
                 // Seed sample data if database is empty
                 await SeedSampleData(context);
             }
@@ -47,8 +50,57 @@ namespace DonationManagementSystem.API.Data
             }
         }
 
+        private static async Task CreateMissingVolunteerProfiles(AppDbContext context)
+        {
+            // Find all volunteer users without profiles
+            var volunteersWithoutProfiles = await context.Users
+                .Where(u => u.UserType == "volunteer")
+                .Where(u => !context.VolunteerProfiles.Any(vp => vp.UserId == u.Id))
+                .ToListAsync();
+
+            if (volunteersWithoutProfiles.Count == 0)
+                return;
+
+            Console.WriteLine($"🔧 Creating VolunteerProfile records for {volunteersWithoutProfiles.Count} existing volunteer users...");
+
+            foreach (var volunteerUser in volunteersWithoutProfiles)
+            {
+                var profile = new VolunteerProfile
+                {
+                    UserId = volunteerUser.Id,
+                    Rank = "bronze",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "intermediate",
+                    Skills = "[\"general\", \"community\"]",
+                    Interests = "[\"education\", \"health\", \"environment\"]",
+                    AvailableDays = "[\"Saturday\", \"Sunday\"]",
+                    HoursPerWeek = 5,
+                    TotalHoursVolunteered = 10,
+                    TotalRatings = 0,
+                    Rating = 3.5m,
+                    Location = "City",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.VolunteerProfiles.Add(profile);
+            }
+
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Created {volunteersWithoutProfiles.Count} VolunteerProfile records");
+        }
+
         private static async Task SeedSampleData(AppDbContext context)
         {
+            // Seed volunteers if none exist
+            if (!await context.VolunteerProfiles.AnyAsync())
+            {
+                await SeedSampleVolunteers(context);
+            }
+
             // Only seed campaigns if none exist
             if (await context.Campaigns.AnyAsync())
             {
@@ -308,6 +360,189 @@ namespace DonationManagementSystem.API.Data
             await context.SaveChangesAsync();
 
             Console.WriteLine($"✅ Created {reserveFundEntries.Count} Reserve Fund entries (Total: ৳{reserveFundEntries.Sum(r => r.Amount):N0})");
+        }
+
+        private static async Task SeedSampleVolunteers(AppDbContext context)
+        {
+            Console.WriteLine("🌱 Seeding sample volunteer profiles for recommendations...");
+
+            // Create sample volunteer users
+            var volunteerUsers = new List<User>
+            {
+                new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Ramjan",
+                    LastName = "Khan",
+                    Email = "ramjan.khan@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Volunteer@123!"),
+                    Phone = "01711234567",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow.AddDays(-180)
+                },
+                new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Fatima",
+                    LastName = "Ahmed",
+                    Email = "fatima.ahmed@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Volunteer@123!"),
+                    Phone = "01812345678",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow.AddDays(-150)
+                },
+                new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Sumon",
+                    LastName = "Roy",
+                    Email = "sumon.roy@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Volunteer@123!"),
+                    Phone = "01913456789",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow.AddDays(-120)
+                },
+                new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Zainab",
+                    LastName = "Hasan",
+                    Email = "zainab.hasan@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Volunteer@123!"),
+                    Phone = "01614567890",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow.AddDays(-90)
+                },
+                new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Hassan",
+                    LastName = "Mohammadi",
+                    Email = "hassan.mohammadi@example.com",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Volunteer@123!"),
+                    Phone = "01715678901",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow.AddDays(-60)
+                }
+            };
+
+            context.Users.AddRange(volunteerUsers);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Created {volunteerUsers.Count} volunteer users");
+
+            // Create volunteer profiles
+            var volunteerProfiles = new List<VolunteerProfile>
+            {
+                new VolunteerProfile
+                {
+                    UserId = volunteerUsers[0].Id,
+                    Rank = "gold",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "advanced",
+                    Skills = "[\"environmental\", \"teaching\", \"fundraising\"]",
+                    Interests = "[\"environment\", \"education\", \"health\"]",
+                    AvailableDays = "[\"Monday\", \"Wednesday\", \"Friday\", \"Saturday\"]",
+                    HoursPerWeek = 12,
+                    TotalHoursVolunteered = 450,
+                    TotalRatings = 28,
+                    Rating = 4.7m,
+                    Location = "Dhaka",
+                    CreatedAt = DateTime.UtcNow.AddDays(-180)
+                },
+                new VolunteerProfile
+                {
+                    UserId = volunteerUsers[1].Id,
+                    Rank = "silver",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "intermediate",
+                    Skills = "[\"healthcare\", \"community\", \"support\"]",
+                    Interests = "[\"health\", \"welfare\", \"education\"]",
+                    AvailableDays = "[\"Tuesday\", \"Thursday\", \"Sunday\"]",
+                    HoursPerWeek = 8,
+                    TotalHoursVolunteered = 280,
+                    TotalRatings = 22,
+                    Rating = 4.5m,
+                    Location = "Dhaka",
+                    CreatedAt = DateTime.UtcNow.AddDays(-150)
+                },
+                new VolunteerProfile
+                {
+                    UserId = volunteerUsers[2].Id,
+                    Rank = "platinum",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "expert",
+                    Skills = "[\"organization\", \"leadership\", \"planning\", \"fundraising\"]",
+                    Interests = "[\"education\", \"emergency\", \"disaster\"]",
+                    AvailableDays = "[\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"]",
+                    HoursPerWeek = 20,
+                    TotalHoursVolunteered = 820,
+                    TotalRatings = 45,
+                    Rating = 4.9m,
+                    Location = "Dhaka",
+                    CreatedAt = DateTime.UtcNow.AddDays(-120)
+                },
+                new VolunteerProfile
+                {
+                    UserId = volunteerUsers[3].Id,
+                    Rank = "bronze",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "beginner",
+                    Skills = "[\"communication\", \"teamwork\"]",
+                    Interests = "[\"environment\", \"welfare\"]",
+                    AvailableDays = "[\"Saturday\", \"Sunday\"]",
+                    HoursPerWeek = 5,
+                    TotalHoursVolunteered = 45,
+                    TotalRatings = 5,
+                    Rating = 4.2m,
+                    Location = "Mirpur",
+                    CreatedAt = DateTime.UtcNow.AddDays(-90)
+                },
+                new VolunteerProfile
+                {
+                    UserId = volunteerUsers[4].Id,
+                    Rank = "silver",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    ExperienceLevel = "intermediate",
+                    Skills = "[\"event\", \"coordination\", \"social\"]",
+                    Interests = "[\"health\", \"education\", \"poverty\"]",
+                    AvailableDays = "[\"Monday\", \"Saturday\", \"Sunday\"]",
+                    HoursPerWeek = 10,
+                    TotalHoursVolunteered = 180,
+                    TotalRatings = 15,
+                    Rating = 4.4m,
+                    Location = "Uttara",
+                    CreatedAt = DateTime.UtcNow.AddDays(-60)
+                }
+            };
+
+            context.VolunteerProfiles.AddRange(volunteerProfiles);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✅ Created {volunteerProfiles.Count} volunteer profiles for recommendations");
         }
     }
 }

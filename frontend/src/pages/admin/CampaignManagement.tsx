@@ -11,9 +11,11 @@ import {
   DocumentArrowDownIcon,
   ExclamationTriangleIcon,
   ClockIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import campaignService, { Campaign, CampaignFilters } from '../../services/campaignService';
+import VolunteerRecommendations from '../../components/VolunteerRecommendations';
 
 interface CampaignForm {
   id?: number;
@@ -75,6 +77,10 @@ const CampaignManagement = () => {
     newbieVolunteersNeeded: 0,
     autoSendVolunteerRequests: false
   });
+
+  // ML Recommendations
+  const [showRecommendationsPreview, setShowRecommendationsPreview] = useState(false);
+  const [createdCampaignId, setCreatedCampaignId] = useState<number | null>(null);
 
   const categories = [
     { value: 'health', label: 'Health' },
@@ -176,10 +182,16 @@ const CampaignManagement = () => {
       console.log('Campaign created successfully:', result);
       
       await fetchCampaigns();
-      setShowCreateModal(false);
-      resetForm();
       
-      alert('Campaign created successfully!');
+      // Show ML recommendations preview if auto-send is enabled
+      if (campaignForm.autoSendVolunteerRequests && result.campaignId) {
+        setCreatedCampaignId(result.campaignId);
+        setShowRecommendationsPreview(true);
+      } else {
+        setShowCreateModal(false);
+        resetForm();
+        alert('Campaign created successfully!');
+      }
     } catch (error) {
       console.error('Failed to create campaign:', error);
       console.error('Error details:', error);
@@ -737,21 +749,73 @@ const CampaignManagement = () => {
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900">Create New Campaign</h3>
-                <button
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    resetForm();
+            {/* Show recommendations preview after campaign creation */}
+            {showRecommendationsPreview && createdCampaignId ? (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <SparklesIcon className="h-6 w-6 text-purple-600" />
+                    <h3 className="text-lg font-medium text-gray-900">AI-Powered Volunteer Recommendations</h3>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      resetForm();
+                      setShowRecommendationsPreview(false);
+                      setCreatedCampaignId(null);
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                  </button>
+                </div>
+                
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-gray-700">
+                    Your campaign has been created successfully! Below are recommended volunteers who best match your campaign requirements. You can review their profiles before sending requests.
+                  </p>
+                </div>
+                
+                <VolunteerRecommendations
+                  campaignId={createdCampaignId}
+                  topN={15}
+                  minimumScore={0.4}
+                  onRecommendationSelect={(selectedVolunteers) => {
+                    console.log('Selected volunteers:', selectedVolunteers);
                   }}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <XCircleIcon className="h-6 w-6" />
-                </button>
+                />
+                
+                <div className="flex items-center justify-end space-x-4 pt-4 border-t mt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      resetForm();
+                      setShowRecommendationsPreview(false);
+                      setCreatedCampaignId(null);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
-              
-              <form onSubmit={(e) => { e.preventDefault(); handleCreateCampaign(); }} className="space-y-4">
+            ) : (
+              <div className="mt-3">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">Create New Campaign</h3>
+                  <button
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      resetForm();
+                    }}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <XCircleIcon className="h-6 w-6" />
+                  </button>
+                </div>
+                
+                <form onSubmit={(e) => { e.preventDefault(); handleCreateCampaign(); }} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Campaign Title *</label>
@@ -993,7 +1057,8 @@ const CampaignManagement = () => {
                   </button>
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}
