@@ -11,7 +11,7 @@ import {
   ChevronRightIcon,
   DocumentTextIcon,
   CurrencyDollarIcon,
-  SparklesIcon
+  StarIcon
 } from '@heroicons/react/24/outline';
 
 interface NavigationItem {
@@ -64,7 +64,7 @@ const AdminSidebar = ({ className = '' }: AdminSidebarProps) => {
     {
       name: 'ML Insights',
       href: '/admin/ml-insights',
-      icon: SparklesIcon
+      icon: StarIcon
     },
     {
       name: 'Settings',

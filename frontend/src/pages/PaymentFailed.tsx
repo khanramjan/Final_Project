@@ -7,10 +7,10 @@ const PaymentFailed = () => {
   const error = searchParams.get('error');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Error Header */}
-        <div className="bg-gradient-to-r from-red-500 to-red-600 p-8 text-white text-center">
+        <div className="bg-red-600 p-8 text-white text-center">
           <div className="flex justify-center mb-4">
             <div className="bg-white rounded-full p-3">
               <XCircleIcon className="h-16 w-16 text-red-500" />
@@ -83,3 +83,4 @@ const PaymentFailed = () => {
 };
 
 export default PaymentFailed;
+

@@ -132,7 +132,7 @@ const FinancialDashboard = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-blue-600 rounded-lg p-6 text-white shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white/20 rounded-lg">
                 <BanknotesIcon className="h-6 w-6" />
@@ -142,7 +142,7 @@ const FinancialDashboard = () => {
             <p className="text-2xl font-bold mt-1">৳{summary?.totalInSystem.toLocaleString()}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-green-600 rounded-lg p-6 text-white shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white/20 rounded-lg">
                 <ChartBarIcon className="h-6 w-6" />
@@ -152,7 +152,7 @@ const FinancialDashboard = () => {
             <p className="text-2xl font-bold mt-1">৳{summary?.totalInCampaigns.toLocaleString()}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-purple-600 rounded-lg p-6 text-white shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white/20 rounded-lg">
                 <CurrencyDollarIcon className="h-6 w-6" />
@@ -162,7 +162,7 @@ const FinancialDashboard = () => {
             <p className="text-2xl font-bold mt-1">৳{summary?.reserveFund.toLocaleString()}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-orange-600 rounded-lg p-6 text-white shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white/20 rounded-lg">
                 <ArrowTrendingUpIcon className="h-6 w-6" />
@@ -172,7 +172,7 @@ const FinancialDashboard = () => {
             <p className="text-2xl font-bold mt-1">{summary?.activeCampaigns}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-teal-600 rounded-lg p-6 text-white shadow-md">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 bg-white/20 rounded-lg">
                 <CheckCircleIcon className="h-6 w-6" />
@@ -372,8 +372,8 @@ const FinancialDashboard = () => {
       {/* Campaign Details Modal */}
       {showModal && selectedCampaign && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
+          <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="bg-blue-600 px-6 py-4 rounded-t-lg">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-white">{selectedCampaign.campaign.title}</h3>
                 <button
@@ -480,3 +480,5 @@ const FinancialDashboard = () => {
 };
 
 export default FinancialDashboard;
+
+

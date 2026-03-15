@@ -1,42 +1,67 @@
+/* Modern, Minimalist Application Styles */
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Smooth page transitions */
+.page-transition {
+  animation: fade-in 0.4s ease-out;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Utility classes for layout */
+.full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.container-prose {
+  max-width: 65ch;
 }
 
-.card {
-  padding: 2em;
+/* Hero animations */
+.hero-text {
+  animation: fade-in-up 0.8s ease-out;
 }
 
-.read-the-docs {
-  color: #888;
+.hero-subtext {
+  animation: fade-in-up 0.8s ease-out 0.1s backwards;
+}
+
+.hero-cta {
+  animation: fade-in-up 0.8s ease-out 0.2s backwards;
+}
+
+/* Card entrance animations */
+.card-entrance {
+  animation: fade-in-up 0.6s ease-out;
+}
+
+/* Staggered list animations */
+.list-item {
+  animation: fade-in-up 0.5s ease-out backwards;
+}
+
+.list-item:nth-child(1) { animation-delay: 0s; }
+.list-item:nth-child(2) { animation-delay: 0.1s; }
+.list-item:nth-child(3) { animation-delay: 0.2s; }
+.list-item:nth-child(4) { animation-delay: 0.3s; }
+.list-item:nth-child(5) { animation-delay: 0.4s; }
+.list-item:nth-child(6) { animation-delay: 0.5s; }
+
+/* Premium border effects */
+.border-accent {
+  border-color: rgb(20, 184, 166);
+}
+
+/* Subtle background effects */
+.bg-pattern {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
 }

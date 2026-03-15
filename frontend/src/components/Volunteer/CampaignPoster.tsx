@@ -191,9 +191,9 @@ export default function CampaignPoster({ campaign, onClose }: CampaignPosterProp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[95vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 flex items-center justify-between z-10 rounded-t-2xl">
+        <div className="sticky top-0 bg-blue-600 text-white px-6 py-4 flex items-center justify-between z-10 rounded-t-lg">
           <h2 className="text-2xl font-bold">Campaign Poster</h2>
           <button
             onClick={onClose}
@@ -524,3 +524,5 @@ export default function CampaignPoster({ campaign, onClose }: CampaignPosterProp
     </div>
   );
 }
+
+

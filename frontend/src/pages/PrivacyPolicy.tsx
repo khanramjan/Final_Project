@@ -3,7 +3,7 @@ import { ArrowLeftIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
 const PrivacyPolicy = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link 
           to="/" 
@@ -13,7 +13,7 @@ const PrivacyPolicy = () => {
           Back to Home
         </Link>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-green-lg p-8 md:p-12 border border-emerald-200">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 md:p-12">
           <div className="flex items-center mb-4">
             <ShieldCheckIcon className="h-10 w-10 text-emerald-600 mr-4" />
             <h1 className="text-4xl font-extrabold text-gray-900">Privacy Policy</h1>
@@ -137,7 +137,7 @@ const PrivacyPolicy = () => {
               <p className="text-gray-700"><strong>Address:</strong> Your University Campus</p>
             </div>
 
-            <div className="mt-12 p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl">
+            <div className="mt-12 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
               <p className="text-gray-700 font-semibold">
                 🔒 Your privacy is important to us. We are committed to protecting your personal information and 
                 being transparent about our data practices.
@@ -151,3 +151,4 @@ const PrivacyPolicy = () => {
 };
 
 export default PrivacyPolicy;
+

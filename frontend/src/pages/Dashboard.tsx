@@ -208,15 +208,15 @@ const Dashboard = () => {
       {/* Write Review Card - Prominent Action */}
       <div className={`rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow ${
         canReview 
-          ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200' 
-          : 'bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200'
+          ? 'bg-yellow-50 border-2 border-yellow-200' 
+          : 'bg-gray-50 border-2 border-gray-200'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className={`p-3 rounded-lg ${
               canReview 
-                ? 'bg-gradient-to-br from-yellow-400 to-orange-500' 
-                : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                ? 'bg-yellow-400' 
+                : 'bg-gray-400'
             }`}>
               <StarIcon className="h-8 w-8 text-white" />
             </div>
@@ -235,7 +235,7 @@ const Dashboard = () => {
             disabled={!canReview}
             className={`px-6 py-3 rounded-lg font-medium shadow-md transform transition-all duration-200 ${
               canReview
-                ? 'bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white hover:shadow-lg hover:-translate-y-0.5'
+                ? 'bg-primary-600 hover:bg-primary-700 text-white hover:shadow-md'
                 : 'bg-gray-400 text-gray-200 cursor-not-allowed'
             }`}
           >
@@ -246,7 +246,7 @@ const Dashboard = () => {
 
       {/* Key Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-md p-6 text-white">
+        <div className="bg-blue-600 rounded-lg shadow-md p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm font-medium">Total Donated</p>
@@ -261,7 +261,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md p-6 text-white">
+        <div className="bg-green-600 rounded-lg shadow-md p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm font-medium">Campaigns Supported</p>
@@ -274,7 +274,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-md p-6 text-white">
+        <div className="bg-purple-600 rounded-lg shadow-md p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm font-medium">Average Donation</p>
@@ -289,7 +289,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-md p-6 text-white">
+        <div className="bg-orange-600 rounded-lg shadow-md p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-orange-100 text-sm font-medium">People Impacted</p>
@@ -330,7 +330,7 @@ const Dashboard = () => {
       {/* Review Modal */}
       {showReviewModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-8">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
@@ -478,7 +478,7 @@ const Dashboard = () => {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+                      className="flex-1 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md"
                     >
                       {submitting ? 'Submitting...' : 'Submit Review'}
                     </button>
@@ -494,3 +494,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+

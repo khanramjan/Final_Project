@@ -3,7 +3,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const CookiePolicy = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link 
           to="/" 
@@ -13,7 +13,7 @@ const CookiePolicy = () => {
           Back to Home
         </Link>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-green-lg p-8 md:p-12 border border-emerald-200">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 md:p-12">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Cookie Policy</h1>
           <p className="text-gray-600 mb-8">Last updated: November 16, 2025</p>
 
@@ -135,7 +135,7 @@ const CookiePolicy = () => {
               at your university's administration office.
             </p>
 
-            <div className="mt-12 p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-xl">
+            <div className="mt-12 p-6 bg-emerald-50 border-2 border-emerald-200 rounded-lg">
               <p className="text-gray-700 font-semibold mb-4">
                 🍪 Cookie Notice
               </p>
@@ -152,3 +152,4 @@ const CookiePolicy = () => {
 };
 
 export default CookiePolicy;
+

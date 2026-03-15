@@ -87,9 +87,9 @@ const VolunteerNotificationPopup = ({ requests, onClose }: VolunteerNotification
           isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
       >
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mx-4">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mx-4">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+          <div className="bg-blue-600 px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="bg-white p-2 rounded-full animate-pulse">

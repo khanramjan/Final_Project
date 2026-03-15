@@ -98,7 +98,7 @@ const Campaigns = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-luxury-50">
         {/* Navigation Header - Only show for public users */}
         {!isInDashboard && (
           <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
@@ -106,10 +106,10 @@ const Campaigns = () => {
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center">
                   <Link to="/" className="flex items-center">
-                    <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                    <div className="h-10 w-10 bg-primary-600 rounded-lg flex items-center justify-center">
                       <HeartIcon className="h-6 w-6 text-white" />
                     </div>
-                    <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                    <span className="ml-3 text-xl font-bold text-gray-900">Donation Management System</span>
                   </Link>
                 </div>
                 <div className="hidden md:flex items-center space-x-8">
@@ -125,7 +125,7 @@ const Campaigns = () => {
                           <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                           <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
                         </div>
                       </div>
@@ -146,7 +146,7 @@ const Campaigns = () => {
                       </Link>
                       <Link 
                         to="/login" 
-                        className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
                       >
                         Get Started
                       </Link>
@@ -177,7 +177,7 @@ const Campaigns = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-luxury-50">
         {/* Navigation Header - Only show for public users */}
         {!isInDashboard && (
           <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
@@ -185,10 +185,10 @@ const Campaigns = () => {
               <div className="flex justify-between items-center h-16">
                 <div className="flex items-center">
                   <Link to="/" className="flex items-center">
-                    <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                    <div className="h-10 w-10 bg-primary-600 rounded-lg flex items-center justify-center">
                       <HeartIcon className="h-6 w-6 text-white" />
                     </div>
-                    <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                    <span className="ml-3 text-xl font-bold text-gray-900">Donation Management System</span>
                   </Link>
                 </div>
                 <div className="hidden md:flex items-center space-x-8">
@@ -204,7 +204,7 @@ const Campaigns = () => {
                           <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                        <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                           <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
                         </div>
                       </div>
@@ -225,7 +225,7 @@ const Campaigns = () => {
                       </Link>
                       <Link 
                         to="/login" 
-                        className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
                       >
                         Get Started
                       </Link>
@@ -255,7 +255,7 @@ const Campaigns = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-luxury-50">
       {/* Navigation Header - Only show for public/unauthenticated users */}
       {!isInDashboard && (
         <nav className="bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200 fixed w-full z-50">
@@ -263,10 +263,10 @@ const Campaigns = () => {
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
                 <Link to="/" className="flex items-center">
-                  <div className="h-10 w-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
+                  <div className="h-10 w-10 bg-primary-600 rounded-lg flex items-center justify-center">
                     <HeartIcon className="h-6 w-6 text-white" />
                   </div>
-                  <span className="ml-3 text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">Donation Management System</span>
+                  <span className="ml-3 text-xl font-bold text-gray-900">Donation Management System</span>
                 </Link>
               </div>
               <div className="hidden md:flex items-center space-x-8">
@@ -282,7 +282,7 @@ const Campaigns = () => {
                         <p className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                         <span className="text-white text-xs font-bold">{user.firstName.charAt(0)}</span>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ const Campaigns = () => {
                     </Link>
                     <Link 
                       to="/login" 
-                      className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                      className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg"
                     >
                       Get Started
                     </Link>
@@ -436,9 +436,9 @@ const Campaigns = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {/* Reserve Fund Card - Show for all users */}
               {reserveFund && reserveFund.totalAmount > 0 && (
-                <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-lg shadow-lg border-2 border-purple-300 overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div className="bg-purple-600 rounded-lg shadow-lg border-2 border-purple-300 overflow-hidden hover:shadow-xl transition-all transform hover:-translate-y-1">
                   {/* Header Badge */}
-                  <div className="bg-gradient-to-r from-yellow-400 to-orange-400 px-4 py-2 text-center">
+                  <div className="bg-yellow-400 px-4 py-2 text-center">
                     <p className="text-sm font-bold text-gray-900 flex items-center justify-center">
                       <span className="mr-2">✨</span>
                       COMMUNITY RESERVE FUND
@@ -524,7 +524,7 @@ const Campaigns = () => {
                         />
                       </div>
                     ) : (
-                      <div className="h-48 bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
+                      <div className="h-48 bg-primary-100 flex items-center justify-center">
                         <div className="text-center text-primary-600">
                           <ChartBarIcon className="h-16 w-16 mx-auto mb-2 opacity-50" />
                           <p className="text-sm font-medium">Campaign Image</p>
@@ -588,7 +588,7 @@ const Campaigns = () => {
                                   setSelectedCampaign(campaign);
                                   setIsDonationModalOpen(true);
                                 }}
-                                className="w-full px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center"
+                                className="w-full px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center"
                               >
                                 <HeartIcon className="h-5 w-5 mr-2" />
                                 Donate Now
@@ -600,7 +600,7 @@ const Campaigns = () => {
                                     setPosterCampaign(campaign);
                                     setIsPosterModalOpen(true);
                                   }}
-                                  className="w-full px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center text-sm"
+                                  className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center text-sm"
                                 >
                                   🖨️ Print Campaign Poster
                                 </button>
@@ -662,4 +662,7 @@ const Campaigns = () => {
 
 // Explicit default export to fix module resolution issues
 export default Campaigns;
+
+
+
 

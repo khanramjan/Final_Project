@@ -1,7 +1,6 @@
 import { 
   TrophyIcon, 
   FireIcon, 
-  SparklesIcon, 
   StarIcon,
   HeartIcon
 } from '@heroicons/react/24/outline';
@@ -71,7 +70,7 @@ const ImpactInsights: React.FC<ImpactInsightsProps> = ({
       id: 'community-hero',
       title: 'Community Hero',
       description: 'Donated over $500',
-      icon: SparklesIcon,
+      icon: TrophyIcon,
       achieved: totalDonated >= 500,
       progress: Math.min(totalDonated, 500),
       maxProgress: 500,
@@ -93,7 +92,7 @@ const ImpactInsights: React.FC<ImpactInsightsProps> = ({
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div className="text-center">
           <p className="text-2xl font-bold text-blue-600">{donationCount}</p>
           <p className="text-xs text-gray-600 mt-1">Total Donations</p>
@@ -180,7 +179,7 @@ const ImpactInsights: React.FC<ImpactInsightsProps> = ({
 
       {/* Motivational Message */}
       {achievedCount > 0 && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm font-medium text-gray-900">
             🎉 Amazing work! You've unlocked {achievedCount} achievement{achievedCount > 1 ? 's' : ''}.
           </p>

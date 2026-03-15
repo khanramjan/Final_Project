@@ -73,7 +73,7 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Success Header */}
         <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-white text-center">
@@ -185,3 +185,4 @@ const PaymentSuccess = () => {
 };
 
 export default PaymentSuccess;
+

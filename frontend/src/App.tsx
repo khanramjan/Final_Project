@@ -67,7 +67,7 @@ function AppContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+    <div className="min-h-screen bg-luxury-50">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/campaigns" element={<Campaigns />} />

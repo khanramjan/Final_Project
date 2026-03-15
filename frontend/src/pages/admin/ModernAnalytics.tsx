@@ -425,7 +425,7 @@ const ModernAnalytics = () => {
               {userInsights.topDonors.slice(0, 5).map((donor, index) => (
                 <div key={donor.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                       #{index + 1}
                     </div>
                     <div>
@@ -449,3 +449,4 @@ const ModernAnalytics = () => {
 };
 
 export default ModernAnalytics;
+

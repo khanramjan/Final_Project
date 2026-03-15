@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BanknotesIcon, ArrowLeftIcon, SparklesIcon, HeartIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, ArrowLeftIcon, HeartIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 interface ReserveFundEntry {
   id: number;
@@ -46,9 +46,9 @@ const ReserveFundPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-white">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white">
+      <div className="bg-purple-700 text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Link
             to="/campaigns"
@@ -59,13 +59,12 @@ const ReserveFundPage = () => {
           </Link>
 
           <div className="flex items-center space-x-5">
-            <div className="bg-white/20 backdrop-blur-sm p-4 rounded-2xl">
+            <div className="bg-white/10 p-4 rounded-lg">
               <BanknotesIcon className="h-10 w-10 text-white" />
             </div>
             <div>
               <h1 className="text-3xl font-bold flex items-center">
                 Community Reserve Fund
-                <SparklesIcon className="h-6 w-6 ml-2 text-yellow-300" />
               </h1>
               <p className="text-purple-200 mt-1 text-sm">
                 Overflow donations collected from completed campaigns
@@ -75,15 +74,15 @@ const ReserveFundPage = () => {
 
           {data && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
                 <p className="text-purple-200 text-xs mb-1">Total Available</p>
                 <p className="text-2xl font-bold">৳{data.totalAmount.toLocaleString()}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <div className="bg-white/10 rounded-lg p-4 border border-white/20">
                 <p className="text-purple-200 text-xs mb-1">Total Contributions</p>
                 <p className="text-2xl font-bold">{data.totalEntries}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 col-span-2 sm:col-span-1">
+              <div className="bg-white/10 rounded-lg p-4 border border-white/20 col-span-2 sm:col-span-1">
                 <p className="text-purple-200 text-xs mb-1">Source</p>
                 <p className="text-lg font-bold">Campaign Overflow</p>
               </div>
@@ -94,7 +93,7 @@ const ReserveFundPage = () => {
 
       {/* How It Works */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl border border-purple-100 shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-lg border border-purple-200 shadow-sm p-6 mb-8">
           <div className="flex items-start space-x-3">
             <HeartIcon className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
             <div>

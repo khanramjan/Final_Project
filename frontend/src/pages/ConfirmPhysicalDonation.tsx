@@ -37,7 +37,7 @@ export default function ConfirmPhysicalDonation() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center">
           <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
             <CheckCircleIcon className="h-10 w-10 text-emerald-600" />
@@ -53,7 +53,7 @@ export default function ConfirmPhysicalDonation() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Confirm Your Donation</h1>
@@ -133,3 +133,4 @@ export default function ConfirmPhysicalDonation() {
     </div>
   );
 }
+

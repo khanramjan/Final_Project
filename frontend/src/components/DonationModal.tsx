@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon, HeartIcon, SparklesIcon, LockClosedIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, HeartIcon, LockClosedIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useAppSelector } from '../store/hooks';
 
 interface Campaign {
@@ -165,7 +165,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/50" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -179,21 +179,13 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
+              <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-lg bg-white shadow-lg transition-all">
                 {/* Modern Gradient Header */}
-                <div className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-purple-700 px-8 py-6 overflow-hidden">
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-                    <div className="absolute bottom-0 right-0 w-60 h-60 bg-white rounded-full translate-x-1/3 translate-y-1/3"></div>
-                  </div>
+                <div className="relative bg-primary-600 px-8 py-6 overflow-hidden">
                   <div className="relative flex justify-between items-start">
                     <div className="flex items-center space-x-3">
-                      <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg">
-                        {step === 'amount' ? (
-                          <SparklesIcon className="h-7 w-7 text-white" />
-                        ) : (
-                          <HeartIcon className="h-7 w-7 text-white" />
-                        )}
+                      <div className="h-12 w-12 bg-white rounded-lg flex items-center justify-center">
+                        <HeartIcon className="h-7 w-7 text-primary-600" />
                       </div>
                       <div>
                         <Dialog.Title as="h3" className="text-2xl font-bold text-white">
@@ -206,7 +198,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                     </div>
                     <button
                       onClick={handleClose}
-                      className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all"
+                      className="text-white hover:text-gray-200 rounded-lg p-2 transition-all"
                       disabled={loading}
                     >
                       <XMarkIcon className="h-6 w-6" />
@@ -217,7 +209,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                 {/* Campaign Info Card */}
                 {campaign && (
                   <div className="mx-8 -mt-4 relative z-10">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+                    <div className="bg-white rounded-lg shadow border border-gray-200 p-5">
                       <div className="flex justify-between items-center">
                         <div className="flex-1">
                           <h4 className="font-bold text-gray-900 text-lg mb-2">{campaign.title}</h4>
@@ -240,9 +232,9 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                           <div className="text-xs text-gray-500 uppercase tracking-wide">Funded</div>
                         </div>
                       </div>
-                      <div className="mt-3 w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div className="mt-3 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div 
-                          className="bg-gradient-to-r from-primary-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                          className="bg-primary-600 h-2 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min((campaign.currentAmount / campaign.goalAmount) * 100, 100)}%` }}
                         ></div>
                       </div>
@@ -272,10 +264,10 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                             <button
                               key={preset}
                               onClick={() => handleAmountSelect(preset)}
-                              className={`relative p-5 rounded-2xl border-2 transition-all duration-200 ${
+                              className={`relative p-5 rounded-lg border-2 transition-all duration-200 ${
                                 amount === preset && !customAmount
-                                  ? 'border-primary-500 bg-gradient-to-br from-primary-50 to-purple-50 shadow-lg scale-105'
-                                  : 'border-gray-200 hover:border-primary-300 hover:shadow-md bg-white'
+                                  ? 'border-primary-600 bg-primary-50 shadow-md'
+                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm bg-white'
                               }`}
                             >
                               <div className="text-2xl font-bold text-gray-900">৳{preset.toLocaleString()}</div>
@@ -292,7 +284,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                             placeholder="Or enter custom amount"
                             value={customAmount}
                             onChange={(e) => handleCustomAmountChange(e.target.value)}
-                            className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl text-lg font-semibold focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                            className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-lg text-lg font-semibold focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition-all"
                             min="10"
                           />
                         </div>
@@ -309,12 +301,12 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                         </label>
                         
                         {/* Payment Tabs */}
-                        <div className="flex space-x-1 bg-gray-100 p-1 rounded-xl mb-4">
+                        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-4">
                           <button
                             onClick={() => setPaymentTab('mobile')}
-                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                            className={`flex-1 py-3 px-4 rounded-md font-semibold text-sm transition-all ${
                               paymentTab === 'mobile'
-                                ? 'bg-white text-primary-600 shadow-md'
+                                ? 'bg-white text-primary-600 shadow-sm'
                                 : 'text-gray-600 hover:text-gray-900'
                             }`}
                           >
@@ -322,9 +314,9 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                           </button>
                           <button
                             onClick={() => setPaymentTab('cards')}
-                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                            className={`flex-1 py-3 px-4 rounded-md font-semibold text-sm transition-all ${
                               paymentTab === 'cards'
-                                ? 'bg-white text-primary-600 shadow-md'
+                                ? 'bg-white text-primary-600 shadow-sm'
                                 : 'text-gray-600 hover:text-gray-900'
                             }`}
                           >
@@ -332,9 +324,9 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                           </button>
                           <button
                             onClick={() => setPaymentTab('netbanking')}
-                            className={`flex-1 py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                            className={`flex-1 py-3 px-4 rounded-md font-semibold text-sm transition-all ${
                               paymentTab === 'netbanking'
-                                ? 'bg-white text-primary-600 shadow-md'
+                                ? 'bg-white text-primary-600 shadow-sm'
                                 : 'text-gray-600 hover:text-gray-900'
                             }`}
                           >
@@ -348,10 +340,10 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                             <button
                               key={method.id}
                               onClick={() => setPaymentMethod(method.id)}
-                              className={`relative p-6 rounded-xl border-2 transition-all duration-200 hover:scale-105 ${
+                              className={`relative p-6 rounded-lg border-2 transition-all duration-200 ${
                                 paymentMethod === method.id
-                                  ? `${method.borderColor} ${method.bgColor} shadow-lg ring-2 ring-primary-300`
-                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md bg-white'
+                                  ? `${method.borderColor} ${method.bgColor} shadow-sm ring-2 ring-primary-600`
+                                  : 'border-gray-200 hover:border-gray-300 hover:shadow-sm bg-white'
                               }`}
                             >
                               <div className="flex flex-col items-center justify-center space-y-2">
@@ -372,19 +364,19 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
 
                       <div className="flex justify-between items-center pt-6 border-t-2 border-gray-100">
                         <div className="flex items-center space-x-4">
-                          <div className="h-16 w-16 bg-gradient-to-br from-primary-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg">
+                          <div className="h-16 w-16 bg-primary-600 rounded-lg flex items-center justify-center shadow-md">
                             <HeartIcon className="h-8 w-8 text-white" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-gray-600">Your Donation</p>
-                            <p className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                            <p className="text-3xl font-bold text-primary-600">
                               ৳{amount.toLocaleString()}
                             </p>
                           </div>
                         </div>
                         <button
                           onClick={handleNextStep}
-                          className="px-8 py-4 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-2xl font-bold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          className="px-8 py-4 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-all shadow-md hover:shadow-lg"
                         >
                           Continue →
                         </button>
@@ -395,7 +387,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                   {/* Step 2: Details */}
                   {step === 'details' && (
                     <div className="space-y-6">
-                      <div className="bg-gradient-to-r from-primary-50 to-purple-50 rounded-2xl p-5 border-2 border-primary-100">
+                      <div className="bg-primary-50 rounded-lg p-5 border-2 border-primary-200">
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="text-sm font-medium text-gray-600">Amount</p>
@@ -486,7 +478,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                         <button
                           onClick={handleSubmit}
                           disabled={loading}
-                          className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl font-bold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50"
+                          className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-all shadow-md disabled:opacity-50\"
                         >
                           {loading ? '⏳ Processing...' : `Donate ৳${amount.toLocaleString()}`}
                         </button>

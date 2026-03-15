@@ -440,9 +440,9 @@ const Donations = () => {
       {/* Donation Details Modal */}
       {showModal && selectedDonation && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 rounded-t-xl">
+            <div className="bg-blue-600 px-6 py-4 rounded-t-lg">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-white">Donation Details</h3>
                 <button
@@ -476,7 +476,7 @@ const Donations = () => {
               </div>
 
               {/* Donation Amount */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
                 <h4 className="text-sm font-medium text-gray-600 mb-1">Donation Amount</h4>
                 <p className="text-3xl font-bold text-green-700">
                   ৳{selectedDonation.amount.toLocaleString()}
@@ -527,7 +527,7 @@ const Donations = () => {
               )}
 
               {/* Thank You Message */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
+              <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
                 <div className="flex items-center">
                   <TrophyIcon className="w-6 h-6 text-purple-600 mr-2" />
                   <div>
@@ -564,3 +564,5 @@ const Donations = () => {
 };
 
 export default Donations;
+
+

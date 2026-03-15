@@ -13,7 +13,7 @@ import {
 
 const Documentation = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12">
+    <div className="min-h-screen bg-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link 
           to="/" 
@@ -34,14 +34,14 @@ const Documentation = () => {
         </div>
 
         {/* Quick Start Guide */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-green-lg p-8 mb-8 border border-emerald-200">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8">
           <div className="flex items-center mb-6">
             <RocketLaunchIcon className="h-8 w-8 text-emerald-600 mr-3" />
             <h2 className="text-3xl font-bold text-gray-900">Quick Start Guide</h2>
           </div>
           
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-xl border-2 border-emerald-200">
+            <div className="bg-emerald-50 p-6 rounded-lg border-2 border-emerald-200">
               <h3 className="text-xl font-bold text-gray-900 mb-4">For Donors</h3>
               <ol className="space-y-3 text-gray-700">
                 <li className="flex items-start">
@@ -67,7 +67,7 @@ const Documentation = () => {
               </ol>
             </div>
 
-            <div className="bg-gradient-to-br from-green-50 to-teal-50 p-6 rounded-xl border-2 border-green-200">
+            <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200">
               <h3 className="text-xl font-bold text-gray-900 mb-4">For Campaign Creators</h3>
               <ol className="space-y-3 text-gray-700">
                 <li className="flex items-start">
@@ -97,7 +97,7 @@ const Documentation = () => {
 
         {/* Features Overview */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <HeartIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Donation Processing</h3>
             <p className="text-gray-700 mb-4">
@@ -111,7 +111,7 @@ const Documentation = () => {
             </ul>
           </div>
 
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <UserGroupIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Campaign Management</h3>
             <p className="text-gray-700 mb-4">
@@ -125,7 +125,7 @@ const Documentation = () => {
             </ul>
           </div>
 
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <ChartBarIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Analytics & Reports</h3>
             <p className="text-gray-700 mb-4">
@@ -139,7 +139,7 @@ const Documentation = () => {
             </ul>
           </div>
 
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <ShieldCheckIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Security & Privacy</h3>
             <p className="text-gray-700 mb-4">
@@ -153,7 +153,7 @@ const Documentation = () => {
             </ul>
           </div>
 
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <CreditCardIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Payment Methods</h3>
             <p className="text-gray-700 mb-4">
@@ -167,7 +167,7 @@ const Documentation = () => {
             </ul>
           </div>
 
-          <div className="card-green p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
             <BellIcon className="h-10 w-10 text-emerald-600 mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3">Notifications</h3>
             <p className="text-gray-700 mb-4">
@@ -183,7 +183,7 @@ const Documentation = () => {
         </div>
 
         {/* FAQs */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-green-lg p-8 mb-8 border border-emerald-200">
+        <div className="bg-white border border-gray-200 rounded-lg p-8 mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Frequently Asked Questions</h2>
           
           <div className="space-y-6">
@@ -239,7 +239,7 @@ const Documentation = () => {
         </div>
 
         {/* Contact Support */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-2xl shadow-green-xl p-8 text-center">
+        <div className="bg-emerald-600 rounded-lg shadow-lg p-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Need More Help?</h2>
           <p className="text-emerald-50 text-lg mb-6">
             Our support team is here to assist you with any questions or issues.
@@ -271,3 +271,4 @@ const Documentation = () => {
 };
 
 export default Documentation;
+

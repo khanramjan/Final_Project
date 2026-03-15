@@ -1,0 +1,696 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { 
+  HeartIcon, 
+  UsersIcon, 
+  MegaphoneIcon, 
+  ChartBarIcon,
+  ArrowRightIcon,
+  StarIcon,
+  ShieldCheckIcon,
+  GlobeAltIcon,
+  CogIcon,
+  LightBulbIcon,
+  TrophyIcon,
+  DocumentTextIcon,
+  ClockIcon,
+  FireIcon,
+  SparklesIcon,
+  PowerIcon,
+  FaceSmileIcon,
+  FaceFrownIcon,
+  MinusCircleIcon,
+  ChatBubbleLeftRightIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchCampaigns } from '../store/slices/campaignSlice';
+import { logout } from '../store/slices/authSlice';
+import testimonialService, { Testimonial } from '../services/testimonialService';
+import ReserveFundSection from '../components/ReserveFundSection';
+
+const Landing = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const dispatchAction = useAppDispatch();
+  const { campaigns, loading } = useAppSelector((state) => state.campaigns);
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  const handleLogout = () => {
+    dispatchAction(logout());
+    navigate('/');
+  };
+
+  useEffect(() => {
+    dispatch(fetchCampaigns());
+    loadTestimonials();
+  }, [dispatch]);
+
+  const loadTestimonials = async () => {
+    try {
+      const data = await testimonialService.getPublicTestimonials(6);
+      setTestimonials(data);
+    } catch (error) {
+      console.error('Failed to load testimonials:', error);
+    }
+  };
+
+  // Get latest and recent campaigns
+  const activeCampaigns = campaigns.filter(campaign => campaign.status === 'active');
+  const latestCampaigns = activeCampaigns
+    .sort((a, b) => new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime())
+    .slice(0, 3);
+  
+  const recentlyUpdatedCampaigns = activeCampaigns
+    .filter(campaign => campaign.currentAmount > 0)
+    .sort((a, b) => (b.currentAmount / b.goalAmount) - (a.currentAmount / a.goalAmount))
+    .slice(0, 3);
+
+  const features = [
+    {
+      icon: HeartIcon,
+      title: 'Smart Donation Processing',
+      description: 'Secure donation processing with multiple payment options and automated receipt generation for seamless donor experience.',
+      stats: 'Active'
+    },
+    {
+      icon: UsersIcon,
+      title: 'Comprehensive Donor Management',
+      description: 'Advanced donor profiles, communication tracking, and engagement tools to build lasting relationships with supporters.',
+      stats: 'Operational'
+    },
+    {
+      icon: MegaphoneIcon,
+      title: 'Campaign Management',
+      description: 'Create and manage fundraising campaigns with goal tracking, progress monitoring, and automated communication workflows.',
+      stats: 'Live'
+    },
+    {
+      icon: ChartBarIcon,
+      title: 'Analytics & Reporting',
+      description: 'Comprehensive reporting suite with custom dashboards, donation trends, and performance insights for data-driven decisions.',
+      stats: 'Available'
+    },
+    {
+      icon: ShieldCheckIcon,
+      title: 'Enterprise Security',
+      description: 'Bank-level encryption, secure data storage, and compliance-ready infrastructure to protect sensitive donor information.',
+      stats: 'Enabled'
+    },
+    {
+      icon: GlobeAltIcon,
+      title: 'Modern Architecture',
+      description: 'Built with cutting-edge technology stack for scalability, reliability, and seamless integration capabilities.',
+      stats: 'Optimized'
+    }
+  ];
+
+  const benefits = [
+    {
+      icon: TrophyIcon,
+      title: 'University Focused',
+      description: 'Designed specifically for university donation campaigns and student initiatives',
+      metric: 'Tailored solution'
+    },
+    {
+      icon: LightBulbIcon,
+      title: 'Modern Technology',
+      description: 'Latest technology stack with responsive design and intuitive user experience',
+      metric: 'React & .NET'
+    },
+    {
+      icon: CogIcon,
+      title: 'Easy to Use',
+      description: 'Intuitive interface designed for both donors and campaign managers',
+      metric: 'User-friendly'
+    },
+    {
+      icon: DocumentTextIcon,
+      title: 'Fully Secure',
+      description: 'Built with security and data protection standards for safe transactions',
+      metric: 'Protected data'
+    }
+  ];
+
+  const stats = [
+    { label: 'Active Since', value: '2025', change: 'Live Platform' },
+    { label: 'Active Campaigns', value: activeCampaigns.length.toString(), change: 'Running Now' },
+    { label: 'System Uptime', value: '99.9%', change: 'Reliable' },
+    { label: 'Secure Donations', value: '100%', change: 'Protected' }
+  ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white border-b border-gray-200 fixed w-full z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex items-center">
+                <div className="h-10 w-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <HeartIcon className="h-6 w-6 text-white" />
+                </div>
+                <span className="ml-3 text-lg font-semibold text-gray-900">Donation Platform</span>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/campaigns" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Campaigns</Link>
+              <a href="/reviews" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Impact Stories</a>
+              <a href="#features" className="text-gray-700 hover:text-emerald-600 px-3 py-2 text-sm font-semibold transition-colors">Features</a>
+            </div>
+            <div className="flex items-center space-x-4">
+              {isAuthenticated && user ? (
+                <>
+                  <div className="hidden sm:flex items-center space-x-3">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-gray-900">{user.firstName} {user.lastName}</p>
+                      <p className="text-xs text-emerald-600">{user.email}</p>
+                    </div>
+                    <div className="h-10 w-10 rounded-full bg-emerald-600 flex items-center justify-center shadow-green-md ring-2 ring-emerald-200">
+                      <span className="text-white text-sm font-bold">{user.firstName.charAt(0)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 p-2 text-gray-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl transition-colors"
+                  >
+                    <PowerIcon className="h-5 w-5" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-gray-700 hover:text-emerald-700 px-4 py-2 text-sm font-semibold transition-colors rounded-lg hover:bg-emerald-50"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/login" 
+                    className="btn-primary shadow-lg hover:shadow-lg"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative pt-20 pb-16 bg-white overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Transform Your Fundraising Impact
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+              A comprehensive donation management platform for our university community, empowering students and organizations to launch campaigns, track donations, and make a lasting impact.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-10">
+              <Link 
+                to="/campaigns" 
+                className="bg-emerald-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-emerald-700 transition-colors"
+              >
+                Explore Campaigns
+              </Link>
+              <a 
+                href="#features"
+                className="border-2 border-emerald-600 text-emerald-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-emerald-50 transition-colors"
+              >
+                Learn More
+              </a>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <ShieldCheckIcon className="h-4 w-4 text-emerald-600" />
+                Secure
+              </div>
+              <div className="flex items-center gap-2">
+                <GlobeAltIcon className="h-4 w-4 text-emerald-600" />
+                Modern Architecture
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="h-4 w-4 text-emerald-600" />
+                Ready to Use
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gray-50 border-t border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-gray-900 mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-gray-700 font-medium mb-0.5">{stat.label}</div>
+                <div className="text-gray-500 text-sm">{stat.change}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Live Campaigns Section */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Active Campaigns
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Discover ongoing fundraising campaigns and see how our community is making a difference together.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+              <p className="text-gray-500 mt-4">Loading campaigns...</p>
+            </div>
+          ) : (
+            <div className="space-y-16">
+              {/* Latest Campaigns */}
+              {latestCampaigns.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-8">
+                    <SparklesIcon className="h-6 w-6 text-emerald-600 mr-3" />
+                    <h3 className="text-2xl font-bold text-gray-900">Latest Campaigns</h3>
+                    <div className="ml-4 px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-sm font-bold shadow-sm border border-green-200">
+                      Just launched
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {latestCampaigns.map((campaign) => {
+                      const rawProgress = (campaign.currentAmount / campaign.goalAmount) * 100;
+                      const progress = Math.min(rawProgress, 100);
+                      const progressPercentage = rawProgress.toFixed(2);
+                      const daysLeft = Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+                      
+                      return (
+                        <div key={campaign.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+                          {campaign.imageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img 
+                                src={campaign.imageUrl} 
+                                alt={campaign.title}
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-white px-3 py-1 rounded-full text-sm font-medium text-emerald-700 shadow-sm border border-emerald-200">
+                                  New
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="p-6">
+                            <div className="flex items-center mb-3 gap-2">
+                              <div className="badge-green">
+                                {campaign.category}
+                              </div>
+                              <div className="ml-auto flex items-center text-gray-600 text-sm">
+                                <ClockIcon className="h-4 w-4 mr-1 text-emerald-600" />
+                                {daysLeft} days left
+                              </div>
+                            </div>
+                            <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                              {campaign.title}
+                            </h4>
+                            <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
+                              {campaign.description}
+                            </p>
+                            <div className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium text-gray-900">{progressPercentage}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between items-center pt-2">
+                                <div>
+                                  <div className="text-lg font-bold text-gray-900">
+                                    ৳{campaign.currentAmount.toLocaleString()}
+                                  </div>
+                                  <div className="text-xs text-gray-600">
+                                    raised of ৳{campaign.goalAmount.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-emerald-600">
+                                    {campaign.donorCount}
+                                  </div>
+                                  <div className="text-sm text-gray-600">
+                                    donors
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Popular Campaigns */}
+              {recentlyUpdatedCampaigns.length > 0 && (
+                <div>
+                  <div className="flex items-center mb-8">
+                    <TrophyIcon className="h-6 w-6 text-yellow-500 mr-3" />
+                    <h3 className="text-2xl font-bold text-gray-900">Trending Campaigns</h3>
+                    <div className="ml-4 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                      Most supported
+                    </div>
+                  </div>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {recentlyUpdatedCampaigns.map((campaign, index) => {
+                      const rawProgress = (campaign.currentAmount / campaign.goalAmount) * 100;
+                      const progress = Math.min(rawProgress, 100);
+                      const progressPercentage = rawProgress.toFixed(2);
+                      const daysLeft = Math.max(0, Math.ceil((new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+                      
+                      return (
+                        <div key={campaign.id} className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border border-yellow-200 hover:border-yellow-300 overflow-hidden">
+                          {index === 0 && (
+                            <div className="bg-yellow-500 text-white text-center py-2 text-sm font-semibold">
+                              🏆 Most Popular
+                            </div>
+                          )}
+                          {campaign.imageUrl && (
+                            <div className="relative h-48 overflow-hidden">
+                              <img 
+                                src={campaign.imageUrl} 
+                                alt={campaign.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                              <div className="absolute top-4 right-4">
+                                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-yellow-700">
+                                  Hot
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="p-6">
+                            <div className="flex items-center mb-3">
+                              <div className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                                {campaign.category}
+                              </div>
+                              <div className="ml-auto flex items-center text-gray-500 text-sm">
+                                <ClockIcon className="h-4 w-4 mr-1" />
+                                {daysLeft} days left
+                              </div>
+                            </div>
+                            <h4 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-yellow-700 transition-colors">
+                              {campaign.title}
+                            </h4>
+                            <p className="text-gray-600 mb-4 line-clamp-2">
+                              {campaign.description}
+                            </p>
+                            <div className="space-y-3">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-gray-600">Progress</span>
+                                <span className="font-medium text-gray-900">{progressPercentage}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3">
+                                <div
+                                  className="bg-yellow-500 h-3 rounded-full transition-all duration-500"
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <div className="text-lg font-bold text-gray-900">
+                                    ৳{campaign.currentAmount.toLocaleString()}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    raised of ৳{campaign.goalAmount.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-lg font-bold text-yellow-600">
+                                    {campaign.donorCount}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    donors
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* No campaigns message */}
+              {latestCampaigns.length === 0 && recentlyUpdatedCampaigns.length === 0 && (
+                <div className="text-center py-16">
+                  <MegaphoneIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Active Campaigns</h3>
+                  <p className="text-gray-600 mb-8">
+                    Check back soon for exciting new campaigns!
+                  </p>
+                  <Link 
+                    to="/login" 
+                    className="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors"
+                  >
+                    Sign In to View More
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* View All Campaigns Button */}
+          {(latestCampaigns.length > 0 || recentlyUpdatedCampaigns.length > 0) && (
+            <div className="text-center mt-12">
+              <Link 
+                to="/campaigns" 
+                className="inline-flex items-center px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-colors shadow-lg hover:shadow-xl"
+              >
+                View All Campaigns
+                <ArrowRightIcon className="ml-3 h-5 w-5" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Reserve Fund Section */}
+      <ReserveFundSection />
+
+      {/* Features Section */}
+      <section id="features" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Complete Platform for University Fundraising
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Comprehensive tools and analytics that help student organizations and university departments manage campaigns, track donations, and engage with the community.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-8 mb-16">
+            {features.map((feature, index) => (
+              <div key={index} className="p-6 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-12 w-12 bg-emerald-600 rounded-lg flex items-center justify-center">
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Benefits Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {benefits.map((benefit, index) => (
+              <div key={index} className="p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-white transition-colors">
+                <benefit.icon className="h-8 w-8 text-emerald-600 mb-3" />
+                <h4 className="font-semibold text-gray-900 mb-2 text-sm">{benefit.title}</h4>
+                <p className="text-gray-600 text-sm mb-3 leading-relaxed">{benefit.description}</p>
+                <span className="text-emerald-700 text-xs font-medium">{benefit.metric}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section id="testimonials" className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Trusted by Our Community
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              See how students and organizations are making an impact through our donation platform.
+            </p>
+          </div>
+          
+          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+            {testimonials.length > 0 ? (
+              testimonials.map((testimonial) => (
+                <div key={testimonial.id} className="bg-white p-6 rounded-lg border border-gray-200 flex flex-col">
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <StarIcon key={i} className="h-4 w-4 text-yellow-400 fill-current" />
+                    ))}
+                  </div>
+                  <blockquote className="text-gray-700 mb-4 leading-relaxed flex-1 text-sm">
+                    "{testimonial.comment}"
+                  </blockquote>
+                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                    {testimonial.avatarUrl ? (
+                      <img 
+                        src={testimonial.avatarUrl} 
+                        alt={testimonial.name}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-semibold text-sm">
+                          {testimonial.name.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-semibold text-gray-900 text-sm">{testimonial.name}</div>
+                      <div className="text-gray-600 text-xs">{testimonial.position}</div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8">
+                <p className="text-gray-500">Loading testimonials...</p>
+              </div>
+            )}
+          </div>
+          {/* View all testimonials link */}
+          <div className="text-center">
+            <Link
+              to="/reviews"
+              className="text-emerald-600 hover:text-emerald-700 font-semibold text-sm"
+            >
+              View all testimonials →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-emerald-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4">
+              Ready to Make a Difference?
+            </h2>
+            <p className="text-lg text-emerald-100 mb-8">
+              Join our university community in supporting meaningful causes. Your donations help fund student initiatives and community programs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                to="/register" 
+                className="bg-white text-emerald-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              >
+                Start Contributing
+              </Link>
+              <Link
+                to="/campaigns"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-emerald-600 transition-colors"
+              >
+                View Campaigns
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid md:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="flex items-center mb-6">
+                <div className="h-10 w-10 bg-emerald-600 rounded-lg flex items-center justify-center">
+                  <HeartIcon className="h-6 w-6 text-white" />
+                </div>
+                <span className="ml-3 text-lg font-semibold">Donation Platform</span>
+              </div>
+              <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                A modern donation management platform for university community initiatives.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white mb-4">Platform</h3>
+              <ul className="space-y-3 text-sm text-gray-400">
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><Link to="/campaigns" className="hover:text-white transition-colors">Campaigns</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">Dashboard</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white mb-4">Quick Links</h3>
+              <ul className="space-y-3 text-sm text-gray-400">
+                <li><Link to="/campaigns" className="hover:text-white transition-colors">Browse Campaigns</Link></li>
+                <li><Link to="/register" className="hover:text-white transition-colors">Get Started</Link></li>
+                <li><Link to="/login" className="hover:text-white transition-colors">Sign In</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold text-white mb-4">Support</h3>
+              <ul className="space-y-3 text-sm text-gray-400">
+                <li><a href="mailto:khanramjan001@gmail.com" className="hover:text-white transition-colors">Email Help</a></li>
+                <li><Link to="/documentation" className="hover:text-white transition-colors">Documentation</Link></li>
+                <li><a href="https://wa.me/8801518686883" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+              <div>&copy; 2025 Donation Management System. All rights reserved.</div>
+              <div className="flex gap-6 mt-4 md:mt-0">
+                <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Landing;
+
+
+
+
+
