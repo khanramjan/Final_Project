@@ -8,10 +8,20 @@ import {
 } from '@heroicons/react/24/outline';
 import testimonialService, { Testimonial } from '../../services/testimonialService';
 
+type AdminTestimonialFilter =
+  | 'all'
+  | 'pending'
+  | 'approved'
+  | 'scam-risk'
+  | 'abusive'
+  | 'positive'
+  | 'neutral'
+  | 'negative';
+
 export default function AdminTestimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'scam-risk' | 'negative'>('all');
+  const [filter, setFilter] = useState<AdminTestimonialFilter>('all');
 
   useEffect(() => {
     loadTestimonials();
@@ -55,9 +65,12 @@ export default function AdminTestimonials() {
 
   const filteredTestimonials = testimonials.filter(t => {
     if (filter === 'all') return true;
-    if (filter === 'pending') return !t.isApproved; // Assuming we want a pending view? Not standard but useful
+    if (filter === 'pending') return !t.isApproved;
     if (filter === 'approved') return t.isApproved;
-    if (filter === 'scam-risk') return t.isScamRisk;
+    if (filter === 'scam-risk') return t.isScamRisk || t.riskLabel === 'scam-risk';
+    if (filter === 'abusive') return t.sentimentLabel === 'abusive' || t.riskLabel === 'abusive';
+    if (filter === 'positive') return t.sentimentLabel === 'positive';
+    if (filter === 'neutral') return t.sentimentLabel === 'neutral';
     if (filter === 'negative') return t.sentimentLabel === 'negative';
     return true;
   });
@@ -72,12 +85,16 @@ export default function AdminTestimonials() {
         <div className="flex bg-white rounded-lg shadow-sm border border-gray-200 p-1">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) => setFilter(e.target.value as AdminTestimonialFilter)}
             className="w-full pl-3 pr-8 py-2 text-sm border-0 focus:ring-0 text-gray-700 bg-transparent cursor-pointer font-medium"
           >
             <option value="all">All Testimonials</option>
+            <option value="pending">Pending Approval</option>
             <option value="approved">Approved</option>
+            <option value="abusive">🚫 Abusive</option>
             <option value="scam-risk">⚠️ Scam-Risk</option>
+            <option value="positive">✅ Positive</option>
+            <option value="neutral">➖ Neutral</option>
             <option value="negative">👎 Negative Sentiment</option>
           </select>
         </div>
@@ -96,10 +113,13 @@ export default function AdminTestimonials() {
           {filteredTestimonials.map((t) => (
             <div key={t.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 overflow-hidden relative">
               {/* Status Border Decoration */}
-              {t.isScamRisk && (
+              {(t.sentimentLabel === 'abusive' || t.riskLabel === 'abusive') && (
+                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-600"></div>
+              )}
+              {t.sentimentLabel !== 'abusive' && t.riskLabel !== 'abusive' && (t.isScamRisk || t.riskLabel === 'scam-risk') && (
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500"></div>
               )}
-              {!t.isScamRisk && t.sentimentLabel === 'negative' && (
+              {!(t.isScamRisk || t.riskLabel === 'scam-risk' || t.riskLabel === 'abusive') && t.sentimentLabel === 'negative' && (
                 <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-orange-400"></div>
               )}
 
@@ -113,6 +133,11 @@ export default function AdminTestimonials() {
                     
                     {/* Tags */}
                     <div className="flex gap-2 ml-auto md:ml-0 md:pl-2">
+                      {(t.sentimentLabel === 'abusive' || t.riskLabel === 'abusive') && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                          <ExclamationTriangleIcon className="w-3 h-3 mr-1" /> Abusive
+                        </span>
+                      )}
                       {t.isScamRisk && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
                           <ExclamationTriangleIcon className="w-3 h-3 mr-1" /> Scam Risk
@@ -126,6 +151,11 @@ export default function AdminTestimonials() {
                       {t.sentimentLabel === 'positive' && (
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
                           Positive
+                        </span>
+                      )}
+                      {t.sentimentLabel === 'neutral' && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-700">
+                          Neutral
                         </span>
                       )}
                     </div>

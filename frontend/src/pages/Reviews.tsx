@@ -8,6 +8,7 @@ import {
   FaceSmileIcon,
   FaceFrownIcon,
   MinusCircleIcon,
+  ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
   ChartBarIcon,
@@ -21,7 +22,7 @@ import mlService from '../services/mlService';
 
 // ─── Sentiment Helpers ──────────────────────────────────────────────────────
 
-type SentimentLabel = 'positive' | 'neutral' | 'negative';
+type SentimentLabel = 'positive' | 'neutral' | 'negative' | 'abusive';
 
 function SentimentBadge({
   label,
@@ -55,6 +56,13 @@ function SentimentBadge({
       text: 'text-rose-700',
       icon: <FaceFrownIcon className={`${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} mr-1`} />,
       label: 'Negative',
+    },
+    abusive: {
+      bg: 'bg-red-50',
+      border: 'border-red-200',
+      text: 'text-red-700',
+      icon: <ExclamationTriangleIcon className={`${size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'} mr-1`} />,
+      label: 'Abusive',
     },
   }[label];
 
@@ -175,14 +183,14 @@ function WriteReviewForm({ onSuccess }: { onSuccess: () => void }) {
     setSubmitting(true);
     setMsg(null);
     try {
-      await testimonialService.submitTestimonial({
+      const response = await testimonialService.submitTestimonial({
         rating: form.rating,
         comment: form.comment,
         position: form.position,
         organization: form.organization,
         badgeType: form.badgeType || undefined,
       });
-      setMsg({ type: 'success', text: 'Thank you! Your review has been published. 🎉' });
+      setMsg({ type: 'success', text: response.message || 'Thank you! Your review has been submitted.' });
       setForm({ rating: 5, comment: '', position: '', organization: '', badgeType: '' });
       setTimeout(() => {
         setMsg(null);
@@ -337,6 +345,7 @@ function SentimentStatsBar({ reviews }: { reviews: Testimonial[] }) {
   const positive = reviews.filter((r) => r.sentimentLabel === 'positive').length;
   const neutral = reviews.filter((r) => r.sentimentLabel === 'neutral').length;
   const negative = reviews.filter((r) => r.sentimentLabel === 'negative').length;
+  const abusive = reviews.filter((r) => r.sentimentLabel === 'abusive').length;
   const avgRating = reviews.reduce((acc, r) => acc + r.rating, 0) / total;
 
   const pct = (n: number) => Math.round((n / total) * 100);
@@ -348,7 +357,7 @@ function SentimentStatsBar({ reviews }: { reviews: Testimonial[] }) {
         <h3 className="font-bold text-gray-900">Community Sentiment Overview</h3>
         <span className="ml-auto text-xs text-gray-500">{total} review{total !== 1 ? 's' : ''}</span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {/* Positive */}
         <div className="flex flex-col items-center p-4 bg-emerald-50 rounded-xl border border-emerald-100">
           <FaceSmileIcon className="h-8 w-8 text-emerald-500 mb-1" />
@@ -369,6 +378,13 @@ function SentimentStatsBar({ reviews }: { reviews: Testimonial[] }) {
           <span className="text-2xl font-extrabold text-rose-700">{pct(negative)}%</span>
           <span className="text-xs text-rose-600 font-medium">Negative</span>
           <span className="text-xs text-gray-400">{negative} review{negative !== 1 ? 's' : ''}</span>
+        </div>
+        {/* Abusive */}
+        <div className="flex flex-col items-center p-4 bg-red-50 rounded-xl border border-red-100">
+          <ExclamationTriangleIcon className="h-8 w-8 text-red-500 mb-1" />
+          <span className="text-2xl font-extrabold text-red-700">{pct(abusive)}%</span>
+          <span className="text-xs text-red-600 font-medium">Abusive</span>
+          <span className="text-xs text-gray-400">{abusive} review{abusive !== 1 ? 's' : ''}</span>
         </div>
       </div>
       {/* Stacked bar */}
@@ -394,11 +410,19 @@ function SentimentStatsBar({ reviews }: { reviews: Testimonial[] }) {
             title={`Negative: ${pct(negative)}%`}
           />
         )}
+        {abusive > 0 && (
+          <div
+            className="bg-red-500 transition-all"
+            style={{ width: `${pct(abusive)}%` }}
+            title={`Abusive: ${pct(abusive)}%`}
+          />
+        )}
       </div>
       <div className="flex items-center gap-4 text-xs text-gray-500 flex-wrap">
         <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-emerald-400" /> Positive</div>
         <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Neutral</div>
         <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-rose-400" /> Negative</div>
+        <div className="flex items-center gap-1.5"><div className="h-2.5 w-2.5 rounded-full bg-red-500" /> Abusive</div>
         <div className="ml-auto font-semibold text-gray-700">
           Avg. Rating: {avgRating.toFixed(1)} ⭐
         </div>
@@ -456,6 +480,11 @@ function ReviewCard({ review }: { review: Testimonial }) {
               Complaint
             </span>
           )}
+          {review.riskLabel === 'abusive' && (
+            <span className="inline-flex items-center px-2 py-0.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-full font-medium">
+              Abusive
+            </span>
+          )}
         </div>
       </div>
     </div>
@@ -464,7 +493,7 @@ function ReviewCard({ review }: { review: Testimonial }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const FILTERS = ['all', 'positive', 'neutral', 'negative'] as const;
+const FILTERS = ['all', 'positive', 'neutral', 'negative', 'abusive'] as const;
 type Filter = typeof FILTERS[number];
 
 const Reviews = () => {

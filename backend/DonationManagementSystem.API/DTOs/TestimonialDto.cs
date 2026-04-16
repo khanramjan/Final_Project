@@ -49,12 +49,35 @@ namespace DonationManagementSystem.API.DTOs
         public int CurrentPage { get; set; }
     }
 
+    public class TestimonialSubmissionSentimentDto
+    {
+        public string SentimentLabel { get; set; } = "neutral";
+        public float SentimentScore { get; set; }
+        public string RiskLabel { get; set; } = "normal";
+        public bool IsScamRisk { get; set; }
+    }
+
+    public class TestimonialSubmissionModerationDto
+    {
+        public bool RequiresManualApproval { get; set; }
+        public string? ReasonCode { get; set; }
+    }
+
+    public class CreateTestimonialResponseDto
+    {
+        public string Message { get; set; } = string.Empty;
+        public int TestimonialId { get; set; }
+        public TestimonialSubmissionSentimentDto Sentiment { get; set; } = new();
+        public TestimonialSubmissionModerationDto Moderation { get; set; } = new();
+    }
+
     public class TestimonialSentimentStatsDto
     {
         public int Total { get; set; }
         public int Positive { get; set; }
         public int Neutral { get; set; }
         public int Negative { get; set; }
+        public int Abusive { get; set; }
         public int ScamRisk { get; set; }
         public double AverageSentimentScore { get; set; }
     }

@@ -478,7 +478,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
                         <button
                           onClick={handleSubmit}
                           disabled={loading}
-                          className="flex-1 px-6 py-3 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 transition-all shadow-md disabled:opacity-50\"
+                          className="flex-1 px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl font-bold hover:from-primary-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50"
                         >
                           {loading ? '⏳ Processing...' : `Donate ৳${amount.toLocaleString()}`}
                         </button>

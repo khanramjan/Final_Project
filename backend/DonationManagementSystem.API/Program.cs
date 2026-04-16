@@ -50,6 +50,10 @@ builder.Services.AddScoped<ISmsService, SmsService>();
 // Register Volunteer Rank Service
 builder.Services.AddScoped<IVolunteerRankService, VolunteerRankService>();
 
+// Register testimonial moderation policy and service
+builder.Services.Configure<TestimonialModerationOptions>(builder.Configuration.GetSection("TestimonialModeration"));
+builder.Services.AddSingleton<ITestimonialModerationService, TestimonialModerationService>();
+
 // Register Payment Gateway Service
 builder.Services.AddScoped<IPaymentGatewayService, SSLCommerzPaymentService>();
 

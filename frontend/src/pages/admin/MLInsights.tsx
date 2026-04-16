@@ -63,6 +63,16 @@ const Pill = ({ label, value }: { label: string; value: string | number }) => (
   </div>
 );
 
+interface SentimentOverviewStats {
+  total: number;
+  positive: number;
+  neutral: number;
+  negative: number;
+  abusive: number;
+  scamRisk: number;
+  averageSentimentScore: number;
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 const MLInsights = () => {
@@ -75,7 +85,7 @@ const MLInsights = () => {
   const [sentimentText, setSentimentText] = useState('');
   const [sentiment, setSentiment] = useState<SentimentResponse | null>(null);
   const [sentimentLoading, setSentimentLoading] = useState(false);
-  const [sentimentStats, setSentimentStats] = useState<any>(null); // To store sentiment overview stats
+  const [sentimentStats, setSentimentStats] = useState<SentimentOverviewStats | null>(null);
 
   // Churn
   const [churnUserId, setChurnUserId] = useState('');
@@ -115,7 +125,8 @@ const MLInsights = () => {
   const loadSentimentStats = useCallback(async () => {
     try {
       const response: any = await testimonialService.getTestimonialStats();
-      setSentimentStats(response.sentiment);
+      const sentimentData = response?.data?.sentiment ?? response?.sentiment ?? null;
+      setSentimentStats(sentimentData);
     } catch (e) {
       console.error('Failed to load sentiment stats:', e);
     }
@@ -358,7 +369,7 @@ const MLInsights = () => {
           {sentimentStats && (
             <div className="mb-6 bg-gray-50 p-4 rounded-xl">
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Overall Sentiment Overview (from Testimonials)</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-white p-3 rounded-lg text-center shadow-sm">
                   <div className="text-2xl font-bold text-gray-800">{sentimentStats.total}</div>
                   <div className="text-xs text-gray-500 uppercase">Total</div>
@@ -375,6 +386,10 @@ const MLInsights = () => {
                   <div className="text-2xl font-bold text-red-600">{sentimentStats.negative}</div>
                   <div className="text-xs text-red-600 uppercase">Negative</div>
                 </div>
+                <div className="bg-white p-3 rounded-lg text-center shadow-sm">
+                  <div className="text-2xl font-bold text-rose-700">{sentimentStats.abusive}</div>
+                  <div className="text-xs text-rose-700 uppercase">Abusive</div>
+                </div>
               </div>
               <div className="mt-3 flex gap-4 text-xs text-gray-600">
                 <div className="flex items-center gap-1 bg-white px-2 py-1 rounded shadow-sm">
@@ -384,6 +399,10 @@ const MLInsights = () => {
                 <div className="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded shadow-sm">
                   <span className="font-semibold">Scam Risk Flags:</span> 
                   {sentimentStats.scamRisk}
+                </div>
+                <div className="flex items-center gap-1 bg-rose-50 text-rose-700 px-2 py-1 rounded shadow-sm">
+                  <span className="font-semibold">Abusive Flags:</span>
+                  {sentimentStats.abusive}
                 </div>
               </div>
             </div>

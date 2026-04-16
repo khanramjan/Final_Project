@@ -9,10 +9,10 @@ export interface Testimonial {
   rating: number;
   comment: string;
   badgeType?: string;
-  sentimentLabel?: 'positive' | 'neutral' | 'negative';
+  sentimentLabel?: 'positive' | 'neutral' | 'negative' | 'abusive';
   sentimentScore?: number;
   sentimentConfidence?: number;
-  riskLabel?: 'normal' | 'complaint' | 'scam-risk';
+  riskLabel?: 'normal' | 'complaint' | 'scam-risk' | 'abusive';
   isScamRisk?: boolean;
   analyzedAt?: string;
   isFeatured: boolean;
@@ -28,6 +28,21 @@ export interface CreateTestimonialDto {
   badgeType?: string;
 }
 
+export interface CreateTestimonialResponse {
+  message: string;
+  testimonialId: number;
+  sentiment: {
+    sentimentLabel: 'positive' | 'neutral' | 'negative' | 'abusive';
+    sentimentScore: number;
+    riskLabel: 'normal' | 'complaint' | 'scam-risk' | 'abusive';
+    isScamRisk: boolean;
+  };
+  moderation: {
+    requiresManualApproval: boolean;
+    reasonCode?: string;
+  };
+}
+
 class TestimonialService {
   // Get public testimonials for landing page
   async getPublicTestimonials(limit: number = 10): Promise<Testimonial[]> {
@@ -35,7 +50,7 @@ class TestimonialService {
   }
 
   // Submit a new testimonial
-  async submitTestimonial(data: CreateTestimonialDto): Promise<{ message: string; testimonialId: number }> {
+  async submitTestimonial(data: CreateTestimonialDto): Promise<CreateTestimonialResponse> {
     return api.post('/testimonials', data);
   }
 

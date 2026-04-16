@@ -16,10 +16,10 @@ namespace DonationManagementSystem.API.Models
         public string Comment { get; set; } = string.Empty;
 
         // ML/heuristic analysis
-        public string SentimentLabel { get; set; } = "neutral"; // positive | neutral | negative
+        public string SentimentLabel { get; set; } = "neutral"; // positive | neutral | negative | abusive
         public float SentimentScore { get; set; } = 0.5f; // 0.0-1.0
         public float SentimentConfidence { get; set; } = 0.5f; // 0.0-1.0
-        public string RiskLabel { get; set; } = "normal"; // normal | complaint | scam-risk
+        public string RiskLabel { get; set; } = "normal"; // normal | complaint | scam-risk | abusive
         public bool IsScamRisk { get; set; } = false;
         public DateTime? AnalyzedAt { get; set; }
         
