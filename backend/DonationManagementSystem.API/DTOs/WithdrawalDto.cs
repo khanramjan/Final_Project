@@ -5,7 +5,8 @@ namespace DonationManagementSystem.API.DTOs
     public class CreateWithdrawalDto
     {
         [Required]
-        [Range(1, double.MaxValue, ErrorMessage = "Amount must be greater than 0")]
+        [Range(typeof(decimal), "10", "79228162514264337593543950335", ErrorMessage = "Minimum withdrawal amount is 10 BDT")]
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Amount can have at most 2 decimal places")]
         public decimal Amount { get; set; }
 
         [Required]
@@ -26,8 +27,6 @@ namespace DonationManagementSystem.API.DTOs
 
         [MaxLength(1000)]
         public string? Notes { get; set; }
-
-        public DateTime? WithdrawnAt { get; set; }
     }
 
     public class WithdrawalDto
@@ -42,9 +41,39 @@ namespace DonationManagementSystem.API.DTOs
         public string? RecipientAddress { get; set; }
         public string? Notes { get; set; }
         public string? ReceiptPath { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string ReferenceNumber { get; set; } = string.Empty;
         public DateTime WithdrawnAt { get; set; }
         public int WithdrawnBy { get; set; }
         public string WithdrawnByName { get; set; } = string.Empty;
+        public int? ApprovedBy { get; set; }
+        public string? ApprovedByName { get; set; }
+        public DateTime? ApprovedAt { get; set; }
+        public string? RejectionReason { get; set; }
+        public int? CancelledBy { get; set; }
+        public string? CancelledByName { get; set; }
+        public DateTime? CancelledAt { get; set; }
+        public string? IpAddress { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+    public class ApproveWithdrawalDto
+    {
+        [MaxLength(500)]
+        public string? Reason { get; set; }
+    }
+
+    public class RejectWithdrawalDto
+    {
+        [Required]
+        [MaxLength(500)]
+        public string Reason { get; set; } = string.Empty;
+    }
+
+    public class CancelWithdrawalDto
+    {
+        [MaxLength(500)]
+        public string? Reason { get; set; }
     }
 }

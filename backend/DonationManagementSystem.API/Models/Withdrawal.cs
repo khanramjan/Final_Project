@@ -37,6 +37,17 @@ namespace DonationManagementSystem.API.Models
         [MaxLength(500)]
         public string? ReceiptPath { get; set; }
 
+        [Required]
+        [MaxLength(20)]
+        public string Status { get; set; } = "pending";
+
+        [Required]
+        [MaxLength(32)]
+        public string ReferenceNumber { get; set; } = string.Empty;
+
+        [MaxLength(64)]
+        public string? IpAddress { get; set; }
+
         public DateTime WithdrawnAt { get; set; } = DateTime.UtcNow;
 
         [Required]
@@ -45,6 +56,24 @@ namespace DonationManagementSystem.API.Models
         [ForeignKey("WithdrawnBy")]
         public User? WithdrawnByUser { get; set; }
 
+        public int? ApprovedBy { get; set; }
+
+        [ForeignKey("ApprovedBy")]
+        public User? ApprovedByUser { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
+
+        [MaxLength(500)]
+        public string? RejectionReason { get; set; }
+
+        public int? CancelledBy { get; set; }
+
+        [ForeignKey("CancelledBy")]
+        public User? CancelledByUser { get; set; }
+
+        public DateTime? CancelledAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
     }
 }

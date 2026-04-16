@@ -433,6 +433,45 @@ namespace DonationManagementSystem.API.Data
 					  .OnDelete(DeleteBehavior.NoAction);
 			});
 
+			// Withdrawal configurations
+			modelBuilder.Entity<Withdrawal>(entity =>
+			{
+				entity.HasKey(e => e.Id);
+				entity.Property(e => e.Amount).HasColumnType("decimal(18,2)");
+				entity.Property(e => e.Purpose).IsRequired().HasMaxLength(500);
+				entity.Property(e => e.RecipientName).HasMaxLength(200);
+				entity.Property(e => e.RecipientPhone).HasMaxLength(20);
+				entity.Property(e => e.RecipientAddress).HasMaxLength(500);
+				entity.Property(e => e.Notes).HasMaxLength(1000);
+				entity.Property(e => e.ReceiptPath).HasMaxLength(500);
+				entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+				entity.Property(e => e.ReferenceNumber).IsRequired().HasMaxLength(32);
+				entity.Property(e => e.RejectionReason).HasMaxLength(500);
+				entity.Property(e => e.IpAddress).HasMaxLength(64);
+
+				entity.HasIndex(e => e.ReferenceNumber).IsUnique();
+
+				entity.HasOne(e => e.Campaign)
+					  .WithMany()
+					  .HasForeignKey(e => e.CampaignId)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.WithdrawnByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.WithdrawnBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.ApprovedByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.ApprovedBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+
+				entity.HasOne(e => e.CancelledByUser)
+					  .WithMany()
+					  .HasForeignKey(e => e.CancelledBy)
+					  .OnDelete(DeleteBehavior.NoAction);
+			});
+
 			// Voucher configurations
 			modelBuilder.Entity<Voucher>(entity =>
 			{

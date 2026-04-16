@@ -11,60 +11,31 @@ namespace DonationManagementSystem.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "PasswordResetToken",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: true);
+            migrationBuilder.Sql(@"
+                IF COL_LENGTH('Users', 'PasswordResetToken') IS NULL
+                    ALTER TABLE [Users] ADD [PasswordResetToken] nvarchar(max) NULL;
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "PasswordResetTokenExpiry",
-                table: "Users",
-                type: "datetime2",
-                nullable: true);
+                IF COL_LENGTH('Users', 'PasswordResetTokenExpiry') IS NULL
+                    ALTER TABLE [Users] ADD [PasswordResetTokenExpiry] datetime2 NULL;
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "AnalyzedAt",
-                table: "Testimonials",
-                type: "datetime2",
-                nullable: true);
+                IF COL_LENGTH('Testimonials', 'AnalyzedAt') IS NULL
+                    ALTER TABLE [Testimonials] ADD [AnalyzedAt] datetime2 NULL;
 
-            migrationBuilder.AddColumn<bool>(
-                name: "IsScamRisk",
-                table: "Testimonials",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+                IF COL_LENGTH('Testimonials', 'IsScamRisk') IS NULL
+                    ALTER TABLE [Testimonials] ADD [IsScamRisk] bit NOT NULL DEFAULT 0;
 
-            migrationBuilder.AddColumn<string>(
-                name: "RiskLabel",
-                table: "Testimonials",
-                type: "nvarchar(20)",
-                maxLength: 20,
-                nullable: false,
-                defaultValue: "");
+                IF COL_LENGTH('Testimonials', 'RiskLabel') IS NULL
+                    ALTER TABLE [Testimonials] ADD [RiskLabel] nvarchar(20) NOT NULL DEFAULT '';
 
-            migrationBuilder.AddColumn<float>(
-                name: "SentimentConfidence",
-                table: "Testimonials",
-                type: "real",
-                nullable: false,
-                defaultValue: 0f);
+                IF COL_LENGTH('Testimonials', 'SentimentConfidence') IS NULL
+                    ALTER TABLE [Testimonials] ADD [SentimentConfidence] real NOT NULL DEFAULT 0;
 
-            migrationBuilder.AddColumn<string>(
-                name: "SentimentLabel",
-                table: "Testimonials",
-                type: "nvarchar(20)",
-                maxLength: 20,
-                nullable: false,
-                defaultValue: "");
+                IF COL_LENGTH('Testimonials', 'SentimentLabel') IS NULL
+                    ALTER TABLE [Testimonials] ADD [SentimentLabel] nvarchar(20) NOT NULL DEFAULT '';
 
-            migrationBuilder.AddColumn<float>(
-                name: "SentimentScore",
-                table: "Testimonials",
-                type: "real",
-                nullable: false,
-                defaultValue: 0f);
+                IF COL_LENGTH('Testimonials', 'SentimentScore') IS NULL
+                    ALTER TABLE [Testimonials] ADD [SentimentScore] real NOT NULL DEFAULT 0;
+            ");
         }
 
         /// <inheritdoc />
