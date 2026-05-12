@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Linq;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Services;
 using DonationManagementSystem.API.Services.ML;
@@ -13,7 +14,7 @@ builder.Services.AddControllers();
 
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -65,7 +66,31 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:3000")
+        var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "http://localhost:5176",
+            "http://localhost:3000"
+        };
+
+        var frontendUrl = builder.Configuration["AppSettings:FrontendUrl"];
+        if (!string.IsNullOrWhiteSpace(frontendUrl))
+        {
+            allowedOrigins.Add(frontendUrl);
+        }
+
+        var extraOrigins = builder.Configuration["AppSettings:FrontendOrigins"];
+        if (!string.IsNullOrWhiteSpace(extraOrigins))
+        {
+            foreach (var origin in extraOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                allowedOrigins.Add(origin);
+            }
+        }
+
+        policy.WithOrigins(allowedOrigins.ToArray())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -74,52 +99,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Apply any pending migrations (adds new columns automatically on startup)
+// Initialize database and seed data
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        db.Database.ExecuteSqlRaw(@"
-            IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
-                          WHERE TABLE_NAME='Users' AND COLUMN_NAME='PasswordResetToken')
-            BEGIN
-                ALTER TABLE Users ADD PasswordResetToken NVARCHAR(MAX) NULL;
-                ALTER TABLE Users ADD PasswordResetTokenExpiry DATETIME2 NULL;
-            END");
+        db.Database.EnsureCreated();
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Column migration warning: {ex.Message}");
-    }
-
-    try
-    {
-        db.Database.ExecuteSqlRaw(@"
-            IF OBJECT_ID('Testimonials', 'U') IS NOT NULL
-            BEGIN
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentLabel')
-                    ALTER TABLE Testimonials ADD SentimentLabel NVARCHAR(20) NOT NULL CONSTRAINT DF_Testimonials_SentimentLabel DEFAULT 'neutral';
-
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentScore')
-                    ALTER TABLE Testimonials ADD SentimentScore REAL NOT NULL CONSTRAINT DF_Testimonials_SentimentScore DEFAULT(0.5);
-
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='SentimentConfidence')
-                    ALTER TABLE Testimonials ADD SentimentConfidence REAL NOT NULL CONSTRAINT DF_Testimonials_SentimentConfidence DEFAULT(0.5);
-
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='RiskLabel')
-                    ALTER TABLE Testimonials ADD RiskLabel NVARCHAR(20) NOT NULL CONSTRAINT DF_Testimonials_RiskLabel DEFAULT 'normal';
-
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='IsScamRisk')
-                    ALTER TABLE Testimonials ADD IsScamRisk BIT NOT NULL CONSTRAINT DF_Testimonials_IsScamRisk DEFAULT(0);
-
-                IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='Testimonials' AND COLUMN_NAME='AnalyzedAt')
-                    ALTER TABLE Testimonials ADD AnalyzedAt DATETIME2 NULL;
-            END");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Testimonial sentiment migration warning: {ex.Message}");
+        Console.WriteLine($"Database initialization warning: {ex.Message}");
     }
 
     // Seed database with default admin and sample data

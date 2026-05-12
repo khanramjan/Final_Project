@@ -124,7 +124,7 @@ class DonationService {
     if (filters.status) params.append('status', filters.status);
     if (filters.campaignId) params.append('campaignId', filters.campaignId.toString());
 
-    const response = await fetch(`http://localhost:5000/api/donation/admin/export?${params.toString()}`, {
+    const response = await fetch(`/api/donation/admin/export?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

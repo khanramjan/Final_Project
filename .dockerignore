@@ -1,0 +1,11 @@
+.git/
+.vscode/
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/test-results/
+**/.env
+**/.env.*
+backend/publish/
+backend/_buildcheck/

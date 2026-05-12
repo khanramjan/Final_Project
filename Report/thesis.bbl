@@ -1,0 +1,188 @@
+\begin{thebibliography}{10}
+
+\bibitem{robinson2019digital}
+David Robinson.
+\newblock Digital fundraising: How technology is transforming charitable
+  giving.
+\newblock {\em Journal of Nonprofit and Public Sector Marketing},
+  31(4):377--392, 2019.
+
+\bibitem{sander2021digital}
+Jutta Sander.
+\newblock The digital transformation of fundraising: Key technology trends and
+  implications for nonprofit organizations.
+\newblock {\em Nonprofit Management and Leadership}, 32(1):15--35, 2021.
+
+\bibitem{hossain2019e}
+Md~Hossain et~al.
+\newblock E-payment adoption in bangladesh: A study on consumer behavior.
+\newblock {\em International Journal of Business and Management}, 2019.
+
+\bibitem{freeman2021react}
+Adam Freeman.
+\newblock {\em Pro React 18 with TypeScript: Building Enterprise-Grade
+  Applications}.
+\newblock Apress, New York, NY, 2021.
+
+\bibitem{cherny2019programming}
+Boris Cherny.
+\newblock {\em Programming TypeScript: Making Your JavaScript Applications
+  Scale}.
+\newblock O'Reilly Media, 2019.
+
+\bibitem{lock2021aspnet}
+Andrew Lock.
+\newblock {\em ASP.NET Core in Action}.
+\newblock Manning Publications, Shelter Island, NY, 2nd edition, 2021.
+
+\bibitem{masse2011rest}
+Mark Masse.
+\newblock {\em REST API Design Rulebook: Designing Consistent RESTful Web API
+  Interfaces}.
+\newblock O'Reilly Media, Inc., 2011.
+
+\bibitem{lerman2020efcore}
+Julie Lerman and Rowan Miller.
+\newblock {\em Programming Entity Framework Core: Data Access for .NET
+  Applications}.
+\newblock O'Reilly Media, Sebastopol, CA, 2020.
+
+\bibitem{coronel2016database}
+Carlos Coronel and Steven Morris.
+\newblock {\em Database Systems: Design, Implementation, \& Management}.
+\newblock Cengage Learning, 2016.
+
+\bibitem{sandhu1996rbac}
+Ravi~S Sandhu, Edward~J Coyne, Hal~L Feinstein, and Charles~E Youman.
+\newblock Role-based access control models.
+\newblock {\em IEEE Computer}, 29(2):38--47, 1996.
+
+\bibitem{jones2023modern}
+Robert Jones and Sarah Miller.
+\newblock Modern web development stacks for enterprise applications: A
+  comparison of .net, react, and angular.
+\newblock {\em Journal of Software Engineering and Applications},
+  16(4):135--150, 2023.
+
+\bibitem{wang2021enhancing}
+Lin Wang and Wei Zhang.
+\newblock Enhancing donor engagement and retention through personalized digital
+  experience.
+\newblock In {\em Proceedings of the International Conference on E-business and
+  E-commerce (ICEC)}, pages 55--62. ACM, 2021.
+
+\bibitem{barnes2018rise}
+Christopher Barnes.
+\newblock The rise of crowdfunding and digital fundraising: A nonprofit's guide
+  to success.
+\newblock {\em Journal of Nonprofit and Public Sector Marketing},
+  30(4):430--445, 2018.
+
+\bibitem{kalinda2022university}
+Emmanuel Kalinda and Wilfred Mwase.
+\newblock University-based donation platforms: Challenges and opportunities for
+  digital transformation in higher education philanthropy.
+\newblock {\em Journal of Higher Education Development}, 15(2):88--104, 2022.
+
+\bibitem{assunnah2025digital}
+{As-Sunnah Foundation}.
+\newblock As-sunnah foundation: Faith-based humanitarian digital ecosystem,
+  2025.
+\newblock Faith-based humanitarian organization utilizing mobile financial
+  services and visual documentation for philanthropic transparency within South
+  Asian communities.
+
+\bibitem{huang2020online}
+Jianping Huang, Yujia Lu, Kai Chen, Min Zheng, and Jinlong Liu.
+\newblock An online donation system based on blockchain and smart contract.
+\newblock In {\em 2020 IEEE International Conference on Services Computing
+  (SCC)}, pages 102--109. IEEE, 2020.
+
+\bibitem{sanchez2019framework}
+Juan Sanchez, Ricardo Gutierrez, and Isabel Martinez.
+\newblock A conceptual framework for implementing secure and transparent
+  e-donation systems.
+\newblock {\em International Journal of Computer Science and Information
+  Security}, 17(7):112--120, 2019.
+
+\bibitem{iso27001security}
+Georg Disterer.
+\newblock Information security management: Iso/iec 27001 standard and its
+  application in software systems.
+\newblock {\em Journal of Information Security}, 4(2):92--100, 2013.
+
+\bibitem{owasp2021top10}
+{OWASP Foundation}.
+\newblock Owasp top ten web application security risks.
+\newblock {\em Open Web Application Security Project}, 2021.
+\newblock Available at: https://owasp.org/Top10.
+
+\bibitem{hutto2014vader}
+Clayton Hutto and Eric Gilbert.
+\newblock {VADER}: A parsimonious rule-based model for sentiment analysis of
+  social media text.
+\newblock In {\em Proceedings of the International AAAI Conference on Web and
+  Social Media}, volume~8, pages 216--225. AAAI Press, 2014.
+
+\bibitem{banks2017learning}
+Alex Banks and Eve Porcello.
+\newblock {\em Learning React: Functional Web Development with React and
+  Redux}.
+\newblock O'Reilly Media, 2017.
+
+\bibitem{suoranta2019otp}
+Sanna Suoranta and Antero Toivonen.
+\newblock Otp-based multi-factor authentication: Security challenges and
+  implementation strategies in web applications.
+\newblock {\em Journal of Internet Security and Privacy}, 7(1):12--28, 2019.
+
+\bibitem{jones2015jwt}
+Michael~B Jones, John Bradley, and Nat Sakimura.
+\newblock Json web token (jwt).
+\newblock RFC 7519, Internet Engineering Task Force, 2015.
+\newblock Available at: https://tools.ietf.org/html/rfc7519.
+
+\bibitem{provos1999bcrypt}
+Niels Provos and David Mazieres.
+\newblock A future-adaptable password scheme.
+\newblock In {\em USENIX Annual Technical Conference Proceedings}, pages
+  81--91. USENIX Association, 1999.
+
+\bibitem{barth2008robust}
+Adam Barth, Collin Jackson, and John~C Mitchell.
+\newblock Robust defenses for cross-site request forgery.
+\newblock In {\em Proceedings of the 15th ACM conference on Computer and
+  communications security}, pages 75--88, 2008.
+
+\bibitem{chen2022machine}
+Wei Chen and Xiaoming Liu.
+\newblock Machine learning applications in nonprofit fundraising: Predictive
+  analytics for donor behaviour.
+\newblock {\em Journal of Nonprofit Technology and Innovation}, 8(2):45--67,
+  2022.
+
+\bibitem{gupta2020donor}
+Priya Gupta and Amit Sharma.
+\newblock Predicting donor attrition in charitable organizations using
+  supervised machine learning.
+\newblock {\em International Journal of Data Science and Analytics},
+  10(3):211--225, 2020.
+
+\bibitem{beck2001agile}
+Kent Beck, Mike Beedle, Arie van Bennekum, Alistair Cockburn, Martin Fowler,
+  et~al.
+\newblock Manifesto for agile software development.
+\newblock {\em Agile Alliance}, 2001.
+\newblock Available at: https://agilemanifesto.org.
+
+\bibitem{highsmith2001agile}
+Jim Highsmith and Martin Fowler.
+\newblock The agile manifesto.
+\newblock {\em Software Development Magazine}, 9(8):29--30, 2001.
+
+\bibitem{hassani2007singular}
+Hossein Hassani.
+\newblock Singular spectrum analysis: methodology and comparison.
+\newblock {\em Journal of Data Science}, 5(2):239--257, 2007.
+
+\end{thebibliography}

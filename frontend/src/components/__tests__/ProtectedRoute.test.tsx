@@ -1,11 +1,8 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import authReducer from '../../store/slices/authSlice';
-import { vi } from 'vitest';
 
 const renderWithProvider = (
   isAuthenticated: boolean,

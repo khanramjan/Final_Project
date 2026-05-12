@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 export const handlers = [
-  http.post('http://localhost:5000/api/auth/login', async ({ request }) => {
+  http.post('/api/auth/login', async ({ request }) => {
     const body = await request.json() as any;
     if (body.email === 'test@example.com' && body.password === 'password123') {
       return HttpResponse.json({
@@ -21,7 +21,7 @@ export const handlers = [
     return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 });
   }),
 
-  http.post('http://localhost:5000/api/auth/register', async () => {
+  http.post('/api/auth/register', async () => {
     return HttpResponse.json({
       message: 'Registration successful',
       token: 'fake-jwt-token',
@@ -37,18 +37,18 @@ export const handlers = [
     });
   }),
   
-  http.post('http://localhost:5000/api/auth/refresh-token', async () => {
+  http.post('/api/auth/refresh-token', async () => {
     return HttpResponse.json({
       token: 'new-jwt-token',
       refreshToken: 'new-refresh-token'
     });
   }),
 
-  http.post('http://localhost:5000/api/auth/logout', async () => {
+  http.post('/api/auth/logout', async () => {
     return HttpResponse.json({ message: 'Logout successful' });
   }),
 
-  http.get('http://localhost:5000/api/campaign/admin/all', async () => {
+  http.get('/api/campaign/admin/all', async () => {
     return HttpResponse.json({
       campaigns: [
         {

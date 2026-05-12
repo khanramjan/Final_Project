@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+    actor Donor
+    participant FE as React Frontend
+    participant API as PaymentController/API
+    participant DB as SQL Server
+    participant PG as SSLCommerz
+
+    Donor->>FE: Click Donate and submit amount
+    FE->>API: POST /api/payment/init
+    API->>DB: Create donation(status=pending, txRef)
+    DB-->>API: Pending donation saved
+    API->>PG: Create payment session (amount, txRef, callbacks)
+    PG-->>API: Return GatewayUrl
+    API-->>FE: 200 { gatewayUrl }
+    FE-->>Donor: Redirect to gateway
+    Donor->>PG: Complete payment
+
+    alt Payment Success
+        PG->>API: success callback / IPN
+        API->>DB: Update donation(status=completed)
+        API->>DB: Increment campaign amountRaised
+        API-->>PG: ACK
+    else Payment Failed or Cancelled
+        PG->>API: fail or cancel callback
+        API->>DB: Update donation(status=failed/cancelled)
+        API-->>PG: ACK
+    end
+
+    API-->>FE: Status endpoint reflects final state
+    FE-->>Donor: Show payment result and receipt data

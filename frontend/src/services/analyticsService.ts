@@ -181,7 +181,7 @@ class AnalyticsService {
     if (filters.startDate) params.append('startDate', filters.startDate);
     if (filters.endDate) params.append('endDate', filters.endDate);
 
-    const response = await fetch(`http://localhost:5000/api/analytics/export?${params.toString()}`, {
+    const response = await fetch(`/api/analytics/export?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

@@ -1,0 +1,108 @@
+\contentsline {chapter}{Acknowledgments}{i}{}%
+\contentsline {chapter}{Abstract}{x}{}%
+\contentsline {chapter}{Chapter\ 1: Introduction}{2}{}%
+\contentsline {section}{\numberline {1.1}Overview}{2}{}%
+\contentsline {section}{\numberline {1.2}Background}{3}{}%
+\contentsline {section}{\numberline {1.3}Motivation}{5}{}%
+\contentsline {section}{\numberline {1.4}Problem Statement}{5}{}%
+\contentsline {section}{\numberline {1.5}Questions Addressed by the Project}{6}{}%
+\contentsline {section}{\numberline {1.6}Objectives}{8}{}%
+\contentsline {section}{\numberline {1.7}Contributions}{9}{}%
+\contentsline {section}{\numberline {1.8}Organization}{10}{}%
+\contentsline {chapter}{Chapter\ 2: Background and Related Technologies}{12}{}%
+\contentsline {section}{\numberline {2.1}Overview}{12}{}%
+\contentsline {section}{\numberline {2.2}Conventional Donation Management Techniques}{12}{}%
+\contentsline {section}{\numberline {2.3}Existing Digital Donation Management Solutions}{13}{}%
+\contentsline {subsection}{\numberline {2.3.1}Critical Limitations in Existing Solutions}{14}{}%
+\contentsline {section}{\numberline {2.4}Role-Based Access Control in Management Systems}{15}{}%
+\contentsline {section}{\numberline {2.5}Robust Payment Gateway Architectures}{16}{}%
+\contentsline {section}{\numberline {2.6}Advanced Sentiment Analysis and Testimonial Moderation}{16}{}%
+\contentsline {section}{\numberline {2.7}Modern Technologies Utilized}{17}{}%
+\contentsline {section}{\numberline {2.8}Advanced Functionality and Features}{18}{}%
+\contentsline {subsection}{\numberline {2.8.1}Tracking of Physical Donations}{18}{}%
+\contentsline {subsection}{\numberline {2.8.2}Expense Vouchers and Financial Governance Mechanisms}{19}{}%
+\contentsline {subsection}{\numberline {2.8.3}Fiscal Disbursements and Reserve Fund Governance}{19}{}%
+\contentsline {subsection}{\numberline {2.8.4}Predictive Analysis Using Machine Learning}{20}{}%
+\contentsline {subsection}{\numberline {2.8.5}Automated Communication Infrastructure}{20}{}%
+\contentsline {chapter}{Chapter\ 3: Methodology}{23}{}%
+\contentsline {section}{\numberline {3.1}Overview}{23}{}%
+\contentsline {section}{\numberline {3.2}System Design}{23}{}%
+\contentsline {subsection}{\numberline {3.2.1}Important Considerations}{23}{}%
+\contentsline {subsection}{\numberline {3.2.2}Frontend Design}{24}{}%
+\contentsline {subsection}{\numberline {3.2.3}Backend Architecture}{25}{}%
+\contentsline {subsection}{\numberline {3.2.4}Design of Data Layer}{26}{}%
+\contentsline {section}{\numberline {3.3}Development Process}{26}{}%
+\contentsline {subsection}{\numberline {3.3.1}Frontend Development}{26}{}%
+\contentsline {subsection}{\numberline {3.3.2}Backend Development}{27}{}%
+\contentsline {section}{\numberline {3.4}Testing}{28}{}%
+\contentsline {section}{\numberline {3.5}Deployment Strategy}{30}{}%
+\contentsline {section}{\numberline {3.6}Security Measures}{30}{}%
+\contentsline {chapter}{Chapter\ 4: System Architecture and Design}{33}{}%
+\contentsline {section}{\numberline {4.1}Overview}{33}{}%
+\contentsline {section}{\numberline {4.2}Frontend Architecture}{33}{}%
+\contentsline {section}{\numberline {4.3}Backend Architecture}{33}{}%
+\contentsline {section}{\numberline {4.4}Database Schema and Data Dictionary}{34}{}%
+\contentsline {subsection}{\numberline {4.4.1}Table Campaigns}{34}{}%
+\contentsline {subsection}{\numberline {4.4.2}Table Donations}{35}{}%
+\contentsline {subsection}{\numberline {4.4.3}Table Volunteer Reports}{36}{}%
+\contentsline {section}{\numberline {4.5}ER Diagram}{38}{}%
+\contentsline {section}{\numberline {4.6}Use Case Diagram}{39}{}%
+\contentsline {section}{\numberline {4.7}Schema Diagram}{39}{}%
+\contentsline {section}{\numberline {4.8}System Context Diagram}{40}{}%
+\contentsline {section}{\numberline {4.9}Container Diagram}{41}{}%
+\contentsline {section}{\numberline {4.10}Component Diagram}{41}{}%
+\contentsline {section}{\numberline {4.11}Class Diagram}{42}{}%
+\contentsline {section}{\numberline {4.12}Data Flow Diagram (Level 0)}{43}{}%
+\contentsline {section}{\numberline {4.13}Data Flow Diagram (Level 1)}{44}{}%
+\contentsline {section}{\numberline {4.14}Deployment Diagram}{44}{}%
+\contentsline {section}{\numberline {4.15}Activity Diagram: Donation Workflow}{45}{}%
+\contentsline {section}{\numberline {4.16}Campaign Lifecycle State Diagram}{46}{}%
+\contentsline {section}{\numberline {4.17}Authentication Flow}{47}{}%
+\contentsline {subsection}{\numberline {4.17.1}Registration, Login, and Token Issuance}{47}{}%
+\contentsline {subsection}{\numberline {4.17.2}Authorization and Access Control}{48}{}%
+\contentsline {section}{\numberline {4.18}Payment Processing and Ledger Integration}{48}{}%
+\contentsline {subsection}{\numberline {4.18.1}Sequence Diagram: Payment Callback Flow}{49}{}%
+\contentsline {subsection}{\numberline {4.18.2}How a Transaction Starts}{49}{}%
+\contentsline {subsection}{\numberline {4.18.3}Callback Handling and Idempotency}{50}{}%
+\contentsline {chapter}{Chapter\ 5: System Implementation}{52}{}%
+\contentsline {section}{\numberline {5.1}System Setup}{52}{}%
+\contentsline {subsection}{\numberline {5.1.1}Technologies Used}{52}{}%
+\contentsline {section}{\numberline {5.2}System Implementation}{53}{}%
+\contentsline {subsection}{\numberline {5.2.1}User Authentication}{53}{}%
+\contentsline {subsection}{\numberline {5.2.2}Dashboard Overview}{54}{}%
+\contentsline {subsection}{\numberline {5.2.3}User and Role Management}{55}{}%
+\contentsline {subsection}{\numberline {5.2.4}Campaign Management}{55}{}%
+\contentsline {subsection}{\numberline {5.2.5}Donation Processing}{56}{}%
+\contentsline {subsection}{\numberline {5.2.6}Volunteer Management}{57}{}%
+\contentsline {subsection}{\numberline {5.2.7}Testimonial and Sentiment Analysis}{57}{}%
+\contentsline {subsection}{\numberline {5.2.8}Analytics and Reporting}{58}{}%
+\contentsline {subsection}{\numberline {5.2.9}Additional Feature Screenshots}{59}{}%
+\contentsline {subsection}{\numberline {5.2.10}Screenshot File Arrangement}{62}{}%
+\contentsline {section}{\numberline {5.3}Key Features Implementation}{64}{}%
+\contentsline {subsection}{\numberline {5.3.1}Donation Tracking and Processing}{64}{}%
+\contentsline {subsection}{\numberline {5.3.2}Campaign Updates and Communications}{64}{}%
+\contentsline {subsection}{\numberline {5.3.3}Volunteer Reporting and Recognition}{64}{}%
+\contentsline {subsection}{\numberline {5.3.4}Physical Donation Management}{64}{}%
+\contentsline {subsection}{\numberline {5.3.5}Expense Voucher Management}{65}{}%
+\contentsline {subsection}{\numberline {5.3.6}Control on Finance and Withdrawals}{65}{}%
+\contentsline {subsection}{\numberline {5.3.7}Payment Integration}{65}{}%
+\contentsline {subsection}{\numberline {5.3.8}Machine Learning Features}{65}{}%
+\contentsline {subsubsection}{\numberline {5.3.8.1}1. Donation Demand Forecasting (SSA)}{66}{}%
+\contentsline {subsubsection}{\numberline {5.3.8.2}2. Donor Attrition Prediction}{66}{}%
+\contentsline {subsubsection}{\numberline {5.3.8.3}3. Donation Anomaly Detection}{66}{}%
+\contentsline {subsubsection}{\numberline {5.3.8.4}4. Sentiment Analysis}{66}{}%
+\contentsline {subsubsection}{\numberline {5.3.8.5}5. Campaign and Volunteer Intelligence}{67}{}%
+\contentsline {subsection}{\numberline {5.3.9}Email and SMS Notifications}{67}{}%
+\contentsline {subsection}{\numberline {5.3.10}Testimonial Moderation}{67}{}%
+\contentsline {chapter}{Chapter\ 6: System Evaluation and Results}{69}{}%
+\contentsline {section}{\numberline {6.1}System Evaluation Overview}{69}{}%
+\contentsline {section}{\numberline {6.2}Automated Test Coverage}{69}{}%
+\contentsline {section}{\numberline {6.3}Functional Validation Scenarios}{69}{}%
+\contentsline {section}{\numberline {6.4}ML Endpoint Validation}{70}{}%
+\contentsline {section}{\numberline {6.5}Limitations and What Comes Next}{71}{}%
+\contentsline {chapter}{Chapter\ 7: Conclusion and Future Work}{73}{}%
+\contentsline {section}{\numberline {7.1}Overview}{73}{}%
+\contentsline {section}{\numberline {7.2}Conclusion}{73}{}%
+\contentsline {section}{\numberline {7.3}Future Work}{74}{}%
+\contentsline {subsection}{\numberline {7.3.1}Suggested Roadmap}{75}{}%
+\contentsline {chapter}{\textbf {References}}{77}{}%

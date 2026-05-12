@@ -1,0 +1,24 @@
+flowchart LR
+    classDef actor fill:#f8f9fa,stroke:#4a5568,stroke-width:1px;
+    classDef system fill:#e6fffa,stroke:#2c7a7b,stroke-width:1.5px;
+    classDef ext fill:#fff5f5,stroke:#c53030,stroke-width:1px;
+
+    Donor([Donor]):::actor
+    Admin([Admin]):::actor
+    Volunteer([Volunteer]):::actor
+    Creator([Campaign Creator]):::actor
+
+    DMS[[Campus Based Donation Management System]]:::system
+
+    Payment[[SSLCommerz Gateway]]:::ext
+    MailSms[[Email and SMS Services]]:::ext
+    DB[(SQL Server Database)]:::ext
+
+    Donor -->|donate, track, feedback| DMS
+    Volunteer -->|activity reports| DMS
+    Creator -->|campaign creation and updates| DMS
+    Admin -->|moderation and governance| DMS
+
+    DMS -->|payment init and callback| Payment
+    DMS -->|notifications and OTP| MailSms
+    DMS -->|persistent storage| DB

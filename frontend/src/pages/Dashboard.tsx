@@ -73,7 +73,7 @@ const Dashboard = () => {
         if (!token) return;
 
         // Fetch user's donations
-        const response = await fetch('http://localhost:5000/api/donation/my-donations', {
+        const response = await fetch('/api/donation/my-donations', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

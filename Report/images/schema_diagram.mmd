@@ -1,0 +1,29 @@
+flowchart TB
+    classDef tbl fill:#fffdf5,stroke:#555,stroke-width:1px;
+
+    Users["Users\nPK: Id\nRole\nEmail"]:::tbl
+    Campaigns["Campaigns\nPK: Id\nFK: CreatedBy -> Users.Id\nTargetAmount\nAmountRaised\nStatus"]:::tbl
+    Donations["Donations\nPK: Id\nFK: CampaignId -> Campaigns.Id\nFK: UserId -> Users.Id\nAmount\nStatus"]:::tbl
+    Testimonials["Testimonials\nPK: Id\nFK: UserId -> Users.Id\nSentimentLabel\nModerationStatus"]:::tbl
+    CampaignUpdates["CampaignUpdates\nPK: Id\nFK: CampaignId -> Campaigns.Id"]:::tbl
+    VolunteerProfiles["VolunteerProfiles\nPK: Id\nFK: UserId -> Users.Id\nTotalHours\nRank"]:::tbl
+    VolunteerReports["VolunteerReports\nPK: Id\nFK: ReportedByVolunteerId -> VolunteerProfiles.Id\nFK: ReportedVolunteerId -> VolunteerProfiles.Id\nStatus"]:::tbl
+    PhysicalDonations["PhysicalDonations\nPK: Id\nFK: CampaignId -> Campaigns.Id\nFK: VerifiedByVolunteerId -> VolunteerProfiles.Id"]:::tbl
+    Vouchers["Vouchers\nPK: Id\nFK: CampaignId -> Campaigns.Id\nAmount\nApprovalStatus"]:::tbl
+    ReserveFunds["ReserveFunds\nPK: Id\nCurrentBalance"]:::tbl
+    Withdrawals["Withdrawals\nPK: Id\nFK: CampaignId -> Campaigns.Id\nFK: ReserveFundId -> ReserveFunds.Id\nAmount\nStatus"]:::tbl
+
+    Users --> Campaigns
+    Users --> Donations
+    Users --> Testimonials
+    Users --> VolunteerProfiles
+
+    Campaigns --> Donations
+    Campaigns --> CampaignUpdates
+    Campaigns --> PhysicalDonations
+    Campaigns --> Vouchers
+    Campaigns --> Withdrawals
+
+    VolunteerProfiles --> VolunteerReports
+    VolunteerProfiles --> PhysicalDonations
+    ReserveFunds --> Withdrawals

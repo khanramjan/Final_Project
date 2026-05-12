@@ -111,7 +111,7 @@ const DonationModal = ({ isOpen, onClose, campaign }: DonationModalProps) => {
       
       console.log('💳 Payment request body:', requestBody);
       
-      const response = await fetch('http://localhost:5000/api/payment/initiate', {
+      const response = await fetch('/api/payment/initiate', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

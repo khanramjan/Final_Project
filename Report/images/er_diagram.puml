@@ -1,0 +1,131 @@
+@startdot
+graph ER {
+  graph [
+    rankdir=TB,
+    bgcolor="#F4F4F4",
+    splines=polyline,
+    nodesep=0.60,
+    ranksep=0.95,
+    pad=0.35,
+    dpi=320
+  ];
+
+  node [
+    fontname="Times New Roman",
+    fontsize=22,
+    fontcolor="#0B6E1A",
+    color="#2F2F2F",
+    style="filled",
+    fillcolor="#FFFFFF",
+    penwidth=1.5
+  ];
+
+  edge [
+    color="#2F2F2F",
+    penwidth=1.5
+  ];
+
+  // Entities
+  USER [shape=box, label="USER"];
+  CAMPAIGN [shape=box, label="CAMPAIGN"];
+  DONATION [shape=box, label="DONATION"];
+  VPROFILE [shape=box, label="VOLUNTEER\nPROFILE"];
+  VASSIGN [shape=box, label="VOLUNTEER\nASSIGNMENT"];
+  WITHDRAWAL [shape=box, label="WITHDRAWAL"];
+
+  // Relationships
+  R_CREATE [shape=diamond, label="Creates\n(1:N)"];
+  R_APPROVE [shape=diamond, label="Approves\n(0..N:0..1)"];
+  R_MAKES [shape=diamond, label="Makes\n(1:N)"];
+  R_FOR [shape=diamond, label="For\n(N:1)"];
+  R_PROFILE [shape=diamond, label="Has Profile\n(1:0..1)"];
+  R_ASSIGNED [shape=diamond, label="Assigned To\n(1:N)"];
+  R_TASK [shape=diamond, label="Campaign Task\n(N:1)"];
+  R_W_FOR [shape=diamond, label="Withdrawn For\n(N:1)"];
+  R_W_BY [shape=diamond, label="Processed By\n(N:1)"];
+
+  // Attributes
+  U_ID [shape=ellipse, label="Id (PK)"];
+  U_NAME [shape=ellipse, label="Name"];
+  U_EMAIL [shape=ellipse, label="Email"];
+  U_TYPE [shape=ellipse, label="User Type"];
+
+  C_ID [shape=ellipse, label="Id (PK)"];
+  C_TITLE [shape=ellipse, label="Title"];
+  C_TARGET [shape=ellipse, label="Target Amount"];
+  C_STATUS [shape=ellipse, label="Status"];
+
+  D_ID [shape=ellipse, label="Id (PK)"];
+  D_AMOUNT [shape=ellipse, label="Amount"];
+  D_ANON [shape=ellipse, label="Is Anonymous"];
+  D_CREATED [shape=ellipse, label="Created At"];
+
+  VP_ID [shape=ellipse, label="Id (PK)"];
+  VP_RANK [shape=ellipse, label="Rank"];
+  VP_RATING [shape=ellipse, label="Rating"];
+
+  VA_ID [shape=ellipse, label="Id (PK)"];
+  VA_TASK [shape=ellipse, label="Task Type"];
+  VA_STATUS [shape=ellipse, label="Status"];
+
+  W_ID [shape=ellipse, label="Id (PK)"];
+  W_AMOUNT [shape=ellipse, label="Amount"];
+  W_DATE [shape=ellipse, label="Withdrawn At"];
+
+  // Entity-relationship links
+  USER -- R_CREATE;
+  R_CREATE -- CAMPAIGN;
+
+  USER -- R_APPROVE;
+  R_APPROVE -- CAMPAIGN;
+
+  USER -- R_MAKES;
+  R_MAKES -- DONATION;
+
+  DONATION -- R_FOR;
+  R_FOR -- CAMPAIGN;
+
+  USER -- R_PROFILE;
+  R_PROFILE -- VPROFILE;
+
+  VPROFILE -- R_ASSIGNED;
+  R_ASSIGNED -- VASSIGN;
+
+  VASSIGN -- R_TASK;
+  R_TASK -- CAMPAIGN;
+
+  WITHDRAWAL -- R_W_FOR;
+  R_W_FOR -- CAMPAIGN;
+
+  WITHDRAWAL -- R_W_BY;
+  R_W_BY -- USER;
+
+  // Attribute links
+  USER -- U_ID;
+  USER -- U_NAME;
+  USER -- U_EMAIL;
+  USER -- U_TYPE;
+
+  CAMPAIGN -- C_ID;
+  CAMPAIGN -- C_TITLE;
+  CAMPAIGN -- C_TARGET;
+  CAMPAIGN -- C_STATUS;
+
+  DONATION -- D_ID;
+  DONATION -- D_AMOUNT;
+  DONATION -- D_ANON;
+  DONATION -- D_CREATED;
+
+  VPROFILE -- VP_ID;
+  VPROFILE -- VP_RANK;
+  VPROFILE -- VP_RATING;
+
+  VASSIGN -- VA_ID;
+  VASSIGN -- VA_TASK;
+  VASSIGN -- VA_STATUS;
+
+  WITHDRAWAL -- W_ID;
+  WITHDRAWAL -- W_AMOUNT;
+  WITHDRAWAL -- W_DATE;
+}
+@enddot

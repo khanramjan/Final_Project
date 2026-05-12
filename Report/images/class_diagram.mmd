@@ -1,0 +1,77 @@
+classDiagram
+    class User {
+        +int Id
+        +string Email
+        +string UserType
+        +bool IsActive
+    }
+
+    class Campaign {
+        +int Id
+        +string Title
+        +decimal TargetAmount
+        +decimal RaisedAmount
+        +string Status
+    }
+
+    class Donation {
+        +int Id
+        +decimal Amount
+        +string Status
+        +string PaymentReference
+    }
+
+    class Testimonial {
+        +int Id
+        +string Message
+        +string SentimentLabel
+        +string ModerationStatus
+    }
+
+    class VolunteerProfile {
+        +int Id
+        +int TotalHours
+        +string Rank
+        +bool IsApprovedByAdmin
+    }
+
+    class VolunteerReport {
+        +int Id
+        +string ReportType
+        +string Description
+        +string Status
+    }
+
+    class CampaignUpdate {
+        +int Id
+        +string Title
+        +string Content
+    }
+
+    class Voucher {
+        +int Id
+        +decimal Amount
+        +string ApprovalStatus
+    }
+
+    class Withdrawal {
+        +int Id
+        +decimal Amount
+        +string Status
+    }
+
+    class ReserveFund {
+        +int Id
+        +decimal CurrentBalance
+    }
+
+    User "1" --> "*" Campaign : creates
+    User "1" --> "*" Donation : makes
+    Campaign "1" --> "*" Donation : receives
+    Campaign "1" --> "*" CampaignUpdate : includes
+    User "1" --> "*" Testimonial : submits
+    User "1" --> "0..1" VolunteerProfile : owns
+    VolunteerProfile "1" --> "*" VolunteerReport : creates
+    Campaign "1" --> "*" Voucher : tracks
+    Campaign "1" --> "*" Withdrawal : requests
+    ReserveFund "1" --> "*" Withdrawal : funds

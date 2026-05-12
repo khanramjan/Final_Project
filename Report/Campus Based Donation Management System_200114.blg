@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: Campus Based Donation Management System_200114.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: unsrt.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--can't use both volume and number fields in hutto2014vader
+You've used 29 entries,
+            1791 wiz_defined-function locations,
+            618 strings with 8516 characters,
+and the built_in function-call counts, 6333 in all, are:
+= -- 605
+> -- 221
+< -- 5
++ -- 87
+- -- 58
+* -- 375
+:= -- 977
+add.period$ -- 94
+call.type$ -- 29
+change.case$ -- 23
+chr.to.int$ -- 0
+cite$ -- 30
+duplicate$ -- 301
+empty$ -- 658
+format.name$ -- 58
+if$ -- 1442
+int.to.chr$ -- 0
+int.to.str$ -- 29
+missing$ -- 34
+newline$ -- 151
+num.names$ -- 29
+pop$ -- 100
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 130
+stack$ -- 0
+substring$ -- 401
+swap$ -- 67
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 67
+width$ -- 31
+write$ -- 324
+(There was 1 warning)

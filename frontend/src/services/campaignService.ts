@@ -83,7 +83,7 @@ class CampaignService {
     message: string;
     campaignId: number;
   }> {
-    const response = await fetch('http://localhost:5000/api/campaign/admin/create', {
+    const response = await fetch('/api/campaign/admin/create', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -162,7 +162,7 @@ class CampaignService {
 
   // Update campaign
   async updateCampaign(id: number, formData: FormData): Promise<{ message: string }> {
-    const response = await fetch(`http://localhost:5000/api/campaign/admin/${id}`, {
+    const response = await fetch(`/api/campaign/admin/${id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,

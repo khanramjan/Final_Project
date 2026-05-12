@@ -1,0 +1,3 @@
+pdflatex -interaction=nonstopmode Campus_Based_Donation_Management_System_200114.tex
+
+

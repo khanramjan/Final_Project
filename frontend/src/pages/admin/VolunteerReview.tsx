@@ -62,7 +62,7 @@ export default function VolunteerReview() {
       setLoading(true);
       const token = localStorage.getItem('token');
       const response = await fetch(
-        'http://localhost:5000/api/volunteer/admin/assignments/pending-review',
+        '/api/volunteer/admin/assignments/pending-review',
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -109,7 +109,7 @@ export default function VolunteerReview() {
       setProcessing(true);
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:5000/api/volunteer/admin/assignments/${selectedReview.id}/verify`,
+        `/api/volunteer/admin/assignments/${selectedReview.id}/verify`,
         {
           method: 'POST',
           headers: {

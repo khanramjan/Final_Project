@@ -40,8 +40,8 @@ export default function VolunteerApprovals() {
       setLoading(true);
       const token = localStorage.getItem('token');
       const url = statusFilter === 'pending'
-        ? 'http://localhost:5000/api/volunteer/admin/pending-approvals'
-        : `http://localhost:5000/api/volunteer/admin/all-volunteers?status=${statusFilter === 'all' ? '' : statusFilter}`;
+        ? '/api/volunteer/admin/pending-approvals'
+        : `/api/volunteer/admin/all-volunteers?status=${statusFilter === 'all' ? '' : statusFilter}`;
 
       const response = await fetch(url, {
         headers: {
@@ -89,7 +89,7 @@ export default function VolunteerApprovals() {
       setProcessing(true);
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:5000/api/volunteer/admin/approve/${selectedVolunteer.id}`,
+        `/api/volunteer/admin/approve/${selectedVolunteer.id}`,
         {
           method: 'POST',
           headers: {

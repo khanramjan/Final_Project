@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99e
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: thesis.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: unsrt.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--can't use both volume and number fields in hutto2014vader
+You've used 30 entries,
+            1791 wiz_defined-function locations,
+            624 strings with 8637 characters,
+and the built_in function-call counts, 6666 in all, are:
+= -- 636
+> -- 232
+< -- 6
++ -- 91
+- -- 61
+* -- 393
+:= -- 1020
+add.period$ -- 97
+call.type$ -- 30
+change.case$ -- 24
+chr.to.int$ -- 0
+cite$ -- 31
+duplicate$ -- 320
+empty$ -- 693
+format.name$ -- 61
+if$ -- 1524
+int.to.chr$ -- 0
+int.to.str$ -- 30
+missing$ -- 35
+newline$ -- 156
+num.names$ -- 30
+pop$ -- 106
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 143
+stack$ -- 0
+substring$ -- 425
+swap$ -- 76
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 71
+width$ -- 32
+write$ -- 335
+(There was 1 warning)

@@ -43,7 +43,7 @@ const CampaignDetail = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/campaign/${campaignId}`);
+        const response = await fetch(`/api/campaign/${campaignId}`);
         const data = await response.json();
 
         if (data.success && data.campaign) {

@@ -1,0 +1,19 @@
+flowchart TB
+    Start([Start]) --> Login[Authenticate donor]
+    Login --> Browse[Browse campaigns]
+    Browse --> Select[Select campaign]
+    Select --> EnterAmt[Enter donation amount]
+    EnterAmt --> InitPay[Initiate payment request]
+    InitPay --> Pending[Create pending donation record]
+    Pending --> Redirect[Redirect to SSLCommerz]
+    Redirect --> Gateway[Donor completes payment]
+    Gateway --> Callback{Payment callback status}
+
+    Callback -->|Success| Complete[Mark donation completed]
+    Callback -->|Fail or Cancel| Failed[Mark donation failed or cancelled]
+
+    Complete --> UpdateCampaign[Update campaign raised amount]
+    UpdateCampaign --> Receipt[Send confirmation and receipt]
+    Failed --> Notify[Show failure status to donor]
+    Receipt --> End([End])
+    Notify --> End

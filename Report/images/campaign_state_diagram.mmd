@@ -1,0 +1,15 @@
+stateDiagram-v2
+    [*] --> Draft
+    Draft --> PendingApproval: submit
+    PendingApproval --> Active: approved
+    PendingApproval --> Rejected: rejected
+    Active --> Completed: target achieved
+    Active --> Cancelled: cancelled by admin
+    Active --> Suspended: policy violation
+    Suspended --> Active: reinstated
+    Active --> Expired: end date reached
+    Completed --> Archived
+    Cancelled --> Archived
+    Rejected --> Archived
+    Expired --> Archived
+    Archived --> [*]

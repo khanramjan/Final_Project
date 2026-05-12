@@ -9,8 +9,8 @@ const ApiTest = () => {
     setResult('Testing...');
     
     try {
-      console.log('Making fetch request to http://localhost:5000/api/campaign/public');
-      const response = await fetch('http://localhost:5000/api/campaign/public');
+      console.log('Making fetch request to /api/campaign/public');
+      const response = await fetch('/api/campaign/public');
       console.log('Response status:', response.status);
       console.log('Response ok:', response.ok);
       

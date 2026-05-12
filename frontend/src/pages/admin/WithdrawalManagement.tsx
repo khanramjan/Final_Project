@@ -169,7 +169,7 @@ const WithdrawalManagement = () => {
 
     for (let attempt = 1; attempt <= 2; attempt += 1) {
       try {
-        const response = await fetch('http://localhost:5000/api/financial/dashboard', {
+        const response = await fetch('/api/financial/dashboard', {
           headers: getAuthHeaders(),
         });
 
@@ -216,8 +216,8 @@ const WithdrawalManagement = () => {
 
       const query = params.toString();
       const endpoint = query
-        ? `http://localhost:5000/api/financial/withdrawals?${query}`
-        : 'http://localhost:5000/api/financial/withdrawals';
+        ? `/api/financial/withdrawals?${query}`
+        : '/api/financial/withdrawals';
 
       const response = await fetch(endpoint, {
         headers: getAuthHeaders(),
@@ -292,7 +292,7 @@ const WithdrawalManagement = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:5000/api/financial/withdrawals', {
+      const response = await fetch('/api/financial/withdrawals', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -334,7 +334,7 @@ const WithdrawalManagement = () => {
 
     setActionLoadingId(withdrawal.id);
     try {
-      const response = await fetch(`http://localhost:5000/api/financial/withdrawals/${withdrawal.id}/approve`, {
+      const response = await fetch(`/api/financial/withdrawals/${withdrawal.id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -367,7 +367,7 @@ const WithdrawalManagement = () => {
   const handleCancel = async (withdrawal: Withdrawal) => {
     setActionLoadingId(withdrawal.id);
     try {
-      const response = await fetch(`http://localhost:5000/api/financial/withdrawals/${withdrawal.id}/cancel`, {
+      const response = await fetch(`/api/financial/withdrawals/${withdrawal.id}/cancel`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -411,7 +411,7 @@ const WithdrawalManagement = () => {
 
     setActionLoadingId(rejectTarget.id);
     try {
-      const response = await fetch(`http://localhost:5000/api/financial/withdrawals/${rejectTarget.id}/reject`, {
+      const response = await fetch(`/api/financial/withdrawals/${rejectTarget.id}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

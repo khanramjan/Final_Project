@@ -1,0 +1,47 @@
+flowchart TB
+    classDef ext fill:#f7f7f7,stroke:#4a5568,stroke-width:1px;
+    classDef proc fill:#e6fffa,stroke:#2c7a7b,stroke-width:1.2px;
+    classDef store fill:#ebf8ff,stroke:#2b6cb0,stroke-width:1.1px;
+
+    Donor[Donor]:::ext
+    Volunteer[Volunteer]:::ext
+    Admin[Admin]:::ext
+    Creator[Campaign Creator]:::ext
+    Gateway[SSLCommerz]:::ext
+
+    P1((1.0 Authentication and Authorization)):::proc
+    P2((2.0 Campaign Management)):::proc
+    P3((3.0 Donation and Payment Processing)):::proc
+    P4((4.0 Volunteer and Reporting)):::proc
+    P5((5.0 Analytics and ML Insights)):::proc
+
+    D1[(D1 Users)]:::store
+    D2[(D2 Campaigns)]:::store
+    D3[(D3 Donations and Transactions)]:::store
+    D4[(D4 Volunteer Reports)]:::store
+
+    Donor --> P1
+    Creator --> P1
+    Volunteer --> P1
+    Admin --> P1
+    P1 --> D1
+
+    Creator --> P2
+    Admin --> P2
+    P2 --> D2
+
+    Donor --> P3
+    P3 --> Gateway
+    Gateway --> P3
+    P3 --> D3
+    P3 --> D2
+
+    Volunteer --> P4
+    Admin --> P4
+    P4 --> D4
+    P4 --> D1
+
+    Admin --> P5
+    P5 --> D2
+    P5 --> D3
+    P5 --> D4

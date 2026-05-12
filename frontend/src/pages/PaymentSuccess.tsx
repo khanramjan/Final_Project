@@ -42,7 +42,7 @@ const PaymentSuccess = () => {
         const donationId = searchParams.get('donationId');
         
         if (donationId) {
-          const response = await fetch(`http://localhost:5000/api/payment/status/${donationId}`);
+          const response = await fetch(`/api/payment/status/${donationId}`);
           const data = await response.json();
           
           if (data.success) {

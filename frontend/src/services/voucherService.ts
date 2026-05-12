@@ -86,7 +86,7 @@ const voucherService = {
 
     // Use fetch directly for file upload (bypass api service to avoid JSON.stringify)
     const token = localStorage.getItem('token');
-    const response = await fetch('http://localhost:5000/api/voucher/submit', {
+    const response = await fetch('/api/voucher/submit', {
       method: 'POST',
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',
@@ -128,7 +128,7 @@ const voucherService = {
 
     // Use fetch directly for file upload
     const token = localStorage.getItem('token');
-    const response = await fetch(`http://localhost:5000/api/voucher/${id}/update-request`, {
+    const response = await fetch(`/api/voucher/${id}/update-request`, {
       method: 'PUT',
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',

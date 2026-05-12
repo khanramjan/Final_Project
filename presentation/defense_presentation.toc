@@ -1,0 +1,7 @@
+\beamer@sectionintoc {1}{Introduction}{3}{0}{1}
+\beamer@sectionintoc {2}{Problem Statement}{5}{0}{2}
+\beamer@sectionintoc {3}{Objectives}{7}{0}{3}
+\beamer@sectionintoc {4}{System Architecture \& Technologies}{9}{0}{4}
+\beamer@sectionintoc {5}{Key Features}{11}{0}{5}
+\beamer@sectionintoc {6}{Implementation Snapshot}{13}{0}{6}
+\beamer@sectionintoc {7}{Conclusion \& Future Work}{15}{0}{7}

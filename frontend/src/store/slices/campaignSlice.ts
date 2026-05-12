@@ -34,7 +34,7 @@ const initialState: CampaignState = {
 export const fetchCampaigns = createAsyncThunk(
   'campaigns/fetchCampaigns',
   async () => {
-    const response = await fetch('http://localhost:5000/api/campaign/public');
+    const response = await fetch('/api/campaign/public');
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`Failed to fetch campaigns: ${response.status} - ${errorText}`);

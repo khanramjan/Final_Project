@@ -80,7 +80,7 @@ const FinancialDashboard = () => {
 
   const fetchDashboard = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/financial/dashboard', {
+      const response = await fetch('/api/financial/dashboard', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -99,7 +99,7 @@ const FinancialDashboard = () => {
 
   const fetchCampaignDetails = async (campaignId: number) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/financial/campaign/${campaignId}`, {
+      const response = await fetch(`/api/financial/campaign/${campaignId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }

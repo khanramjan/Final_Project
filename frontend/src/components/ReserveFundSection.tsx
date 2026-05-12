@@ -24,7 +24,7 @@ const ReserveFundSection = () => {
 
   const fetchReserveFund = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/financial/reserve-fund/public');
+      const response = await fetch('/api/financial/reserve-fund/public');
       const data = await response.json();
       setReserveData(data);
     } catch (error) {

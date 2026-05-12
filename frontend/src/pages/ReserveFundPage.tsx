@@ -34,7 +34,7 @@ const ReserveFundPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/financial/reserve-fund/all?page=${p}&pageSize=${pageSize}`
+        `/api/financial/reserve-fund/all?page=${p}&pageSize=${pageSize}`
       );
       const json = await response.json();
       setData(json);

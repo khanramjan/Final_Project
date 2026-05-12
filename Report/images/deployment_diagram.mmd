@@ -1,0 +1,30 @@
+flowchart TB
+    classDef node fill:#edf2f7,stroke:#2d3748,stroke-width:1px;
+    classDef ext fill:#fffaf0,stroke:#c05621,stroke-width:1px;
+
+    subgraph Clients[Client Devices]
+      Browser[Web Browser\nDesktop and Mobile]:::node
+    end
+
+    subgraph FrontendHost[Frontend Hosting]
+      Frontend[Vite Build\nReact + TypeScript SPA]:::node
+    end
+
+    subgraph ApiHost[Application Server]
+      API[ASP.NET Core Web API]:::node
+      Static[Uploads Static Files]:::node
+    end
+
+    subgraph DataLayer[Data Layer]
+      SQL[(SQL Server\nEF Core Managed Schema)]:::node
+    end
+
+    Payment[[SSLCommerz]]:::ext
+    Notify[[Email/SMS Providers]]:::ext
+
+    Browser -->|HTTPS| Frontend
+    Frontend -->|REST/JSON over HTTPS| API
+    API --> Static
+    API -->|EF Core| SQL
+    API -->|payment requests and callbacks| Payment
+    API -->|OTP and notifications| Notify
