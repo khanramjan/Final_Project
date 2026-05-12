@@ -66,34 +66,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        var allowedOrigins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "http://localhost:5173",
-            "http://localhost:5174",
-            "http://localhost:5175",
-            "http://localhost:5176",
-            "http://localhost:3000"
-        };
-
-        var frontendUrl = builder.Configuration["AppSettings:FrontendUrl"];
-        if (!string.IsNullOrWhiteSpace(frontendUrl))
-        {
-            allowedOrigins.Add(frontendUrl);
-        }
-
-        var extraOrigins = builder.Configuration["AppSettings:FrontendOrigins"];
-        if (!string.IsNullOrWhiteSpace(extraOrigins))
-        {
-            foreach (var origin in extraOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            {
-                allowedOrigins.Add(origin);
-            }
-        }
-
-        policy.WithOrigins(allowedOrigins.ToArray())
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 
