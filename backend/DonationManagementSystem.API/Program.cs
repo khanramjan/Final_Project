@@ -130,10 +130,14 @@ app.UseCors("AllowFrontend");
 app.UseStaticFiles();
 
 // Serve static files from Uploads folder
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsPath),
     RequestPath = "/Uploads"
 });
 
