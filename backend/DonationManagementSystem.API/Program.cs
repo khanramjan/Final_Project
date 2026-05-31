@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
+using DonationManagementSystem.API;
 using DonationManagementSystem.API.Data;
 using DonationManagementSystem.API.Services;
 using DonationManagementSystem.API.Services.ML;
@@ -74,34 +76,69 @@ builder.Services.AddCors(options =>
     });
 });
 
+var runMigrationsOnStartup = builder.Configuration.GetValue("AppSettings:RunMigrationsOnStartup", true);
+var runSeederOnStartup = builder.Configuration.GetValue("AppSettings:RunSeederOnStartup", true);
+var slowRequestThresholdMs = builder.Configuration.GetValue("AppSettings:SlowRequestThresholdMs", 1500);
+
 var app = builder.Build();
 
 // Enable Swagger in all environments
 app.UseSwagger();
 app.UseSwaggerUI();
 
+if (slowRequestThresholdMs > 0)
+{
+    app.Use(async (context, next) =>
+    {
+        var timer = Stopwatch.StartNew();
+        await next();
+        if (timer.ElapsedMilliseconds >= slowRequestThresholdMs)
+        {
+            app.Logger.LogWarning(
+                "Slow request {Method} {Path} took {ElapsedMs}ms",
+                context.Request.Method,
+                context.Request.Path,
+                timer.ElapsedMilliseconds);
+        }
+    });
+}
+
 // Initialize database and seed data
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
+    if (runMigrationsOnStartup)
     {
-        await db.Database.MigrateAsync();
-        Console.WriteLine("✅ Database migrations applied successfully.");
+        try
+        {
+            await db.Database.MigrateAsync();
+            Console.WriteLine("✅ Database migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Database migration warning: {ex.Message}");
+        }
     }
-    catch (Exception ex)
+    else
     {
-        Console.WriteLine($"Database migration warning: {ex.Message}");
+        app.Logger.LogWarning("Skipping database migrations (RunMigrationsOnStartup=false)");
     }
 
     // Seed database with default admin and sample data
-    try
+    if (runSeederOnStartup)
     {
-        await DbSeeder.SeedAsync(db);
+        try
+        {
+            await DbSeeder.SeedAsync(db);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Seeding warning: {ex.Message}");
+        }
     }
-    catch (Exception ex)
+    else
     {
-        Console.WriteLine($"Seeding warning: {ex.Message}");
+        app.Logger.LogWarning("Skipping database seeding (RunSeederOnStartup=false)");
     }
 }
 
@@ -126,6 +163,9 @@ app.UseStaticFiles(new StaticFileOptions
 // Use Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Block write operations for demo accounts (must be after UseAuthentication so JWT claims are available)
+app.UseMiddleware<DemoAccountReadOnlyMiddleware>();
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));

@@ -41,6 +41,16 @@ const Login = () => {
     dispatch(login({ email, password }));
   };
 
+  const handleDemoLogin = (role: 'admin' | 'volunteer') => {
+    const credentials =
+      role === 'admin'
+        ? { email: 'demo.admin@donationmanagement.com', password: 'DemoAdmin@123!' }
+        : { email: 'demo.volunteer@donationmanagement.com', password: 'DemoVolunteer@123!' };
+    setEmail(credentials.email);
+    setPassword(credentials.password);
+    dispatch(login(credentials));
+  };
+
   return (
     <div className="min-h-screen bg-luxury-50">
       {/* Navigation */}
@@ -162,6 +172,84 @@ const Login = () => {
             >
               Don't have an account? Create one
             </Link>
+          </div>
+
+          {/* ── Demo Account Quick Access ─────────────────────────────── */}
+          <div style={{
+            borderTop: '1px solid #e5e7eb',
+            paddingTop: '1.25rem',
+            marginTop: '0.5rem'
+          }}>
+            <p style={{
+              textAlign: 'center',
+              fontSize: '0.75rem',
+              color: '#6b7280',
+              marginBottom: '0.75rem',
+              fontWeight: 500,
+              letterSpacing: '0.02em'
+            }}>
+              🔍 &nbsp;Explore without an account — demo mode
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                id="demo-admin-btn"
+                type="button"
+                onClick={() => handleDemoLogin('admin')}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1.5px solid #6366f1',
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  transition: 'opacity 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                }}
+              >
+                🛡️ Demo Admin
+              </button>
+              <button
+                id="demo-volunteer-btn"
+                type="button"
+                onClick={() => handleDemoLogin('volunteer')}
+                disabled={loading}
+                style={{
+                  flex: 1,
+                  padding: '0.6rem 0.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1.5px solid #10b981',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  color: '#fff',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.6 : 1,
+                  transition: 'opacity 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                }}
+              >
+                🤝 Demo Volunteer
+              </button>
+            </div>
+            <p style={{
+              textAlign: 'center',
+              fontSize: '0.7rem',
+              color: '#9ca3af',
+              marginTop: '0.6rem',
+            }}>
+              🔒 Read-only — no data will be modified
+            </p>
           </div>
         </form>
         </div>

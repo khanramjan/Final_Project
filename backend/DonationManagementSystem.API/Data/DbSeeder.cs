@@ -37,6 +37,9 @@ namespace DonationManagementSystem.API.Data
                 // Create missing VolunteerProfile records for volunteer users who don't have profiles yet
                 await CreateMissingVolunteerProfiles(context);
 
+                // Seed demo accounts (read-only showcase accounts)
+                await SeedDemoAccountsAsync(context);
+
                 // Seed sample data if database is empty
                 await SeedSampleData(context);
             }
@@ -540,6 +543,98 @@ namespace DonationManagementSystem.API.Data
             context.VolunteerProfiles.AddRange(volunteerProfiles);
             await context.SaveChangesAsync();
             Console.WriteLine($"✅ Created {volunteerProfiles.Count} volunteer profiles for recommendations");
+        }
+
+        private static async Task SeedDemoAccountsAsync(AppDbContext context)
+        {
+            // ── Demo Admin ──────────────────────────────────────────────────────
+            const string demoAdminEmail = "demo.admin@donationmanagement.com";
+            if (!await context.Users.AnyAsync(u => u.Email == demoAdminEmail))
+            {
+                var demoAdmin = new User
+                {
+                    UserType = "admin",
+                    FirstName = "Demo",
+                    LastName = "Admin",
+                    Email = demoAdminEmail,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("DemoAdmin@123!"),
+                    Phone = "0000000001",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Users.Add(demoAdmin);
+                await context.SaveChangesAsync();
+
+                Console.WriteLine("✅ Demo admin account created:");
+                Console.WriteLine("   📧 Email: demo.admin@donationmanagement.com");
+                Console.WriteLine("   🔑 Password: DemoAdmin@123!");
+                Console.WriteLine("   🔒 Read-only (all write operations blocked)");
+            }
+            else
+            {
+                Console.WriteLine("✅ Demo admin account already exists, skipping");
+            }
+
+            // ── Demo Volunteer ──────────────────────────────────────────────────
+            const string demoVolunteerEmail = "demo.volunteer@donationmanagement.com";
+            if (!await context.Users.AnyAsync(u => u.Email == demoVolunteerEmail))
+            {
+                var demoVolunteer = new User
+                {
+                    UserType = "volunteer",
+                    FirstName = "Demo",
+                    LastName = "Volunteer",
+                    Email = demoVolunteerEmail,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("DemoVolunteer@123!"),
+                    Phone = "0000000002",
+                    IsActive = true,
+                    IsEmailVerified = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Users.Add(demoVolunteer);
+                await context.SaveChangesAsync();
+
+                // Create a fully approved volunteer profile so the account can log in immediately
+                var demoVolunteerProfile = new VolunteerProfile
+                {
+                    UserId = demoVolunteer.Id,
+                    Rank = "gold",
+                    Status = "active",
+                    IsVerified = true,
+                    IsApprovedByAdmin = true,
+                    AdminApprovalStatus = "approved",
+                    AcceptEmailNotifications = true,
+                    AcceptSmsNotifications = false,
+                    ExperienceLevel = "advanced",
+                    Skills = "[\"teaching\", \"healthcare\", \"community\"]",
+                    Interests = "[\"education\", \"health\", \"environment\"]",
+                    AvailableDays = "[\"Monday\", \"Wednesday\", \"Friday\", \"Saturday\"]",
+                    HoursPerWeek = 10,
+                    TotalHoursVolunteered = 320,
+                    TotalRatings = 18,
+                    Rating = 4.6m,
+                    Location = "Dhaka",
+                    IsProfilePublic = true,
+                    EmergencyContactName = "Demo Contact",
+                    EmergencyContactPhone = "0000000003",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.VolunteerProfiles.Add(demoVolunteerProfile);
+                await context.SaveChangesAsync();
+
+                Console.WriteLine("✅ Demo volunteer account created:");
+                Console.WriteLine("   📧 Email: demo.volunteer@donationmanagement.com");
+                Console.WriteLine("   🔑 Password: DemoVolunteer@123!");
+                Console.WriteLine("   🔒 Read-only (all write operations blocked)");
+            }
+            else
+            {
+                Console.WriteLine("✅ Demo volunteer account already exists, skipping");
+            }
         }
     }
 }

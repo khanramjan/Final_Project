@@ -22,6 +22,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { logout } from '../store/slices/authSlice';
 import volunteerService from '../services/volunteerService';
 import VolunteerNotificationPopup from './VolunteerNotificationPopup';
+import DemoBanner from './DemoBanner';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -198,6 +199,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
         {/* Main content area */}
         <main className="flex-1 overflow-auto p-6">
+          <DemoBanner />
           {children}
         </main>
       </div>

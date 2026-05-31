@@ -20,6 +20,7 @@ import {
   ChatBubbleBottomCenterTextIcon
 } from '@heroicons/react/24/outline';
 import NotificationSystem from './NotificationSystem';
+import DemoBanner from './DemoBanner';
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -151,6 +152,7 @@ const AdminLayout = () => {
 
         {/* Page content */}
         <main className="flex-1">
+          <DemoBanner />
           <Outlet />
         </main>
       </div>
