@@ -9,9 +9,6 @@ namespace DonationManagementSystem.API.Data
         {
             try
             {
-                // Ensure database is created
-                await context.Database.EnsureCreatedAsync();
-
                 // Check if default admin exists
                 if (!await context.Users.AnyAsync(u => u.UserType == "admin"))
                 {

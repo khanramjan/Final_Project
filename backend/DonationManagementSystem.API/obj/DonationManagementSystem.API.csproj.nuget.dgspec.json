@@ -64,10 +64,6 @@
               "target": "Package",
               "version": "[9.0.8, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.8, )"
-            },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -81,6 +77,10 @@
             "Microsoft.ML.TimeSeries": {
               "target": "Package",
               "version": "[3.0.1, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.4, )"
             },
             "RestSharp": {
               "target": "Package",

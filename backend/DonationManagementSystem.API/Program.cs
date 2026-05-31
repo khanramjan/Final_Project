@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 // Add database context
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -74,17 +76,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Enable Swagger in all environments
+app.UseSwagger();
+app.UseSwaggerUI();
+
 // Initialize database and seed data
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        db.Database.EnsureCreated();
+        await db.Database.MigrateAsync();
+        Console.WriteLine("✅ Database migrations applied successfully.");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Database initialization warning: {ex.Message}");
+        Console.WriteLine($"Database migration warning: {ex.Message}");
     }
 
     // Seed database with default admin and sample data
@@ -121,5 +128,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
